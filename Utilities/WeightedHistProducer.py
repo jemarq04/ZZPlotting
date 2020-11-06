@@ -52,7 +52,9 @@ class WeightedHistProducer(HistProducer):
             # Returns num bins + overflow + underflow
             num_bins = hist.GetSize() - 2
             add_overflow = hist.GetBinContent(num_bins) + hist.GetBinContent(num_bins + 1)
+            add_error = math.sqrt(math.pow(hist.GetBinError(num_bins),2)+math.pow(hist.GetBinError(num_bins+1),2))
             hist.SetBinContent(num_bins, add_overflow)
+            hist.SetBinError(num_bins, add_error)
         return hist
 # For testing
 def main():

@@ -1,6 +1,7 @@
 import ROOT
 from HistProducer import HistProducer
 import logging,pdb
+import math
 from IPython import embed
 
 class FromFileHistProducer(HistProducer):

@@ -249,7 +249,7 @@ def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=
                 ROOT.SetOwnership(sumweights_hist, False)
                 weight_info = WeightInfo.WeightInfo(
                         mc_info[base_name]['cross_section']*kfac,
-                        sumweights_hist.Integral() if sumweights_hist else 0
+                        sumweights_hist.Integral(0,sumweights_hist.GetNbinsX()+1) if sumweights_hist else 0
                 )
                 #pdb.set_trace()
         else:

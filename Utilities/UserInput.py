@@ -24,6 +24,8 @@ def getDefaultParser():
                         "Note: Leave unspecified for auto naming")
     parser.add_argument("--hist_file", type=str, default="",
                         help="Read histograms from file")
+    parser.add_argument("--stat_file", type=str, default="",
+                        help="Read histograms from file")
     parser.add_argument("--rebin", type=lambda x: [float(i) for i in x.split(",")], default=0,
                         help="Rebin (integer)")
     parser.add_argument("--legend_left", action="store_true",
