@@ -5,7 +5,7 @@ from Utilities.WeightedHistProducer import WeightedHistProducer
 from Utilities.FromFileHistProducer import FromFileHistProducer
 from Utilities.ConfigHistFactory import ConfigHistFactory 
 from collections import OrderedDict
-import os
+import os,sys
 import subprocess
 import glob
 import logging
@@ -15,6 +15,7 @@ import errno
 import math
 import array
 from IPython import embed
+import pdb
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -66,7 +67,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     legend.Draw()
 
     if not args.no_decorations:
-        ROOT.dotrootImport('uhussain/CMSPlotDecorations')
+        ROOT.dotrootImport('hhe62/CMSPlotDecorations')
         scale_label = "Normalized to Unity" if args.luminosity < 0 else \
             "%0.1f fb^{-1}" % args.luminosity
         
@@ -100,6 +101,8 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         ROOT.SetOwnership(text_box, False)
     if args.logy:
         canvas.SetLogy()
+    if args.logx:
+        canvas.SetLogx()
     if not args.no_ratio:
         canvas = plotter.splitCanvas(canvas, canvas_dimensions,
                 "#scale[0.85]{Data / Pred.}" if data_hists[0] else args.ratio_text,
@@ -227,6 +230,7 @@ def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=
         else:
             hist_factory[name] = dict(all_files[name])
         if "data" not in name.lower() and name != "nonprompt":
+            #pdb.set_trace()
             kfac = 1. if 'kfactor' not in mc_info[base_name].keys() else mc_info[base_name]['kfactor']
             if not hist_file:
                 metaTree = ROOT.TChain(metaTree_name)
@@ -247,6 +251,7 @@ def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=
                         mc_info[base_name]['cross_section']*kfac,
                         sumweights_hist.Integral() if sumweights_hist else 0
                 )
+                #pdb.set_trace()
         else:
             weight_info = WeightInfo.WeightInfo(1, 1)
             weight_branch = ""
@@ -301,6 +306,7 @@ def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, st
                 args = [draw_expr, proof_name, addOverflow, rebin]
             
             try:
+                #pdb.set_trace()
                 state_hist = producer.produce(*args)
             except ValueError as error:
                 logging.warning(error)
@@ -334,6 +340,14 @@ def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, st
         raise ValueError("Invalid histogram %s for selection %s" % (branch_name, selection))
     if removeNegatives and "data" not in name:
         removeZeros(hist)
+    #pdb.set_trace()
+
+    #myoutputFile=ROOT.TFile(hist_name+".root","RECREATE")
+    #myoutputFile.cd()
+    #hist.Write()
+    #myoutputFile.Close()
+    #print("File written")
+    #sys.exit()
     return hist
 
 def getConfigHistFromFile(filename, config_factory, plot_group, selection, branch_name, channels,
@@ -358,11 +372,13 @@ def getConfigHistFromFile(filename, config_factory, plot_group, selection, branc
 
     hist_file = ROOT.TFile(filename)
     ROOT.SetOwnership(hist_file, False)
+    
     hist_factory = getHistFactory(config_factory, selection, filelist, luminosity, hist_file)
 
     bin_info = config_factory.getHistBinInfo(branch_name)
     states = channels.split(",")
     #print "OVERFLOW?", addOverflow
+    #pdb.set_trace()
     hist = getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, states, uncertainties, addOverflow, rebin)
     config_factory.setHistAttributes(hist, branch_name, plot_group)
 
@@ -491,10 +507,10 @@ def getScaleFactorExpressionAllTight(state):
 def getPlotPaths(selection, folder_name, write_log_file=False):
     if "hep.wisc.edu" in os.environ['HOSTNAME']:
         storage_area = "/nfs_scratch/uhussain"
-        html_area = "/afs/hep.wisc.edu/home/uhussain/public_html"
+        html_area = "/afs/hep.wisc.edu/home/hhe62/public_html"
     else:
-        storage_area = "/eos/user/u/%s" % os.environ["USER"]
-        html_area = "/afs/cern.ch/user/u/%s/www" % os.environ["USER"]
+        storage_area = "/afs/cern.ch/user/h/%s" % os.environ["USER"]
+        html_area = "/afs/cern.ch/user/h/%s/www" % os.environ["USER"]
     base_dir = "%s/ZZAnalysisData/PlottingResults" % storage_area
     plot_path = "/".join([base_dir, selection] +
        (['{:%Y-%m-%d}'.format(datetime.datetime.today()),
@@ -540,7 +556,7 @@ def savePlot(canvas, plot_path, html_path, branch_name, write_log_file, args):
         output_name ="/".join([html_path, "plots", branch_name])
         canvas.Print(output_name + ".png")
         canvas.Print(output_name + ".eps")
-        subprocess.call(["epstopdf", "--outfile=%s" % output_name+".pdf", output_name+".eps"])
+        subprocess.call(["epstopdf", "--outfile=%s" % output_name+".pdf", output_name+".eps"],env={})
         os.remove(output_name+".eps")
         if write_log_file:
             makeDirectory(html_path + "/logs")

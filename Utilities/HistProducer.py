@@ -1,7 +1,7 @@
 import ROOT
 import WeightInfo
 import abc
-import array
+import array,pdb
 
 class HistProducer(object):
     __metaclass__ = abc.ABCMeta
@@ -15,6 +15,10 @@ class HistProducer(object):
             return 1
         if self.weight_info.getSumOfWeights() <= 0:
             raise ValueError("Found non-positive sum of weights")
+        #pdb.set_trace()
+        #if abs(self.weight_info.getCrossSection()-0.00584*1.53)<0.000001:
+        #    return self.weight_info.getCrossSection()*self.lumi/(6216.00740357+6798.63211242+6798.8828435)
+        #else:
         return self.weight_info.getCrossSection()*self.lumi/self.weight_info.getSumOfWeights()
                         
     def getCrossSection(self):

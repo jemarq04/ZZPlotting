@@ -79,6 +79,8 @@ def getDefaultParser():
                         help="Don't add CMS plot decorations")
     parser.add_argument("--logy", action='store_true',
                         help="Use logaritmic scale on Y-axis")
+    parser.add_argument("--logx", action='store_true',
+                        help="Use logaritmic scale on X-axis")
     parser.add_argument("-c", "--channels", type=str, default="eeee,eemm,mmee,mmmm",
                         help="List (separate by commas) of channels to plot") 
     parser.add_argument("--no_scalefactors", action='store_true',
@@ -100,10 +102,11 @@ def getListOfFiles(file_set, selection):
         if "zz4l2018" in fileset_nc:
             if "nonprompt" in fileset_nc:
                 filelist.append("HZZ-signal")
-                filelist.append("VVV")
                 filelist.append("nonprompt")
-                filelist.append("ggZZ")
+                filelist.append("VVV")
                 filelist.append("qqZZ-powheg")
+                filelist.append("ggZZ")
+                filelist.append("zzjj4l-ewk")
             else:
                 if "dyjets-nlo" in fileset_nc:
                     drellyan = "dyjets_nlo"
@@ -145,6 +148,19 @@ def getListOfFiles(file_set, selection):
             #if "nonprompt" in fileset_nc:
             #    filelist.append("HZZ-signal")
             #    #filelist.append("nonprompt")
+        elif "jetplot" in fileset_nc:
+                filelist.append("nonprompt")
+                filelist.append("VVV")
+                filelist.append("qqZZ-amcnlo")
+                #filelist.append("ggZZSpecg")
+                #filelist.append("ggZZSpecgH")
+                #filelist.append("qqZZ-powheg")
+                filelist.append("HZZ-signal")
+                #filelist.append("ggHZZ-only")
+                filelist.append("ggZZ")
+                filelist.append("zzjj4l-ewk")
+                #filelist.append("EWK-Extra4lg")
+                #filelist.append("EWK-Extra2e2mujjg")
         else:
             filelist.append(files)
     return filelist

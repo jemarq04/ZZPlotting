@@ -15,6 +15,7 @@ import datetime
 from Utilities.scripts import makeSimpleHtml
 from IPython import embed
 import logging
+import pdb
 
 def getComLineArgs():
     parser = UserInput.getDefaultParser()
@@ -86,6 +87,7 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
     hist_info = {}
     print "Plot_set in filelist"
     for plot_set in filelist:
+        #pdb.set_trace()
         print plot_set
         if hist_file == "":
             hist = helper.getConfigHistFromTree(config_factory, plot_set, selection,  
@@ -94,13 +96,16 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
         else:
             hist = helper.getConfigHistFromFile(hist_file, config_factory, plot_set, 
                         selection, branch_name, channels, luminosity, addOverflow=addOverflow, rebin=rebin)
+            print "hists",hist
         if luminosity < 0:
             hist.Scale(1/hist.Integral())
         raw_events = hist.GetEntries() - 1
         hist_stack.Add(hist)
         error = array.array('d', [0])
-        weighted_events = hist.IntegralAndError(0, hist.GetNbinsX(), error)
+        #pdb.set_trace()
+        weighted_events = hist.IntegralAndError(1, hist.GetNbinsX(), error)
         if not hist.GetSumw2(): hist.Sumw2()
+        #pdb.set_trace()
         hist_info[plot_set] = {'raw_events' : raw_events, 
                                'weighted_events' : weighted_events,
                                'error' : 0 if int(raw_events) <= 0 else error[0],
@@ -108,8 +113,10 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
                                     weighted_events/math.sqrt(raw_events) 
         }
     writeMCLogInfo(hist_info, selection, branch_name, luminosity, cut_string, latex)
+ 
     return hist_stack
 def main():
+    #pdb.set_trace()
     args = getComLineArgs()
     ROOT.gROOT.SetBatch(True)
     ROOT.gStyle.SetOptDate(0)
@@ -118,15 +125,17 @@ def main():
     filelist = UserInput.getListOfFiles(args.files_to_plot, args.selection)
     print filelist
     path = "/cms/uhussain" if "hep.wisc.edu" in os.environ['HOSTNAME'] else \
-        "/afs/cern.ch/user/u/uhussain/work"
+        "/afs/cern.ch/user/h/hehe/new_ZZ_test_Sep9/CMSSW_10_3_1/src/Data_manager"
     config_factory = ConfigHistFactory(
-        "%s/ZZ4lAnalysisDatasetManager" % path,
+        "%s/ZZ4lRun2DatasetManager" % path,
         args.selection.split("_")[0],
         args.object_restrict
     )
-    print args.rebin
+    #print args.selection, args.selection.split("_")[0]
+    #print args.rebin
     branches = config_factory.getListOfPlotObjects() if args.branches == "all" \
             else [x.strip() for x in args.branches.split(",")]
+    print branches
     cut_string = args.make_cut
     (plot_path, html_path) = helper.getPlotPaths(args.selection, args.folder_name, True)
     meta_info = '-'*80 + '\n' + \
@@ -145,6 +154,7 @@ def main():
                 mc_file.write("\nLuminosity: %0.2f fb^{-1}" % (args.luminosity))
                 mc_file.write("\nPlotting branch: %s\n" % branch_name)
             try:
+                #pdb.set_trace()
                 hist_stack = getStacked("stack_"+branch_name, config_factory, args.selection, filelist, 
                         branch_name, args.channels, args.blinding, not args.no_overflow, args.latex, cut_string,
                         args.luminosity, args.rebin, args.uncertainties, args.hist_file)
@@ -152,6 +162,7 @@ def main():
                 logging.warning('\033[91m'+ str(e)+'\033[0m')
                 continue
             if not args.no_data:
+                #pdb.set_trace()
                 if args.hist_file == "":
                     #data_hist = helper.getConfigHistFromTree(config_factory, "data_all", args.selection, 
                     data_hist = helper.getConfigHistFromTree(config_factory, "data_all", args.selection, 
@@ -185,4 +196,5 @@ def main():
         makeSimpleHtml.writeHTML(html_path.replace("/plots",""), args.selection)
 
 if __name__ == "__main__":
+    
     main()
