@@ -153,10 +153,10 @@ def getListOfFiles(file_set, selection):
         elif "jetplot" in fileset_nc:
                 filelist.append("nonprompt")
                 filelist.append("VVV")
-                filelist.append("qqZZ-amcnlo")
+                #filelist.append("qqZZ-amcnlo")
                 #filelist.append("ggZZSpecg")
                 #filelist.append("ggZZSpecgH")
-                #filelist.append("qqZZ-powheg")
+                filelist.append("qqZZ-powheg")
                 filelist.append("HZZ-signal")
                 #filelist.append("ggHZZ-only")
                 filelist.append("ggZZ")
