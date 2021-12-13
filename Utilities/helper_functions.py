@@ -54,6 +54,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
             if signal_stack:
                 signal_stack.Draw("nostack same hist")
             if not args.no_data:
+                #pdb.set_trace()
                 data_hist.Draw("e0 same")
             error_title = "Stat. unc."
             if "all" in args.uncertainties:
@@ -101,13 +102,15 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         ROOT.SetOwnership(text_box, False)
     if args.logy:
         canvas.SetLogy()
-    if args.logx:
-        canvas.SetLogx()
     if not args.no_ratio:
+        #pdb.set_trace()
         canvas = plotter.splitCanvas(canvas, canvas_dimensions,
                 "#scale[0.85]{Data / Pred.}" if data_hists[0] else args.ratio_text,
                 [float(i) for i in args.ratio_range]
         )
+    
+    #canvas.SetLogx()
+
     return canvas
 def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
     canvas = ROOT.gROOT.FindObject("%s_canvas" % name)
@@ -137,6 +140,7 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
         signal_stack.GetHistogram().GetXaxis().SetTitle(
             hists[0].GetXaxis().GetTitle())
     #first_stack = signal_stack if stack_signal else hist_stack
+    #pdb.set_trace()
     if data_hist:
         if not "yield" in name.lower():
             data_hist.Sumw2(False)
@@ -342,12 +346,12 @@ def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, st
         removeZeros(hist)
     #pdb.set_trace()
 
-    #myoutputFile=ROOT.TFile(hist_name+".root","RECREATE")
-    #myoutputFile.cd()
-    #hist.Write()
-    #myoutputFile.Close()
-    #print("File written")
-    #sys.exit()
+    myoutputFile=ROOT.TFile(hist_name+".root","RECREATE")
+    myoutputFile.cd()
+    hist.Write()
+    myoutputFile.Close()
+    print("File written")
+    sys.exit()
     return hist
 
 def getConfigHistFromFile(filename, config_factory, plot_group, selection, branch_name, channels,
@@ -556,6 +560,7 @@ def savePlot(canvas, plot_path, html_path, branch_name, write_log_file, args):
         output_name ="/".join([html_path, "plots", branch_name])
         canvas.Print(output_name + ".png")
         canvas.Print(output_name + ".eps")
+        #canvas.Print(output_name + ".pdf")
         subprocess.call(["epstopdf", "--outfile=%s" % output_name+".pdf", output_name+".eps"],env={})
         os.remove(output_name+".eps")
         if write_log_file:

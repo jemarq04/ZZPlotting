@@ -71,10 +71,13 @@ def splitCanvas(oldcanvas, dimensions, ratio_text, ratio_range):
     name = oldcanvas.GetName()
     canvas = ROOT.TCanvas(name+'__new', name, *dimensions)
     ratioPad = ROOT.TPad('ratioPad', 'ratioPad', 0., 0., 1., .3)
+    #ratioPad.SetLogx()
     ratioPad.Draw()
     stackPad = ROOT.TPad('stackPad', 'stackPad', 0., 0.3, 1., 1.)
+    #stackPad.SetLogx()
     stackPad.Draw()
     stackPad.cd()
+    #oldcanvas.SetLogx()
     oldcanvas.DrawClonePad()
     del oldcanvas
     oldBottomMargin = stackPad.GetBottomMargin()

@@ -32,5 +32,6 @@ class FromFileHistProducer(HistProducer):
             add_error = math.sqrt(math.pow(hist.GetBinError(num_bins),2)+math.pow(hist.GetBinError(num_bins+1),2))
             hist.SetBinContent(num_bins, add_overflow)
             hist.SetBinError(num_bins, add_error)
+        
         return hist
 

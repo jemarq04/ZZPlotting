@@ -15,7 +15,7 @@ import datetime
 from Utilities.scripts import makeSimpleHtml
 from IPython import embed
 import logging
-import pdb
+import pdb,json
 
 def getComLineArgs():
     parser = UserInput.getDefaultParser()
@@ -118,6 +118,12 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
 def main():
     #pdb.set_trace()
     args = getComLineArgs()
+    with open('varsFile.json') as var_json_file:
+        myvar_dict = json.load(var_json_file)
+    for key in myvar_dict.keys():
+        if args.branches==str(key):
+            args.rebin = myvar_dict[key]['_binning']
+            
     ROOT.gROOT.SetBatch(True)
     ROOT.gStyle.SetOptDate(0)
     if args.hist_file == "":
