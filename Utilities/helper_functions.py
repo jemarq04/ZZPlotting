@@ -346,12 +346,12 @@ def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, st
         removeZeros(hist)
     #pdb.set_trace()
 
-    myoutputFile=ROOT.TFile(hist_name+".root","RECREATE")
-    myoutputFile.cd()
-    hist.Write()
-    myoutputFile.Close()
-    print("File written")
-    sys.exit()
+    #myoutputFile=ROOT.TFile(hist_name+".root","RECREATE")
+    #myoutputFile.cd()
+    #hist.Write()
+    #myoutputFile.Close()
+    #print("File written")
+    #sys.exit()
     return hist
 
 def getConfigHistFromFile(filename, config_factory, plot_group, selection, branch_name, channels,

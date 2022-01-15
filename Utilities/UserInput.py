@@ -152,15 +152,15 @@ def getListOfFiles(file_set, selection):
             #    #filelist.append("nonprompt")
         elif "jetplot" in fileset_nc:
                 #print("Data only")
-                #filelist.append("nonprompt")
-                #filelist.append("VVV")
+                filelist.append("nonprompt")
+                filelist.append("VVV")
                 #filelist.append("ggZZSpecg")
                 #filelist.append("ggZZSpecgH")
-                #filelist.append("zzjj4l-ewk") #EWK
-                #filelist.append("ggZZ")
-                filelist.append("qqZZSpecg")
+                filelist.append("zzjj4l-ewk") #EWK
+                filelist.append("ggZZ")
+                #filelist.append("qqZZSpecg")
                 #filelist.append("qqZZ-amcnlo")
-                #filelist.append("qqZZ-powheg")
+                filelist.append("qqZZ-powheg")
                 #filelist.append("HZZ-signal")
                 #filelist.append("ggHZZ-only")
                 #filelist.append("ggZZ")
