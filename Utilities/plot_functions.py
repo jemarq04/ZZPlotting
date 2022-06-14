@@ -240,3 +240,151 @@ def setErrorsStyle(histErrors):
     histErrors.SetFillStyle(3345)
     histErrors.SetFillColor(ROOT.TColor.GetColor("#a8a8a8"))
     histErrors.SetLineColor(ROOT.TColor.GetColor("#a8a8a8"))
+
+
+def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range):
+    stacks = filter(lambda p: type(p) is ROOT.THStack and "signal" not in p.GetName(), oldcanvas.GetListOfPrimitives())
+    signal_stacks = filter(lambda p: type(p) is ROOT.THStack and "signal" in p.GetName(), oldcanvas.GetListOfPrimitives())
+    data_list = filter(lambda p: type(p) is ROOT.TH1D and 'data' in p.GetName().lower(), oldcanvas.GetListOfPrimitives())
+    compareData = True
+    stack_hists = [i for s in stacks for i in s.GetHists()]
+    signal_hists = [i for s in signal_stacks for i in s.GetHists()]
+    if len(data_list) == 0:
+        compareData = False
+    elif len(stack_hists) < 2:
+        print "Can't form ratio from < 2 histograms"
+        return oldcanvas
+    name = oldcanvas.GetName()
+    canvas = ROOT.TCanvas(name+'__new', name, *dimensions)
+    ratioPad = ROOT.TPad('ratioPad', 'ratioPad', 0., 0., 1., .3)
+    #ratioPad.SetLogx()
+    ratioPad.Draw()
+    stackPad = ROOT.TPad('stackPad', 'stackPad', 0., 0.3, 1., 1.)
+    #stackPad.SetLogx()
+    stackPad.Draw()
+    stackPad.cd()
+    #oldcanvas.SetLogx()
+    oldcanvas.DrawClonePad()
+    del oldcanvas
+    oldBottomMargin = stackPad.GetBottomMargin()
+    stackPad.SetBottomMargin(0.)
+    stackPad.SetTopMargin(stackPad.GetTopMargin()/0.7)
+    canvas.SetName(name)
+    ratioPad.cd()
+    ratioPad.SetBottomMargin(oldBottomMargin/.3)
+    #ratioPad.SetTopMargin(0.03)
+    ratioPad.SetTopMargin(0.05)
+    ratioHists = data_list if compareData else (stack_hists+signal_hists)[1:]
+    ratioHists = [h.Clone(h.GetName()+"_ratioHist") for h in ratioHists]
+    centralRatioHist = stack_hists[0].Clone(name+'_central_ratioHist')
+    if compareData:
+        errors = 0
+        for primitive in stackPad.GetListOfPrimitives():
+            if "errors" in primitive.GetName() and primitive.InheritsFrom("TH1"):
+                errors = primitive
+        if errors:
+            centralRatioHist = errors.Clone(centralRatioHist.GetName())
+        elif len(stack_hists) > 1:
+            map(centralRatioHist.Add, stack_hists[1:])
+    centralHist = centralRatioHist.Clone("temp")
+    centralRatioHist.SetFillColor(ROOT.TColor.GetColor("#828282"))
+    #centralRatioHist.SetFillStyle(1001)
+    centralRatioHist.SetFillStyle(3345)
+    centralRatioHist.SetFillColorAlpha(0,0.0)
+    centralRatioHist.SetMarkerSize(0)
+    if compareData:
+        ratioHist = ratioHists[0]
+        tmpData = ratioHist.Clone("tmp")
+        ratioHist.Divide(centralHist)
+        ratioGraph = ROOT.TGraphAsymmErrors(ratioHist)
+        ratioHists = [ratioGraph]
+        for i in range(1, tmpData.GetNbinsX()+2):
+            if centralRatioHist.GetBinContent(i) == 0: 
+                continue
+            errorUp = (tmpData.GetBinContent(i)+tmpData.GetBinErrorUp(i))/centralRatioHist.GetBinContent(i)
+            errorUp -= ratioHist.GetBinContent(i) 
+            errorDown = (tmpData.GetBinContent(i)-tmpData.GetBinErrorLow(i))/centralRatioHist.GetBinContent(i)
+            errorDown = ratioHist.GetBinContent(i) - errorDown
+            ratioGraph.SetPointEYhigh(i-1, errorUp)
+            ratioGraph.SetPointEYlow(i-1, errorDown)
+    else:
+        for ratioHist in ratioHists:
+            tmpRatio = ratioHist.Clone("tempRatio")
+            ratioHist.Divide(centralHist)
+            for i in range(ratioHist.GetNbinsX()+2):
+                denom = tmpRatio.GetBinContent(i)
+                if denom == 0: continue
+                ratioHist.SetBinError(i, tmpRatio.GetBinError(i)/denom)
+            ratioHist.Sumw2()
+            del tmpRatio
+    for i in range(centralRatioHist.GetNbinsX()+2):
+        denom = centralHist.GetBinContent(i)
+        if denom == 0: continue
+        centralRatioHist.SetBinError(i, centralHist.GetBinError(i)/denom)
+        centralRatioHist.SetBinContent(i, 1.)
+    stack_hists[0].GetXaxis().Copy(centralRatioHist.GetXaxis())
+    stack_hists[0].GetXaxis().Copy(centralRatioHist.GetXaxis())
+    if len(signal_stacks) > 0:
+        signal_stacks[0].GetXaxis().Copy(centralRatioHist.GetXaxis())
+        signal_stacks[0].GetXaxis().Copy(centralRatioHist.GetXaxis())
+    centralRatioHist.GetYaxis().SetTitle(ratio_text)
+    centralRatioHist.GetXaxis().SetLabelOffset(0.03)
+    centralRatioHist.GetYaxis().CenterTitle()
+    centralRatioHist.GetYaxis().SetRangeUser(*ratio_range)
+    centralRatioHist.GetYaxis().SetNdivisions(003)
+    centralRatioHist.GetYaxis().SetTitleSize(centralRatioHist.GetYaxis().GetTitleSize()*0.8)
+    centralRatioHist.GetYaxis().SetLabelSize(centralRatioHist.GetYaxis().GetLabelSize()*0.8)
+    centralRatioHist.Draw("E2")
+    #ratioband.GetYaxis().SetTitle(ratio_text)
+    #ratioband.GetXaxis().SetLabelOffset(0.03)
+    #ratioband.GetYaxis().CenterTitle()
+    #ratioband.GetYaxis().SetRangeUser(*ratio_range)
+    #ratioband.GetYaxis().SetNdivisions(003)
+    #ratioband.GetYaxis().SetTitleSize(ratioband.GetYaxis().GetTitleSize()*0.8)
+    #ratioband.GetYaxis().SetLabelSize(ratioband.GetYaxis().GetLabelSize()*0.8)
+    ratioband.Draw("2")
+
+    #centralRatioHist.Draw()
+    for ratioHist in ratioHists:
+        drawOpt = "same"
+        if not compareData:
+            ratioHist.SetMarkerSize(0)
+            ratioHist.SetMarkerColor(ratioHist.GetLineColor())
+            ratioHist.SetFillColor(ratioHist.GetLineColor())
+            ratioHist.SetLineStyle(1)
+            #drawOpt += " E2"
+            #drawOpt += " hist"
+        else:
+            drawOpt += " PZE0"
+        ratioHist.Draw(drawOpt)
+    stacks = filter(lambda p: type(p) is ROOT.THStack, stackPad.GetListOfPrimitives())
+    for stack in stacks:
+        stack.GetXaxis().SetTitle("")
+        stack.GetXaxis().SetLabelOffset(999)
+    xaxis = centralRatioHist.GetXaxis()
+    line = ROOT.TLine(xaxis.GetBinLowEdge(xaxis.GetFirst()), 1, xaxis.GetBinUpEdge(xaxis.GetLast()), 1)
+    #line = ROOT.TLine(xaxis.GetBinLowEdge(4), 1, xaxis.GetBinUpEdge(26), 1)
+    line.SetLineStyle(ROOT.kDotted)
+    line.Draw()
+    recursePrimitives(stackPad, fixFontSize, 1/0.7)
+    stackPad.Modified()
+    isLong = stackPad.GetWw()/stackPad.GetWh() > 1.1
+    recursePrimitives(ratioPad, fixFontSize, 1/0.27, 0.85 if isLong else 1.15)
+    yaxis_ratio = centralRatioHist.GetYaxis()
+    #yaxis_ratio.SetTitleOffset(.3) 
+    if "unrolled" in name:
+        xaxis.SetLabelSize(0.172)
+        xaxis.SetLabelOffset(0.027)
+        xaxis.SetTitleOffset(1.07)
+    ratioPad.Modified()
+    canvas.Update()
+    ROOT.SetOwnership(stackPad, False)
+    # stackPad already owns primitives
+    ROOT.SetOwnership(ratioPad, False)
+    for obj in ratioPad.GetListOfPrimitives():
+        ROOT.SetOwnership(obj, False)
+    ratioPad.GetListOfPrimitives().SetOwner(True)
+    ratioPad.RedrawAxis()
+    canvas.cd()
+    canvas.GetListOfPrimitives().SetOwner(True)
+    return canvas

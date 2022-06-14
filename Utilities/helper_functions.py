@@ -16,6 +16,18 @@ import math
 import array
 from IPython import embed
 import pdb
+import json
+
+with open("Templates/config.%s" % os.getlogin()) as fconfig:
+    for line in fconfig:
+        if 'scriptPath' in line:
+            
+            scriptPath = line.split(" = ")[1].strip()
+sys.path.insert(0,scriptPath)
+import UserInput
+import OutputTools
+import ConfigureJobs
+import HistTools
 
 #logging.basicConfig(level=logging.DEBUG)
 
@@ -43,28 +55,38 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     ycoords = [ymax, ymax - 0.08*unique_entries*args.scalelegy]
     coords = [xcoords[0], ycoords[0], xcoords[1], ycoords[1]]
     
+    mainband,ratioband=getSystValue(hist_stacks[0].GetStack().Last())
+    ROOT.SetOwnership(ratioband, False)
+    ROOT.SetOwnership(mainband, False)
+    
     if "none" not in args.uncertainties:
+        
         histErrors = getHistErrors(hist_stacks[0], args.nostack) if not errors else errors
         for error_hist,signal_stack,data_hist in zip(histErrors, signal_stacks, data_hists):
             ROOT.SetOwnership(error_hist, False)
             error_hist.SetLineWidth(1)
             ROOT.gStyle.SetHatchesLineWidth(1)
             ROOT.gStyle.SetHatchesSpacing(0.75)
-            error_hist.Draw("same e2")
+            #error_hist.Draw("same e2")
+            mainband.Draw('2 same')
+            #hist_stacks[0].Draw('hist same')
             if signal_stack:
                 signal_stack.Draw("nostack same hist")
             if not args.no_data:
                 #pdb.set_trace()
                 data_hist.Draw("e0 same")
-            error_title = "Stat. unc."
+            #error_title = "Stat. unc."
+            error_title = "Syst. unc."
             if "all" in args.uncertainties:
                 error_title = "Stat.#oplusSyst."
             elif "scale" in args.uncertainties:
                 error_title = "Stat.#oplusScale"
             error_hist.SetTitle(error_title)
+            mainband.SetTitle(error_title)
     else:
         histErrors = []
-    legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], histErrors, coords)
+    #legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], histErrors, coords)
+    legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], [mainband], coords)
     legend.Draw()
 
     if not args.no_decorations:
@@ -85,17 +107,21 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     if args.extra_text != "":
         lines = [x.strip() for x in args.extra_text.split(";")]
         ymax = coords[3]-0.02
-        box_size = 0.05*len(lines)*args.scalelegy
+        box_size = 0.05*len(lines)*args.scalelegy*5
         if args.extra_text_above:
             ymax = coords[1] 
             coords[1] -= box_size
             coords[3] -= box_size
         ymin = ymax - box_size
-        text_box = ROOT.TPaveText(coords[0], ymin, coords[2], ymax, "NDCnb")
-        text_box.SetFillColor(0)
+        text_box = ROOT.TPaveText(coords[0]-0.5, ymin+0.4, coords[2]-0.5, ymax+0.4, "NDCnb")
+        #For linear plot positions
+        #text_box = ROOT.TPaveText(coords[0], ymin, coords[2], ymax, "NDCnb")
+        #text_box.SetFillColor(0)
+        text_box.SetFillColorAlpha(0,0.0)        
         text_box.SetFillStyle(0)
-        text_box.SetLineColor(0)
-        text_box.SetTextFont(42)
+        #text_box.SetLineColor(0)
+        text_box.SetLineColorAlpha(0, 0.0)
+        text_box.SetTextFont(70)
         for i, line in enumerate(lines):
             text_box.AddText(line)
         text_box.Draw()
@@ -104,7 +130,12 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         canvas.SetLogy()
     if not args.no_ratio:
         #pdb.set_trace()
-        canvas = plotter.splitCanvas(canvas, canvas_dimensions,
+        #canvas = plotter.splitCanvas(canvas, canvas_dimensions,
+        #        "#scale[0.85]{Data / Pred.}" if data_hists[0] else args.ratio_text,
+        #        [float(i) for i in args.ratio_range]
+        #)
+        #pdb.set_trace()
+        canvas = plotter.splitCanvasWithSyst(ratioband,canvas, canvas_dimensions,
                 "#scale[0.85]{Data / Pred.}" if data_hists[0] else args.ratio_text,
                 [float(i) for i in args.ratio_range]
         )
@@ -513,8 +544,8 @@ def getPlotPaths(selection, folder_name, write_log_file=False):
         storage_area = "/nfs_scratch/uhussain"
         html_area = "/afs/hep.wisc.edu/home/hhe62/public_html"
     else:
-        storage_area = "/afs/cern.ch/user/h/%s" % os.environ["USER"]
-        html_area = "/afs/cern.ch/user/h/%s/www" % os.environ["USER"]
+        storage_area,html_area  = ConfigureJobs.getStorageArea()
+        
     base_dir = "%s/ZZAnalysisData/PlottingResults" % storage_area
     plot_path = "/".join([base_dir, selection] +
        (['{:%Y-%m-%d}'.format(datetime.datetime.today()),
@@ -594,3 +625,325 @@ def makeDirectory(path):
             pass
         else: 
             raise
+
+#===========================================Systematic Uncertainties implementation
+#for main script to set global channel
+def setGlobalChannel(channels,selection,lumi,branches):
+    global glb_chan 
+    global which_analysis
+    global glb_lumi
+    global glb_var
+    glb_chan= channels.split(',')
+    which_analysis = selection.split('/')[0]
+    glb_lumi = lumi
+    glb_var = branches
+
+#rebin histos and take care of overflow bins
+def rebin(hist,variable):
+    ROOT.SetOwnership(hist, False)
+    #No need to rebin certain variables but still might need overflow check
+    if variable not in ['eta']:
+        bins=array.array('d',_binning[variable])
+        Nbins=len(bins)-1 
+        hist=hist.Rebin(Nbins,"",bins)
+    else:
+        Nbins = hist.GetSize() - 2
+    add_overflow = hist.GetBinContent(Nbins) + hist.GetBinContent(Nbins + 1)
+    lastbin_error = math.sqrt(math.pow(hist.GetBinError(Nbins),2)+math.pow(hist.GetBinError(Nbins+1),2))
+    hist.SetBinContent(Nbins, add_overflow)
+    hist.SetBinError(Nbins, lastbin_error)
+    hist.SetBinContent(Nbins+1,0)
+    hist.SetBinError(Nbins+1,0)
+    #if not hist.GetSumw2(): hist.Sumw2()
+    return hist
+
+def getSystValue(hMain):
+    #pdb.set_trace()
+    with open('listFile.json') as list_json_file:
+        mylist_dict = json.load(list_json_file)
+
+    manager_path = ConfigureJobs.getManagerPath()
+    if not glb_chan or not which_analysis or not glb_lumi or not glb_var:
+        raise ValueError("Channels/analysis/lumi/variable not set")
+
+    channels = glb_chan #["eeee","eemm","mmmm"]
+    analysis = which_analysis
+    func_lumi = glb_lumi
+    variable = glb_var
+    #strange python debug
+    #print "channels: ",channels
+    if "mmee" in channels:
+        channels.remove("mmee")
+    if not channels: #if becomes empty now after removing mmee
+        channels = ["eeee","eemm","mmmm"]
+
+    mynominalName=mylist_dict['nomname']
+    myaltname= mylist_dict['altname']
+    varList=[variable]
+
+    with open('varsFile.json') as var_json_file:
+        myvar_dict = json.load(var_json_file)
+
+    global _binning
+    _binning = {}
+    for key in myvar_dict.keys(): #key is the variable
+        _binning[key] = myvar_dict[key]["_binning"]
+        
+    sigSampleDic=ConfigureJobs.getListOfFilesWithXSec(ConfigureJobs.getListOfEWK())
+    sigSampleList=[str(i) for i in sigSampleDic.keys()]
+    
+    AltsigSampleDic=ConfigureJobs.getListOfFilesWithXSec([myaltname,])
+    AltsigSampleList=[str(i) for i in AltsigSampleDic.keys()]
+    
+    #Combine sigSamples
+    TotSigSampleList = list(set(sigSampleList) | set(AltsigSampleList))
+    sigSampleDic.update(AltsigSampleDic)
+
+    sigSamplesPath={}
+    if analysis=="ZZ4l2016":
+        fUse = ROOT.TFile("HistFiles/Fullsys_fullrange16.root")#,"update") 
+        
+    elif analysis=="ZZ4l2017":
+        fUse = ROOT.TFile("HistFiles/Fullsys_fullrange17_full.root")#,"update")
+        
+    elif analysis=="ZZ4l2018":
+        fUse = ROOT.TFile("HistFiles/Fullsys_fullrange18_full.root")#,"update") 
+            
+        fOut=fUse
+    ROOT.SetOwnership(fOut, False)    
+    # file_path is not used for plotting    
+    for dataset in TotSigSampleList:
+        file_path = '' #ConfigureJobs.getInputFilesPath(dataset,selection, analysis)
+        sigSamplesPath[dataset]=file_path
+
+    #Sum all data and return a TList of all histograms that are booked. And an empty datSumW dictionary as there are no sumWeights
+    alldata,dataSumW = HistTools.makeCompositeHists(fOut,"AllData", 
+        ConfigureJobs.getListOfFilesWithXSec([analysis+"data"],manager_path), func_lumi,
+        underflow=False, overflow=False)
+
+
+    #all ewkmc/this is also allSignal histos, scaled properly, kind of a repeat of above but with ggZZ added
+    ewkmc,ewkSumW = HistTools.makeCompositeHists(fOut,"AllEWK", ConfigureJobs.getListOfFilesWithXSec(
+        ConfigureJobs.getListOfEWK(), manager_path), func_lumi,
+        underflow=False, overflow=False)
+
+    ewkmc_qqZZonly,ewkSumW_qqZZonly = HistTools.makeCompositeHists(fOut,"AllEWKqqZZonly", ConfigureJobs.getListOfFilesWithXSec(
+        ConfigureJobs.getListOfEWK()[:1], manager_path), func_lumi,
+        underflow=False, overflow=False)
+
+    ewkmc_ggZZonly,ewkSumW_ggZZonly = HistTools.makeCompositeHists(fOut,"AllEWKggZZonly", ConfigureJobs.getListOfFilesWithXSec(
+        ConfigureJobs.getListOfEWK()[1:], manager_path), func_lumi,
+        underflow=False, overflow=False)
+
+
+    ewkmc_ggZZup,ewkSumW_ggZZup = HistTools.makeCompositeHists_scaling(fOut,"AllEWKggZZup", ConfigureJobs.getListOfFilesWithXSec(
+        ConfigureJobs.getListOfEWK(), manager_path), func_lumi,
+        underflow=False, overflow=False,scale_fac=1.+0.18)
+
+    ewkmc_ggZZdn,ewkSumW_ggZZdn = HistTools.makeCompositeHists_scaling(fOut,"AllEWKggZZdn", ConfigureJobs.getListOfFilesWithXSec(
+        ConfigureJobs.getListOfEWK(), manager_path), func_lumi,
+        underflow=False, overflow=False,scale_fac=1.-0.14)
+
+    altSigmc,altSigSumW = HistTools.makeCompositeHists(fOut,"AltSig", ConfigureJobs.getListOfFilesWithXSec(
+        ConfigureJobs.getListOfaltSig(), manager_path), func_lumi,
+        underflow=False, overflow=False)
+
+    #Update ewkSumW dictionary with sumWeights value of zz4l-amcatnlo (now it is POWHEG) from altSigSumW, the common keys should not be duplicated
+    ewkSumW.update(altSigSumW)
+
+    #all mcbkg that needs to be subtracted
+    allVVVmc,VVVSumW = HistTools.makeCompositeHists(fOut,"AllVVV", ConfigureJobs.getListOfFilesWithXSec(
+        ConfigureJobs.getListOfVVV(), manager_path), func_lumi,
+        underflow=False, overflow=False)
+
+    #This is the non-prompt background
+    ewkcorr = HistTools.getDifferenceDirect(fOut, "DataEWKCorrected", alldata, ewkmc)
+
+    zzSumWeights = ewkSumW[mynominalName]  
+    
+
+    #getHistInDic function also takes care of adding the histograms in eemm+mmee, hence the input here is channels=[eeee,eemm,mmmm]
+    #dataHists dictionary
+    hDataDic=OutputTools.getHistsInDic(alldata,varList,channels)
+
+    hSigDic=OutputTools.getHistsInDic(ewkmc,varList,channels)
+    hSigDic_ggZZonly=OutputTools.getHistsInDic(ewkmc_ggZZonly,varList,channels)
+    hSigDic_ggZZup=OutputTools.getHistsInDic(ewkmc_ggZZup,varList,channels)
+    hSigDic_ggZZdn=OutputTools.getHistsInDic(ewkmc_ggZZdn,varList,channels)
+
+    #Alt signals containing zzl4-amcatnlo instead of zz4l-powheg #Now alt is POWHEG
+    hAltSigDic=OutputTools.getHistsInDic(altSigmc,varList,channels)
+
+    #TrueHists dictionary
+    #Not needed for RECO plotting
+    
+    #hTrueDic=OutputTools.getHistsInDic(ewkmc,["Gen"+s for s in varList],channels)
+    #hTrueDic_ggZZonly=OutputTools.getHistsInDic(ewkmc_ggZZonly,["Gen"+s for s in varList],channels)
+    #hTrueDic_ggZZup=OutputTools.getHistsInDic(ewkmc_ggZZup,["Gen"+s for s in varList],channels)
+    #hTrueDic_ggZZdn=OutputTools.getHistsInDic(ewkmc_ggZZdn,["Gen"+s for s in varList],channels)
+
+    #Alt signals containing zzl4-amcatnlo instead of zz4l-powheg
+    #hAltTrueDic=OutputTools.getHistsInDic(altSigmc,["Gen"+s for s in varList],channels)
+
+    #Non-prompt background dictionary
+    hbkgDic=OutputTools.getHistsInDic(ewkcorr,[s+"_Fakes" for s in varList],channels)
+
+    
+    
+    #VVV background dictionary
+    hbkgMCDic=OutputTools.getHistsInDic(allVVVmc,varList,channels)
+    
+
+    runVariables=[]
+    runVariables.append(variable)
+    
+
+    ##Systematic histos
+    systList=[]
+    #gensystList=[]
+    for chan in channels:
+        for s in runVariables:
+            systList.append(variable+"_lheWeights")
+            #gensystList.append("Gen"+variable+"_lheWeights")
+            systList.append(variable+"_jetsysts")
+        for sys in ["Up","Down"]: 
+            for s in runVariables:
+                systList.append(variable+"_CMS_pileup"+sys)
+                for lep in set(chan):         
+                    systList.append(variable+"_CMS_eff_"+lep+sys)
+
+    #systList has repeated variables, but shouldn't matter as it will just reassigin same value in the dictionary
+    hSigSystDic=OutputTools.getHistsInDic(ewkmc,systList,channels)
+    hSigSystDic_qqZZonly=OutputTools.getHistsInDic(ewkmc_qqZZonly,systList,channels)
+    #hTrueSystDic_qqZZonly=OutputTools.getHistsInDic(ewkmc_qqZZonly,gensystList,channels)
+    hbkgMCSystDic=OutputTools.getHistsInDic(allVVVmc,systList,channels)
+
+    SysDic = {"Up":{},"Down":{}}
+    errkeys = ['ggZZXsec','generator']
+
+    for chan in channels:
+        #Nominal
+        hSigNominal = hSigDic[chan][variable]
+        hBkgNominal = hbkgDic[chan][variable+"_Fakes"].Clone()
+        hBkgMCNominal = hbkgMCDic[chan][variable].Clone()
+        hBkgNominal = rebin(hBkgNominal,variable)
+        #truncateTH1(hBkgNominal)
+        hBkgMCNominal = rebin(hBkgMCNominal,variable)
+        hSigNominal=rebin(hSigNominal,variable)
+
+        hBkgTotal=hBkgNominal.Clone()
+        hBkgTotal.Add(hBkgMCNominal)
+
+        #ggZZ xsec
+        for sys in ['Up','Down']:
+            if "Up" in sys: #no need to clone, only used once
+                hSigGX = hSigDic_ggZZup[chan][variable].Clone()
+                    
+            else:
+                hSigGX = hSigDic_ggZZdn[chan][variable].Clone()
+
+            hSigGX.SetDirectory(0)
+            hSigGX=rebin(hSigGX,variable)        
+            hErrGX = hSigGX.Clone()
+            hErrGX.Add(hSigNominal,-1)
+
+            if chan == channels[0]:
+                SysDic[sys]['ggZZXsec'] = hErrGX
+           
+            else:
+                SysDic[sys]['ggZZXsec'].Add(hErrGX)
+
+        #generator choice
+        hAltSigNominal = hAltSigDic[chan][variable]
+        hAltSigNominal=rebin(hAltSigNominal,variable)
+        for sys in ['Up','Down']:
+            hErrGr = hAltSigNominal.Clone()
+            hErrGr.Add(hSigNominal,-1)
+            hErrGr.SetDirectory(0)
+
+            if chan == channels[0]:
+                SysDic[sys]['generator'] = hErrGr
+                
+            else:
+                SysDic[sys]['generator'].Add(hErrGr)
+
+    
+    histbins=array.array('d',_binning[variable])
+    hUncUp=ROOT.TH1D("hUncUp","Total Up Uncert.",len(histbins)-1,histbins)
+    hUncDn=ROOT.TH1D("hUncDn","Total Dn Uncert.",len(histbins)-1,histbins)
+    sysList = SysDic['Up'].keys()
+    UncUpHistos= [SysDic['Up'][sys] for sys in sysList]
+    UncDnHistos= [SysDic['Down'][sys] for sys in sysList]
+    totUncUp=totUncDn=0.
+
+    for i in range(1,hUncUp.GetNbinsX()+1):
+        totUncUp=totUncDn=0.
+        for h1, h2 in zip(UncUpHistos,UncDnHistos):
+            
+            totUncUp += max(h1.GetBinContent(i),h2.GetBinContent(i))**2
+            totUncDn += min(h1.GetBinContent(i),h2.GetBinContent(i))**2
+
+        totUncUp = math.sqrt(totUncUp)
+        totUncDn = math.sqrt(totUncDn)
+        #print "totUncUp: ",totUncUp
+        #print "totUncDn: ",totUncDn
+        hUncUp.SetBinContent(i,totUncUp)
+        hUncDn.SetBinContent(i,totUncDn)
+
+    
+    MainGraph=ROOT.TGraphAsymmErrors(hMain)
+    ROOT.SetOwnership(MainGraph,False)
+    tmpData = hMain.Clone("tmp")
+    for i in range(1, tmpData.GetNbinsX()+1):
+        if hMain.GetBinContent(i)==0:
+            continue
+        eUp=hUncUp.GetBinContent(i)
+        eDn=hUncDn.GetBinContent(i)
+        
+        errorUp = tmpData.GetBinContent(i) + math.sqrt(math.pow(tmpData.GetBinError(i),2) + math.pow(eUp,2))
+        errorUp -= hMain.GetBinContent(i) 
+        errorDn = max(tmpData.GetBinContent(i) - math.sqrt(math.pow(tmpData.GetBinError(i),2) + math.pow(eDn,2)),0)
+        errorDn = hMain.GetBinContent(i) - errorDn
+       
+        MainGraph.SetPointEYhigh(i-1, errorUp)
+        MainGraph.SetPointEYlow(i-1, errorDn)
+    MainGraph.SetFillColorAlpha(1,0.3)
+#        
+    MainGraph.SetFillStyle(3001)
+    #pdb.set_trace()
+    hflat = hMain.Clone("flat")
+    for i in range(1, hflat.GetNbinsX()+1):
+        hflat.SetBinContent(i,1.)
+    ratioGraph=ROOT.TGraphAsymmErrors(hflat)
+    ROOT.SetOwnership(ratioGraph,False)
+    tmpData = hMain.Clone("tmp")
+    for i in range(1, tmpData.GetNbinsX()+1):
+        if hMain.GetBinContent(i)==0:
+            #ratioGraph.SetPointY(i-1,1.)
+            ratioGraph.SetPointEYhigh(i-1, 0.)
+            ratioGraph.SetPointEYlow(i-1, 0.)
+            continue
+        eUp=hUncUp.GetBinContent(i)
+        eDn=hUncDn.GetBinContent(i)
+        mc=hMain.GetBinContent(i)
+        #print "eUp: ",eUp, "","eDn: ",eDn
+        errorUp = 1. + math.sqrt(math.pow(tmpData.GetBinError(i)/mc,2) + math.pow((eUp/mc),2))
+        errorUp -= 1.
+        errorDn = max(1. - math.sqrt(math.pow(tmpData.GetBinError(i)/mc,2) + math.pow((eDn/mc),2)),0)
+        errorDn = 1. - errorDn
+        #ratioGraph.SetPointY(i-1,1.)
+        ratioGraph.SetPointEYhigh(i-1, errorUp)
+        ratioGraph.SetPointEYlow(i-1, errorDn)
+    ratioGraph.SetFillColorAlpha(1,0.5)
+    ratioGraph.SetFillStyle(3001)
+    
+    #MainGraph.SetDirectory(0)
+    #ratioGraph.SetDirectory(0)
+
+    return MainGraph,ratioGraph
+    
+
+
+    
+    
+
