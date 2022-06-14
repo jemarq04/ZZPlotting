@@ -17,6 +17,15 @@ from IPython import embed
 import logging
 import pdb,json
 
+with open("Templates/config.%s" % os.getlogin()) as fconfig:
+    for line in fconfig:
+        if 'scriptPath' in line:
+            scriptPath = line.split(" = ")[1].strip()
+sys.path.insert(0,scriptPath)
+import OutputTools
+import ConfigureJobs
+import HistTools
+
 def getComLineArgs():
     parser = UserInput.getDefaultParser()
     parser.add_argument("-s", "--selection", type=str, required=True,
@@ -117,7 +126,10 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
     return hist_stack
 def main():
     #pdb.set_trace()
+    
     args = getComLineArgs()
+    if not args.channels == "eeee,eemm,mmee,mmmm":
+        return
     with open('varsFile.json') as var_json_file:
         myvar_dict = json.load(var_json_file)
     for key in myvar_dict.keys():
@@ -131,7 +143,7 @@ def main():
     filelist = UserInput.getListOfFiles(args.files_to_plot, args.selection)
     print filelist
     path = "/cms/uhussain" if "hep.wisc.edu" in os.environ['HOSTNAME'] else \
-        "/afs/cern.ch/user/h/hehe/new_ZZ_test_Sep9/CMSSW_10_3_1/src/Data_manager"
+        ConfigureJobs.getManagerPath()[:-1]
     config_factory = ConfigHistFactory(
         "%s/ZZ4lRun2DatasetManager" % path,
         args.selection.split("_")[0],
@@ -197,6 +209,12 @@ def main():
         plot_name = name if args.append_to_name == "" else "_".join([name, args.append_to_name])
 
         #embed()
+        #pdb.set_trace()
+        completeHist = hist_stacks[0].GetStack().Last()
+        for i in range(completeHist.GetNbinsX()):
+            print("Complete Hist Content bin %s: %s"%(i+1,completeHist.GetBinContent(i+1)))
+
+        helper.setGlobalChannel(args.channels,args.selection,args.luminosity,args.branches,args.hist_file) 
         canvas = helper.makePlots(hist_stacks, data_hists, name, args, signal_stacks)
         helper.savePlot(canvas, plot_path, html_path, plot_name, True, args)
         makeSimpleHtml.writeHTML(html_path.replace("/plots",""), args.selection)

@@ -628,15 +628,17 @@ def makeDirectory(path):
 
 #===========================================Systematic Uncertainties implementation
 #for main script to set global channel
-def setGlobalChannel(channels,selection,lumi,branches):
+def setGlobalChannel(channels,selection,lumi,branches,hist_file):
     global glb_chan 
     global which_analysis
     global glb_lumi
     global glb_var
+    global glb_file
     glb_chan= channels.split(',')
     which_analysis = selection.split('/')[0]
     glb_lumi = lumi
     glb_var = branches
+    glb_file = hist_file
 
 #rebin histos and take care of overflow bins
 def rebin(hist,variable):
@@ -663,8 +665,8 @@ def getSystValue(hMain):
         mylist_dict = json.load(list_json_file)
 
     manager_path = ConfigureJobs.getManagerPath()
-    if not glb_chan or not which_analysis or not glb_lumi or not glb_var:
-        raise ValueError("Channels/analysis/lumi/variable not set")
+    if not glb_chan or not which_analysis or not glb_lumi or not glb_var or not glb_file:
+        raise ValueError("Channels/analysis/lumi/variable/file_name not set")
 
     channels = glb_chan #["eeee","eemm","mmmm"]
     analysis = which_analysis
@@ -700,16 +702,9 @@ def getSystValue(hMain):
     sigSampleDic.update(AltsigSampleDic)
 
     sigSamplesPath={}
-    if analysis=="ZZ4l2016":
-        fUse = ROOT.TFile("HistFiles/Fullsys_fullrange16.root")#,"update") 
-        
-    elif analysis=="ZZ4l2017":
-        fUse = ROOT.TFile("HistFiles/Fullsys_fullrange17_full.root")#,"update")
-        
-    elif analysis=="ZZ4l2018":
-        fUse = ROOT.TFile("HistFiles/Fullsys_fullrange18_full.root")#,"update") 
-            
-        fOut=fUse
+    
+    fUse = ROOT.TFile(glb_file)#,"update") 
+    fOut=fUse
     ROOT.SetOwnership(fOut, False)    
     # file_path is not used for plotting    
     for dataset in TotSigSampleList:
