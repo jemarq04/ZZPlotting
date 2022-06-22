@@ -294,8 +294,8 @@ def addOverflowAndUnderflow(hist, underflow=True, overflow=True):
         add_underflow = hist.GetBinContent(0) + hist.GetBinContent(1)
         hist.SetBinContent(1, add_underflow)
 
-def makeCompositeHists(hist_file, name, members, lumi, hists=[], underflow=False, overflow=True, rebin=None):
-    #pdb.set_trace()
+def makeCompositeHists(hist_file, name, members, lumi, hists=None, underflow=False, overflow=True, rebin=None):
+   
     composite = ROOT.TList()
     composite.SetName(name)
     SumW={}
@@ -306,8 +306,13 @@ def makeCompositeHists(hist_file, name, members, lumi, hists=[], underflow=False
         if not hist_file.Get(directory):
             logging.warning("Skipping invalid filename %s" % directory)
             continue
-        if hists == []:
-            hists = [i.GetName() for i in hist_file.Get(directory).GetListOfKeys()]
+        if hists == None:
+            hists = []
+            for hloop in hist_file.Get(directory).GetListOfKeys():
+                if not "Gen" in hloop.GetName(): #Only process RECO for now in ZZPlotting
+                    hists.append(hloop.GetName())
+            
+            #hists = [i.GetName() for i in hist_file.Get(directory).GetListOfKeys()]
         sumweights = 0
         if "data" not in directory.lower():
             sumweights_hist = hist_file.Get("/".join([directory.split("__")[0], "sumweights"]))
@@ -320,6 +325,8 @@ def makeCompositeHists(hist_file, name, members, lumi, hists=[], underflow=False
             if histname == "sumweights": continue
             tmphist = hist_file.Get("/".join([directory, histname]))
             if not tmphist: 
+                #print(directory)
+                #print(hists)
                 raise RuntimeError("Failed to produce histogram %s" % "/".join([directory, histname]))
             toRebin = rebin and not "TH2" in tmphist.ClassName()
             hist = tmphist.Clone() if not toRebin else tmphist.Rebin(len(rebin)-1, histname, rebin)
@@ -342,8 +349,8 @@ def makeCompositeHists(hist_file, name, members, lumi, hists=[], underflow=False
             hist.Delete()
     return composite,SumW
 
-def makeCompositeHists_scaling(hist_file, name, members, lumi, hists=[], underflow=False, overflow=True, rebin=None,scale_sample="ggZZ",scale_fac=1.):
-    #pdb.set_trace()
+def makeCompositeHists_scaling(hist_file, name, members, lumi, hists=None, underflow=False, overflow=True, rebin=None,scale_sample="ggZZ",scale_fac=1.):
+    
     composite = ROOT.TList()
     composite.SetName(name)
     SumW={}
@@ -354,8 +361,12 @@ def makeCompositeHists_scaling(hist_file, name, members, lumi, hists=[], underfl
         if not hist_file.Get(directory):
             logging.warning("Skipping invalid filename %s" % directory)
             continue
-        if hists == []:
-            hists = [i.GetName() for i in hist_file.Get(directory).GetListOfKeys()]
+        if hists == None:
+            hists = []
+            for hloop in hist_file.Get(directory).GetListOfKeys():
+                if not "Gen" in hloop.GetName(): #Only process RECO for now in ZZPlotting
+                    hists.append(hloop.GetName())
+            #hists = [i.GetName() for i in hist_file.Get(directory).GetListOfKeys()]
         sumweights = 0
         if "data" not in directory.lower():
             sumweights_hist = hist_file.Get("/".join([directory.split("__")[0], "sumweights"]))

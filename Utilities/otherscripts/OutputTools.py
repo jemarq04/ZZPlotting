@@ -1,4 +1,5 @@
 import ROOT
+import pdb
 
 def writeOutputListItem(item, directory):
     if item.ClassName() == "TList":
@@ -64,6 +65,7 @@ def getHistsInDic(output_list,varList,channels):
                         hist = item.Clone()
                         hist.SetDirectory(0)
                 if not exist:
+                    #pdb.set_trace()
                     raise ValueError("Histogram not found:%s"%itemName)
                 histsDic[var]=hist
             histsChanDic[chan]=histsDic

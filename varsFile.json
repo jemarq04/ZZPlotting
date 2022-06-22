@@ -77,6 +77,33 @@
         "responseClassNames": "testJet", 
         "top_size": 0.1
     }, 
+    "jetPtN1": {
+        "ratio_min": 0.4, 
+        "top_xy": [
+            0.2, 
+            0.87
+        ], 
+        "bottom_size": 0.08, 
+        "ymin_fac": 1.0, 
+        "_binning": [
+            30.0, 
+            50.0, 
+            100.0, 
+            200.0, 
+            300.0, 
+            500.0
+        ], 
+        "ymax_fac": 1.0, 
+        "ratio_max": 1.8, 
+        "prettyVars": "p_{T}^{j1}", 
+        "bottom_xy": [
+            0.2, 
+            0.91
+        ], 
+        "units": "[GeV]", 
+        "responseClassNames": "testJet", 
+        "top_size": 0.1
+    }, 
     "MassAllj": {
         "ratio_min": 0.4, 
         "top_xy": [
@@ -166,6 +193,32 @@
         "responseClassNames": "testJet", 
         "top_size": 0.1
     }, 
+    "absjetEtaN1_100": {
+        "ratio_min": 0.4, 
+        "top_xy": [
+            0.2, 
+            0.87
+        ], 
+        "bottom_size": 0.08, 
+        "ymin_fac": 1.0, 
+        "_binning": [
+            0.0, 
+            1.5, 
+            2.4, 
+            3.2, 
+            4.7
+        ], 
+        "ymax_fac": 1.0, 
+        "ratio_max": 1.8, 
+        "prettyVars": "|#eta_{j1}| with p_{T}<100", 
+        "bottom_xy": [
+            0.2, 
+            0.91
+        ], 
+        "units": "", 
+        "responseClassNames": "testJet", 
+        "top_size": 0.1
+    }, 
     "Mass4j": {
         "ratio_min": 0.4, 
         "top_xy": [
@@ -177,8 +230,13 @@
         "_binning": [
             100.0, 
             200.0, 
+            250.0, 
+            300.0, 
+            350.0, 
             400.0, 
+            500.0, 
             600.0, 
+            800.0, 
             1000.0
         ], 
         "ymax_fac": 1.0, 
@@ -203,8 +261,13 @@
         "_binning": [
             100.0, 
             200.0, 
+            250.0, 
+            300.0, 
+            350.0, 
             400.0, 
+            500.0, 
             600.0, 
+            800.0, 
             1000.0
         ], 
         "ymax_fac": 1.0, 
@@ -249,7 +312,7 @@
         "responseClassNames": "testJet", 
         "top_size": 0.1
     }, 
-    "Mass3jFull": {
+    "LepPt": {
         "ratio_min": 0.4, 
         "top_xy": [
             0.2, 
@@ -258,26 +321,46 @@
         "bottom_size": 0.08, 
         "ymin_fac": 1.0, 
         "_binning": [
-            80.0, 
+            0.0, 
+            30.0, 
+            50.0, 
             100.0, 
-            120.0, 
-            130.0, 
-            180.0, 
-            230.0, 
-            300.0, 
-            450.0, 
-            600.0, 
-            800.0, 
-            1300.0
+            200.0
         ], 
         "ymax_fac": 1.0, 
         "ratio_max": 1.8, 
-        "prettyVars": "m_{4\\ell}(3 jets)", 
+        "prettyVars": "Lep p_{T}", 
         "bottom_xy": [
             0.2, 
             0.91
         ], 
         "units": "[GeV]", 
+        "responseClassNames": "testJet", 
+        "top_size": 0.1
+    }, 
+    "absjetEtaN1": {
+        "ratio_min": 0.4, 
+        "top_xy": [
+            0.2, 
+            0.87
+        ], 
+        "bottom_size": 0.08, 
+        "ymin_fac": 1.0, 
+        "_binning": [
+            0.0, 
+            1.5, 
+            2.4, 
+            3.2, 
+            4.7
+        ], 
+        "ymax_fac": 1.0, 
+        "ratio_max": 1.8, 
+        "prettyVars": "|#eta_{j1}|", 
+        "bottom_xy": [
+            0.2, 
+            0.91
+        ], 
+        "units": "", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
     }, 
@@ -569,8 +652,13 @@
         "_binning": [
             100.0, 
             200.0, 
+            250.0, 
+            300.0, 
+            350.0, 
             400.0, 
+            500.0, 
             600.0, 
+            800.0, 
             1000.0
         ], 
         "ymax_fac": 1.0, 
@@ -667,7 +755,7 @@
         "responseClassNames": "testJet", 
         "top_size": 0.1
     }, 
-    "LepPt": {
+    "Mass3jFull": {
         "ratio_min": 0.4, 
         "top_xy": [
             0.2, 
@@ -676,15 +764,21 @@
         "bottom_size": 0.08, 
         "ymin_fac": 1.0, 
         "_binning": [
-            0.0, 
-            30.0, 
-            50.0, 
+            80.0, 
             100.0, 
-            200.0
+            120.0, 
+            130.0, 
+            180.0, 
+            230.0, 
+            300.0, 
+            450.0, 
+            600.0, 
+            800.0, 
+            1300.0
         ], 
         "ymax_fac": 1.0, 
         "ratio_max": 1.8, 
-        "prettyVars": "Lep p_{T}", 
+        "prettyVars": "m_{4\\ell}(3 jets)", 
         "bottom_xy": [
             0.2, 
             0.91
