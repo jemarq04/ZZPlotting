@@ -211,8 +211,24 @@ def main():
         #embed()
         #pdb.set_trace()
         completeHist = hist_stacks[0].GetStack().Last()
+        tmpCmpHist = ROOT.TH1D(args.branches+"_jetPUSFtest","",len(args.rebin)-1,array.array('d',args.rebin))
         for i in range(completeHist.GetNbinsX()):
             print("Complete Hist Content bin %s: %s"%(i+1,completeHist.GetBinContent(i+1)))
+            tmpCmpHist.SetBinContent(i+1,completeHist.GetBinContent(i+1))
+            tmpCmpHist.SetBinError(i+1,completeHist.GetBinError(i+1))
+            #Don't know why, but cannot draw this completeHist so have to copy it manually
+
+        tmpOut = False
+        if tmpOut:
+            #pdb.set_trace()
+            myoutputFile=ROOT.TFile("writeFile.root","UPDATE")
+            myoutputFile.cd()
+            completeHist2 = completeHist.Clone(args.branches+"_jetPUSFtest")
+            tmpCmpHist.Write()
+            #completeHist2.Write()
+            myoutputFile.Close()
+            print("File written")
+            sys.exit()
 
         helper.setGlobalChannel(args.channels,args.selection,args.luminosity,args.branches,args.hist_file) 
         canvas = helper.makePlots(hist_stacks, data_hists, name, args, signal_stacks)
