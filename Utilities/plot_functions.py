@@ -342,7 +342,8 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     #ratioband.GetYaxis().SetNdivisions(003)
     #ratioband.GetYaxis().SetTitleSize(ratioband.GetYaxis().GetTitleSize()*0.8)
     #ratioband.GetYaxis().SetLabelSize(ratioband.GetYaxis().GetLabelSize()*0.8)
-    ratioband.Draw("2")
+    if ratioband:
+        ratioband.Draw("2")
 
     #centralRatioHist.Draw()
     for ratioHist in ratioHists:

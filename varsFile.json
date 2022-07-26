@@ -178,8 +178,13 @@
         "_binning": [
             100.0, 
             200.0, 
+            250.0, 
+            300.0, 
+            350.0, 
             400.0, 
+            500.0, 
             600.0, 
+            800.0, 
             1000.0
         ], 
         "ymax_fac": 1.0, 
@@ -396,6 +401,35 @@
         "responseClassNames": "testJet", 
         "top_size": 0.1
     }, 
+    "absjetEtaAllj": {
+        "ratio_min": 0.4, 
+        "top_xy": [
+            0.2, 
+            0.87
+        ], 
+        "bottom_size": 0.08, 
+        "ymin_fac": 1.0, 
+        "_binning": [
+            0.0, 
+            1.5, 
+            2.0, 
+            2.5, 
+            3.0, 
+            3.5, 
+            4.0, 
+            4.7
+        ], 
+        "ymax_fac": 1.0, 
+        "ratio_max": 1.8, 
+        "prettyVars": "|#eta_{j}|", 
+        "bottom_xy": [
+            0.2, 
+            0.91
+        ], 
+        "units": "", 
+        "responseClassNames": "testJet", 
+        "top_size": 0.1
+    }, 
     "jetPt[1]": {
         "ratio_min": 0.4, 
         "top_xy": [
@@ -440,6 +474,42 @@
         "ymax_fac": 1.0, 
         "ratio_max": 1.8, 
         "prettyVars": "|#eta_{j1}|", 
+        "bottom_xy": [
+            0.2, 
+            0.91
+        ], 
+        "units": "", 
+        "responseClassNames": "testJet", 
+        "top_size": 0.1
+    }, 
+    "jetEtaAllj": {
+        "ratio_min": 0.4, 
+        "top_xy": [
+            0.2, 
+            0.87
+        ], 
+        "bottom_size": 0.08, 
+        "ymin_fac": 1.0, 
+        "_binning": [
+            -4.7, 
+            -4.0, 
+            -3.5, 
+            -3.0, 
+            -2.5, 
+            -2.0, 
+            -1.5, 
+            0.0, 
+            1.5, 
+            2.0, 
+            2.5, 
+            3.0, 
+            3.5, 
+            4.0, 
+            4.7
+        ], 
+        "ymax_fac": 1.0, 
+        "ratio_max": 1.8, 
+        "prettyVars": "#eta_{j}", 
         "bottom_xy": [
             0.2, 
             0.91

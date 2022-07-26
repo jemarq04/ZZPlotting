@@ -19,7 +19,9 @@ class FromFileHistProducer(HistProducer):
         ROOT.SetOwnership(hist, False)
         if not hist:
             raise ValueError("Hist %s not found in file %s" % (hist_name, self.hist_file))
-        if not hist.GetSumw2(): hist.Sumw2()
+        
+        hist.Sumw2() #hist.GetSumw2() doesn't seem useful for checking, since this structure always exist. It doesn't hurt to call Sumw2 anyway
+        #if not hist.GetSumw2(): hist.Sumw2()
         #pdb.set_trace()
         hist.Scale(self.getHistScaleFactor())
         # This causes GetEntries() to return 1 greater than the "actual"

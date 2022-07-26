@@ -109,6 +109,13 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
         if luminosity < 0:
             hist.Scale(1/hist.Integral())
         raw_events = hist.GetEntries() - 1
+        correctOffHiggs = True
+        if correctOffHiggs:
+            if "ggZZ" in plot_set and "Mass" in branch_name: #correct for off-shell higgs interference
+                hist.Sumw2() 
+                offshellbin = hist.GetNbinsX()
+                hist.SetBinContent(offshellbin,0.9*hist.GetBinContent(offshellbin))
+                hist.SetBinError(offshellbin,0.9*hist.GetBinError(offshellbin))
         hist_stack.Add(hist)
         error = array.array('d', [0])
         #pdb.set_trace()

@@ -55,9 +55,15 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     ycoords = [ymax, ymax - 0.08*unique_entries*args.scalelegy]
     coords = [xcoords[0], ycoords[0], xcoords[1], ycoords[1]]
     
-    mainband,ratioband=getSystValue(hist_stacks[0].GetStack().Last())
-    ROOT.SetOwnership(ratioband, False)
-    ROOT.SetOwnership(mainband, False)
+    dosyst = False
+    if dosyst:
+        mainband,ratioband=getSystValue(hist_stacks[0].GetStack().Last())
+    else:
+        mainband = None
+        ratioband = None
+    if mainband and ratioband:
+        ROOT.SetOwnership(ratioband, False)
+        ROOT.SetOwnership(mainband, False)
     
     if "none" not in args.uncertainties:
         
@@ -68,7 +74,8 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
             ROOT.gStyle.SetHatchesLineWidth(1)
             ROOT.gStyle.SetHatchesSpacing(0.75)
             #error_hist.Draw("same e2")
-            mainband.Draw('2 same')
+            if mainband:
+                mainband.Draw('2 same')
             #hist_stacks[0].Draw('hist same')
             if signal_stack:
                 signal_stack.Draw("nostack same hist")
@@ -82,11 +89,15 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
             elif "scale" in args.uncertainties:
                 error_title = "Stat.#oplusScale"
             error_hist.SetTitle(error_title)
-            mainband.SetTitle(error_title)
+            if mainband:
+                mainband.SetTitle(error_title)
     else:
         histErrors = []
     #legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], histErrors, coords)
-    legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], [mainband], coords)
+    if mainband:
+        legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], [mainband], coords)
+    else:
+        legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], [], coords)
     legend.Draw()
 
     if not args.no_decorations:
@@ -885,6 +896,12 @@ def getSystValue(hMain):
             else:
                 SysDic[sys]['lumi'].Add(hChangeLumi)
         
+        #lepton efficiency
+        for lep in set(chan):
+            for sys in ['Up','Down']:
+                hSigSyst = hSigSystDic[chan][variable+"_CMS_eff_"+lep+sys].Clone()
+                
+
         #Pileup reweight
         for sys in ['Up','Down']:
             
