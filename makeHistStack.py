@@ -45,6 +45,7 @@ def getComLineArgs():
 
 log_info = ""
 
+#can trust weighted events and error, but not stat error and raw events, since raw event for eemm/mmee is incorrect
 def writeMCLogInfo(hist_info, selection, branch_name, luminosity, cut_string, latex):
     mc_info = PrettyTable(["Plot Group", "Weighted Events", "Error", "Stat Error", "Raw Events"])
     weighted_events = 0
@@ -89,6 +90,10 @@ def writeMCLogInfo(hist_info, selection, branch_name, luminosity, cut_string, la
             round(sigbkgd_err, 2)))
         mc_file.write("\nRatio S/sqrt(S+B): %0.2f +/- %0.2f" % (round(likelihood, 2), 
             round(likelihood_err, 2)))
+    
+    #with open("CurrentRun_Event_output.txt", "a") as current_evt:
+    #    current_evt.write("\n"+(mc_info.get_string() if not latex else mc_info.get_latex_string())+"\n")
+        
 def getStacked(name, config_factory, selection, filelist, branch_name, channels, blinding, addOverflow, latex,
                cut_string="", luminosity=1, rebin=0, uncertainties="none", hist_file=""):
     hist_stack = ROOT.THStack(name, "")
@@ -108,7 +113,10 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
             print "hists",hist
         if luminosity < 0:
             hist.Scale(1/hist.Integral())
-        raw_events = hist.GetEntries() - 1
+        #raw_events = hist.GetEntries() - 1
+        #why subtracting 1?
+        #raw_events unrealiable for eemm and mmee hist, since by design there are weights set to zero but still filled
+        raw_events = hist.GetEntries()
         correctOffHiggs = True
         if correctOffHiggs:
             if "ggZZ" in plot_set and "Mass" in branch_name: #correct for off-shell higgs interference
@@ -120,8 +128,21 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
         error = array.array('d', [0])
         #pdb.set_trace()
         weighted_events = hist.IntegralAndError(1, hist.GetNbinsX(), error)
-        if not hist.GetSumw2(): hist.Sumw2()
+        if "Mass" in branch_name:
+            with open("CurrentRun_Event_output.txt", "a") as current_evt:
+                current_evt.write("\n %s: weighted events %s"%(plot_set,weighted_events))
+            if "Full" in branch_name:
+                bin_Z = hist.FindBin(90)
+                bin_H = hist.FindBin(125)
+                Z_events = hist.GetBinContent(bin_Z)
+                H_events = hist.GetBinContent(bin_H)
+                with open("CurrentRun_Event_output.txt", "a") as current_evt:
+                    current_evt.write("\n %s: 80-100 GeV %s"%(plot_set,Z_events))
+                    current_evt.write("\n %s: 120-130 GeV %s"%(plot_set,H_events))
+        hist.Sumw2()
+        #if not hist.GetSumw2(): hist.Sumw2()
         #pdb.set_trace()
+        #can use error for information, but not sure what stat error statnds for, since we should calculate sum of weight^2.
         hist_info[plot_set] = {'raw_events' : raw_events, 
                                'weighted_events' : weighted_events,
                                'error' : 0 if int(raw_events) <= 0 else error[0],
@@ -178,6 +199,10 @@ def main():
                 mc_file.write("\nAdditional cut: %s" % ("None" if cut_string == "" else cut_string))
                 mc_file.write("\nLuminosity: %0.2f fb^{-1}" % (args.luminosity))
                 mc_file.write("\nPlotting branch: %s\n" % branch_name)
+            with open("CurrentRun_Event_output.txt", "a") as current_evt:
+                if "Mass" in branch_name:
+                    current_evt.write("\nLuminosity: %0.2f fb^{-1}" % (args.luminosity))
+                    current_evt.write("\nPlotting branch: %s\n" % branch_name)
             try:
                 #pdb.set_trace()
                 hist_stack = getStacked("stack_"+branch_name, config_factory, args.selection, filelist, 
@@ -199,6 +224,14 @@ def main():
                             args.selection, branch_name, args.channels,addOverflow=(not args.no_overflow), rebin=args.rebin)
                 with open("temp.txt", "a") as events_log_file:
                     events_log_file.write("\nNumber of events in data: %i\n" % data_hist.Integral())
+                with open("CurrentRun_Event_output.txt", "a") as current_evt:
+                    if "Mass" in branch_name:
+                        current_evt.write("\nNumber of events in data: %i\n" % data_hist.Integral())
+                        if "Full" in branch_name:
+                            bin_Z = data_hist.FindBin(90)
+                            bin_H = data_hist.FindBin(125)
+                            current_evt.write("\ndata events 80-100 GeV: %i\n" % data_hist.GetBinContent(bin_Z))
+                            current_evt.write("\ndata events 120-130 GeV: %i\n" % data_hist.GetBinContent(bin_H))
             else:
                 data_hist = 0
             signal_stack = 0

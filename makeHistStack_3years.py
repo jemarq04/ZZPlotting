@@ -120,7 +120,8 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
         error = array.array('d', [0])
         #pdb.set_trace()
         weighted_events = hist.IntegralAndError(1, hist.GetNbinsX(), error)
-        if not hist.GetSumw2(): hist.Sumw2()
+        hist.Sumw2()
+        #if not hist.GetSumw2(): hist.Sumw2()
         #pdb.set_trace()
         hist_info[plot_set] = {'raw_events' : raw_events, 
                                'weighted_events' : weighted_events,
