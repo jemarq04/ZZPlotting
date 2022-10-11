@@ -681,6 +681,7 @@ def getSystValue(hMain):
 
     channels = glb_chan #["eeee","eemm","mmmm"]
     analysis = which_analysis
+    year = analysis.replace("ZZ4l","")
     func_lumi = glb_lumi
     variable = glb_var
     #strange python debug
@@ -688,7 +689,8 @@ def getSystValue(hMain):
     if "mmee" in channels:
         channels.remove("mmee")
     if not channels: #if becomes empty now after removing mmee
-        channels = ["eeee","eemm","mmmm"]
+        raise ValueError("Single entering of mmee channel not allowed for systematic calculation")
+        #channels = ["eeee","eemm","mmmm"]
 
     mynominalName=mylist_dict['nomname']
     myaltname= mylist_dict['altname']
@@ -820,13 +822,14 @@ def getSystValue(hMain):
                     systList.append(variable+"_CMS_eff_"+lep+sys)
 
     #systList has repeated variables, but shouldn't matter as it will just reassigin same value in the dictionary
+    systList = list(set(systList)) # remove duplicate just in case
     hSigSystDic=OutputTools.getHistsInDic(ewkmc,systList,channels)
     hSigSystDic_qqZZonly=OutputTools.getHistsInDic(ewkmc_qqZZonly,systList,channels)
     #hTrueSystDic_qqZZonly=OutputTools.getHistsInDic(ewkmc_qqZZonly,gensystList,channels)
     hbkgMCSystDic=OutputTools.getHistsInDic(allVVVmc,systList,channels)
 
     SysDic = {"Up":{},"Down":{}}
-    errkeys = ['ggZZXsec','generator','lumi','PU','jes','jer']
+    errkeys = ['ggZZXsec','generator','lumi','PU','jes','jer','e_eff','m_eff',"trigger"] #not used, for information
 
     for chan in channels:
         #Nominal
@@ -875,7 +878,13 @@ def getSystValue(hMain):
                 SysDic[sys]['generator'].Add(hErrGr)
         
         #lumi
-        lumiUnc = 0.023
+        if year == "2016":
+            lumiUnc = 0.012
+        if year == "2017":
+            lumiUnc = 0.023
+        if year == "2018":
+            lumiUnc = 0.025
+            
         lumiScale = {'Up':1.+lumiUnc,'Down':1.-lumiUnc}
         for sys, scale in lumiScale.iteritems():
             hNoFake = hMain.Clone("NoFakeLumi")
@@ -899,8 +908,45 @@ def getSystValue(hMain):
         #lepton efficiency
         for lep in set(chan):
             for sys in ['Up','Down']:
-                hSigSyst = hSigSystDic[chan][variable+"_CMS_eff_"+lep+sys].Clone()
+                hSiglep = hSigSystDic[chan][variable+"_CMS_eff_"+lep+sys].Clone()
+                hSiglep = rebin(hSiglep,variable)
+                hBkgMClep = hbkgMCSystDic[chan][variable+"_CMS_eff_"+lep+sys].Clone()
+                hBkgMClep = rebin(hBkgMClep,variable)
+
+                hChangelep = hSiglep.Clone("lep change %s %s %s"%(chan,sys,lep))
+                hChangelep.Add(hBkgMClep)
+                hChangelep.Add(hSigNominal,-1)
+                hChangelep.Add(hBkgMCNominal,-1)
+
+                if not SysDic[sys].has_key(lep+'_eff'):
+                    SysDic[sys][lep+'_eff'] = hChangelep
                 
+                else:
+                    SysDic[sys][lep+'_eff'].Add(hChangelep)
+
+        #Trigger efficiency
+        TrigUnc = 0.02
+        TrigScale = {'Up':1.+TrigUnc,'Down':1.-TrigUnc}
+        for sys, scale in TrigScale.iteritems():
+            hNoFakeTrig = hMain.Clone("NoFakeTrig")
+            #hNoFake.SetDirectory(0)
+
+            hBkgTrig = hbkgDic[chan][variable+"_Fakes"].Clone()
+            #hBkgLumi.SetDirectory(0)
+            hBkgTrig=rebin(hBkgTrig,variable)
+            #truncateTH1(hBkgLumi)
+
+            hNoFakeTrig.Add(hBkgTrig,-1)
+            hChangeTrig= hNoFakeTrig*(scale-1.)
+            #hChangeLumi.SetDirectory(0)
+
+            if chan == channels[0]:
+                SysDic[sys]['trigger'] = hChangeTrig
+                
+            else:
+                SysDic[sys]['trigger'].Add(hChangeTrig)
+
+
 
         #Pileup reweight
         for sys in ['Up','Down']:
@@ -919,7 +965,7 @@ def getSystValue(hMain):
             #hBkgMCPU.SetDirectory(0)
             hBkgMCPU=rebin(hBkgMCPU,variable)
 
-            hChangePU = hSigPU.Clone("PU change")
+            hChangePU = hSigPU.Clone("PU change %s"%sys)
             hChangePU.Add(hBkgMCPU)
             hChangePU.Add(hSigNominal,-1)
             hChangePU.Add(hBkgMCNominal,-1)
