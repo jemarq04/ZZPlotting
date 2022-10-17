@@ -35,5 +35,16 @@ class FromFileHistProducer(HistProducer):
             hist.SetBinContent(num_bins, add_overflow)
             hist.SetBinError(num_bins, add_error)
         
+        if "Mass" in hist_name and "Full" in hist_name:
+            #pdb.set_trace()
+            hist.Sumw2()
+            for ib in range(1,hist.GetNbinsX()+1):
+                width = hist.GetBinWidth(ib)
+                hist.SetBinContent(ib, hist.GetBinContent(ib)/width)
+                hist.SetBinError(ib, hist.GetBinError(ib)/ width)
+                if hist.GetBinError(ib) > hist.GetBinContent(ib):
+                    hist.SetBinError(ib, hist.GetBinContent(ib))
+            hist.Sumw2() #This doesn't seem to overwrite error? What's its function?
+        
         return hist
 

@@ -148,7 +148,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         #pdb.set_trace()
         canvas = plotter.splitCanvasWithSyst(ratioband,canvas, canvas_dimensions,
                 "#scale[0.85]{Data / Pred.}" if data_hists[0] else args.ratio_text,
-                [float(i) for i in args.ratio_range]
+                [float(i) for i in args.ratio_range],glb_isFullMass
         )
     
     #canvas.SetLogx()
@@ -184,14 +184,14 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
     #first_stack = signal_stack if stack_signal else hist_stack
     #pdb.set_trace()
     if data_hist:
-        if not "yield" in name.lower():
+        if not "yield" in name.lower() and not glb_isFullMass:
             data_hist.Sumw2(False)
             data_hist.SetBinErrorOption(ROOT.TH1.kPoisson)
         data_hist.Draw("e0 same")
     first_stack.GetYaxis().SetTitleSize(hists[0].GetYaxis().GetTitleSize())    
     first_stack.GetYaxis().SetTitleOffset(hists[0].GetYaxis().GetTitleOffset())    
     first_stack.GetYaxis().SetTitle(
-        hists[0].GetYaxis().GetTitle())
+        hists[0].GetYaxis().GetTitle() if not glb_isFullMass else hists[0].GetYaxis().GetTitle()+"/GeV")
 
     if not args.no_ratio and float(ROOT.gROOT.GetVersion().split("/")[0]) > 6.07:
         # Remove first bin label to avoid overlap of canvases
@@ -645,11 +645,16 @@ def setGlobalChannel(channels,selection,lumi,branches,hist_file):
     global glb_lumi
     global glb_var
     global glb_file
+    global glb_isFullMass
+
     glb_chan= channels.split(',')
     which_analysis = selection.split('/')[0]
     glb_lumi = lumi
     glb_var = branches
     glb_file = hist_file
+    glb_isFullMass = False
+    if "Full" in glb_var and "Mass" in glb_var:
+        glb_isFullMass = True
 
 #rebin histos and take care of overflow bins
 def rebin(hist,variable):
@@ -1055,15 +1060,22 @@ def getSystValue(hMain):
     #Not needed for TGraphAsymmErrors thus SetDirectory method doesn't exist
 
     tmpData = hMain.Clone("tmp")
+    normBW = glb_isFullMass
+    
+
     for i in range(1, tmpData.GetNbinsX()+1):
         if hMain.GetBinContent(i)==0:
             continue
-        eUp=hUncUp.GetBinContent(i)
-        eDn=hUncDn.GetBinContent(i)
+        bw = tmpData.GetBinWidth(i) if normBW else 1.
+        eUp=hUncUp.GetBinContent(i)/bw
+        eDn=hUncDn.GetBinContent(i)/bw
         
-        errorUp = tmpData.GetBinContent(i) + math.sqrt(math.pow(tmpData.GetBinError(i),2) + math.pow(eUp,2))
+        #don't add data stat error in syst
+        #errorUp = tmpData.GetBinContent(i) + math.sqrt(math.pow(tmpData.GetBinError(i),2) + math.pow(eUp,2))
+        errorUp = tmpData.GetBinContent(i) + math.sqrt(math.pow(eUp,2))
         errorUp -= hMain.GetBinContent(i) 
-        errorDn = max(tmpData.GetBinContent(i) - math.sqrt(math.pow(tmpData.GetBinError(i),2) + math.pow(eDn,2)),0)
+        #errorDn = max(tmpData.GetBinContent(i) - math.sqrt(math.pow(tmpData.GetBinError(i),2) + math.pow(eDn,2)),0)
+        errorDn = max(tmpData.GetBinContent(i) - math.sqrt(math.pow(eDn,2)),0)
         errorDn = hMain.GetBinContent(i) - errorDn
        
         MainGraph.SetPointEYhigh(i-1, errorUp)
@@ -1087,13 +1099,18 @@ def getSystValue(hMain):
             ratioGraph.SetPointEYhigh(i-1, 0.)
             ratioGraph.SetPointEYlow(i-1, 0.)
             continue
-        eUp=hUncUp.GetBinContent(i)
-        eDn=hUncDn.GetBinContent(i)
+        bw = tmpData.GetBinWidth(i) if normBW else 1.
+        eUp=hUncUp.GetBinContent(i)/bw
+        eDn=hUncDn.GetBinContent(i)/bw
         mc=hMain.GetBinContent(i)
         #print "eUp: ",eUp, "","eDn: ",eDn
-        errorUp = 1. + math.sqrt(math.pow(tmpData.GetBinError(i)/mc,2) + math.pow((eUp/mc),2))
+
+        #don't add data's error
+        #errorUp = 1. + math.sqrt(math.pow(tmpData.GetBinError(i)/mc,2) + math.pow((eUp/mc),2))
+        errorUp = 1. + math.sqrt( math.pow((eUp/mc),2)) 
         errorUp -= 1.
-        errorDn = max(1. - math.sqrt(math.pow(tmpData.GetBinError(i)/mc,2) + math.pow((eDn/mc),2)),0)
+        #errorDn = max(1. - math.sqrt(math.pow(tmpData.GetBinError(i)/mc,2) + math.pow((eDn/mc),2)),0)
+        errorDn = max(1. - math.sqrt(math.pow((eDn/mc),2)),0)
         errorDn = 1. - errorDn
         #ratioGraph.SetPointY(i-1,1.)
         ratioGraph.SetPointEYhigh(i-1, errorUp)

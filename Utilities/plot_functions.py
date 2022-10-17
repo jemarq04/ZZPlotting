@@ -242,7 +242,7 @@ def setErrorsStyle(histErrors):
     histErrors.SetLineColor(ROOT.TColor.GetColor("#a8a8a8"))
 
 
-def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range):
+def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range,isMassFull):
     stacks = filter(lambda p: type(p) is ROOT.THStack and "signal" not in p.GetName(), oldcanvas.GetListOfPrimitives())
     signal_stacks = filter(lambda p: type(p) is ROOT.THStack and "signal" in p.GetName(), oldcanvas.GetListOfPrimitives())
     data_list = filter(lambda p: type(p) is ROOT.TH1D and 'data' in p.GetName().lower(), oldcanvas.GetListOfPrimitives())
@@ -257,13 +257,15 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     name = oldcanvas.GetName()
     canvas = ROOT.TCanvas(name+'__new', name, *dimensions)
     ratioPad = ROOT.TPad('ratioPad', 'ratioPad', 0., 0., 1., .3)
-    #ratioPad.SetLogx()
+    if isMassFull:
+        ratioPad.SetLogx()
     ratioPad.Draw()
     stackPad = ROOT.TPad('stackPad', 'stackPad', 0., 0.3, 1., 1.)
     #stackPad.SetLogx()
     stackPad.Draw()
     stackPad.cd()
-    #oldcanvas.SetLogx()
+    if isMassFull:
+        oldcanvas.SetLogx()
     oldcanvas.DrawClonePad()
     del oldcanvas
     oldBottomMargin = stackPad.GetBottomMargin()
@@ -277,36 +279,63 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     ratioHists = data_list if compareData else (stack_hists+signal_hists)[1:]
     ratioHists = [h.Clone(h.GetName()+"_ratioHist") for h in ratioHists]
     centralRatioHist = stack_hists[0].Clone(name+'_central_ratioHist')
+    #if compareData, centralRatioHist is the MC statck, otherwise it is just the first hist in the stackf for comparing with remaining ones
     if compareData:
         errors = 0
         for primitive in stackPad.GetListOfPrimitives():
             if "errors" in primitive.GetName() and primitive.InheritsFrom("TH1"):
                 errors = primitive
         if errors:
-            centralRatioHist = errors.Clone(centralRatioHist.GetName())
+            centralRatioHist = errors.Clone(centralRatioHist.GetName()) #stat error_hist is also just sum of MC stack
         elif len(stack_hists) > 1:
             map(centralRatioHist.Add, stack_hists[1:])
-    centralHist = centralRatioHist.Clone("temp")
+    centralHist = centralRatioHist.Clone("temp") #just a copy of original centralratiohist for dividing
+    centralHist2 = centralRatioHist.Clone("temp2")
     centralRatioHist.SetFillColor(ROOT.TColor.GetColor("#828282"))
     #centralRatioHist.SetFillStyle(1001)
     centralRatioHist.SetFillStyle(3345)
     centralRatioHist.SetFillColorAlpha(0,0.0)
     centralRatioHist.SetMarkerSize(0)
+
+    #=================================
+    #This part set up the main ratio 
+    switch_ratio = False #if True, use prediction/data instead of data/prediciton like default
     if compareData:
-        ratioHist = ratioHists[0]
-        tmpData = ratioHist.Clone("tmp")
-        ratioHist.Divide(centralHist)
-        ratioGraph = ROOT.TGraphAsymmErrors(ratioHist)
+        if switch_ratio:
+            ratioHist = centralHist2
+            tmpData = ratioHists[0].Clone("tmp")
+            ratioHist.Divide(tmpData)
+        else:
+            ratioHist = ratioHists[0] #just data hist
+            tmpData = ratioHist.Clone("tmp")
+            ratioHist.Divide(centralHist)
+        #data/MC or MC/data, ratioHists will be updated to graph for compareData=True
+        ratioGraph = ROOT.TGraphAsymmErrors(ratioHist) 
         ratioHists = [ratioGraph]
-        for i in range(1, tmpData.GetNbinsX()+2):
-            if centralRatioHist.GetBinContent(i) == 0: 
-                continue
-            errorUp = (tmpData.GetBinContent(i)+tmpData.GetBinErrorUp(i))/centralRatioHist.GetBinContent(i)
-            errorUp -= ratioHist.GetBinContent(i) 
-            errorDown = (tmpData.GetBinContent(i)-tmpData.GetBinErrorLow(i))/centralRatioHist.GetBinContent(i)
-            errorDown = ratioHist.GetBinContent(i) - errorDown
+        for i in range(1, tmpData.GetNbinsX()+2): #don't understand the need for +2
+
+            if not switch_ratio:
+                if centralRatioHist.GetBinContent(i) == 0: 
+                    continue
+            if switch_ratio:
+                if tmpData.GetBinContent(i) == 0: 
+                    continue
+
+            #Don't understand why not just extract errorUp/Down from ratio hist
+
+            if not switch_ratio:
+                errorUp = (tmpData.GetBinContent(i)+tmpData.GetBinErrorUp(i))/centralRatioHist.GetBinContent(i)
+                errorUp -= ratioHist.GetBinContent(i) 
+                errorDown = (tmpData.GetBinContent(i)-tmpData.GetBinErrorLow(i))/centralRatioHist.GetBinContent(i)
+                errorDown = ratioHist.GetBinContent(i) - errorDown
+
+            if switch_ratio:
+                errorUp = ratioHist.GetBinErrorUp(i)
+                errorDown = ratioHist.GetBinErrorLow(i)
             ratioGraph.SetPointEYhigh(i-1, errorUp)
             ratioGraph.SetPointEYlow(i-1, errorDown)
+    #=====================================
+
     else:
         for ratioHist in ratioHists:
             tmpRatio = ratioHist.Clone("tempRatio")
@@ -317,16 +346,24 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
                 ratioHist.SetBinError(i, tmpRatio.GetBinError(i)/denom)
             ratioHist.Sumw2()
             del tmpRatio
+    
+    #================================================
+    #Set centralRaitoHist stat error and set value to 1., doesn't matter now since it is not drawn
     for i in range(centralRatioHist.GetNbinsX()+2):
         denom = centralHist.GetBinContent(i)
         if denom == 0: continue
         centralRatioHist.SetBinError(i, centralHist.GetBinError(i)/denom)
         centralRatioHist.SetBinContent(i, 1.)
+    #================================================
+
     stack_hists[0].GetXaxis().Copy(centralRatioHist.GetXaxis())
     stack_hists[0].GetXaxis().Copy(centralRatioHist.GetXaxis())
     if len(signal_stacks) > 0:
         signal_stacks[0].GetXaxis().Copy(centralRatioHist.GetXaxis())
         signal_stacks[0].GetXaxis().Copy(centralRatioHist.GetXaxis())
+
+    #==================================================
+    #CentralRatioHist originally used to draw stat error band in ratio 
     centralRatioHist.GetYaxis().SetTitle(ratio_text)
     centralRatioHist.GetXaxis().SetLabelOffset(0.03)
     centralRatioHist.GetYaxis().CenterTitle()
@@ -334,7 +371,10 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     centralRatioHist.GetYaxis().SetNdivisions(003)
     centralRatioHist.GetYaxis().SetTitleSize(centralRatioHist.GetYaxis().GetTitleSize()*0.8)
     centralRatioHist.GetYaxis().SetLabelSize(centralRatioHist.GetYaxis().GetLabelSize()*0.8)
-    centralRatioHist.Draw("E2")
+    #shouldn't need to draw it now
+    #centralRatioHist.Draw("E2")
+    #=========================================================
+
     #ratioband.GetYaxis().SetTitle(ratio_text)
     #ratioband.GetXaxis().SetLabelOffset(0.03)
     #ratioband.GetYaxis().CenterTitle()
@@ -346,6 +386,8 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
         ratioband.Draw("2")
 
     #centralRatioHist.Draw()
+    #This part draws the main ratio results in crosses
+    #================================================
     for ratioHist in ratioHists:
         drawOpt = "same"
         if not compareData:
@@ -358,6 +400,8 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
         else:
             drawOpt += " PZE0"
         ratioHist.Draw(drawOpt)
+    #================================================
+
     stacks = filter(lambda p: type(p) is ROOT.THStack, stackPad.GetListOfPrimitives())
     for stack in stacks:
         stack.GetXaxis().SetTitle("")
