@@ -156,8 +156,13 @@ def main():
     #pdb.set_trace()
     
     args = getComLineArgs()
-    if not args.channels == "eeee,eemm,mmee,mmmm":
+    doSyst = True
+    if not args.channels == "eeee,eemm,mmee,mmmm": #only run syst band for total channels
+        doSyst = False
+
+    if args.channels == "eemm" or args.channels == "mmee": #only look at combined 2e2m channel
         return
+        
     with open('varsFile.json') as var_json_file:
         myvar_dict = json.load(var_json_file)
     for key in myvar_dict.keys():
@@ -202,7 +207,8 @@ def main():
             with open("CurrentRun_Event_output.txt", "a") as current_evt:
                 if "Mass" in branch_name:
                     current_evt.write("\nLuminosity: %0.2f fb^{-1}" % (args.luminosity))
-                    current_evt.write("\nPlotting branch: %s\n" % branch_name)
+                    current_evt.write("\nPlotting branch: %s" % branch_name)
+                    current_evt.write("\nChannels: %s\n" % args.channels)
             try:
                 #pdb.set_trace()
                 hist_stack = getStacked("stack_"+branch_name, config_factory, args.selection, filelist, 
@@ -270,7 +276,7 @@ def main():
             print("File written")
             sys.exit()
 
-        helper.setGlobalChannel(args.channels,args.selection,args.luminosity,args.branches,args.hist_file) 
+        helper.setGlobalChannel(args.channels,args.selection,args.luminosity,args.branches,args.hist_file,doSyst) 
         canvas = helper.makePlots(hist_stacks, data_hists, name, args, signal_stacks)
         helper.savePlot(canvas, plot_path, html_path, plot_name, True, args)
         makeSimpleHtml.writeHTML(html_path.replace("/plots",""), args.selection)

@@ -300,6 +300,7 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     #=================================
     #This part set up the main ratio 
     switch_ratio = False #if True, use prediction/data instead of data/prediciton like default
+    pois_ratio = True
     if compareData:
         if switch_ratio:
             ratioHist = centralHist2
@@ -308,9 +309,16 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
         else:
             ratioHist = ratioHists[0] #just data hist
             tmpData = ratioHist.Clone("tmp")
-            ratioHist.Divide(centralHist)
+            if not pois_ratio: #if pois_ratio, divide with TGraphAsymmErrors::divide
+                ratioHist.Divide(centralHist)
+
         #data/MC or MC/data, ratioHists will be updated to graph for compareData=True
-        ratioGraph = ROOT.TGraphAsymmErrors(ratioHist) 
+        if not pois_ratio:
+            ratioGraph = ROOT.TGraphAsymmErrors(ratioHist)
+        else:
+            ratioGraph = ROOT.TGraphAsymmErrors()
+            ratioGraph.Divide(ratioHist,centralHist,"pois")
+
         ratioHists = [ratioGraph]
         for i in range(1, tmpData.GetNbinsX()+2): #don't understand the need for +2
 
@@ -332,8 +340,10 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
             if switch_ratio:
                 errorUp = ratioHist.GetBinErrorUp(i)
                 errorDown = ratioHist.GetBinErrorLow(i)
-            ratioGraph.SetPointEYhigh(i-1, errorUp)
-            ratioGraph.SetPointEYlow(i-1, errorDown)
+
+            if not pois_ratio:
+                ratioGraph.SetPointEYhigh(i-1, errorUp)
+                ratioGraph.SetPointEYlow(i-1, errorDown)
     #=====================================
 
     else:
