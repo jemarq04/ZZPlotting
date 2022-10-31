@@ -309,8 +309,8 @@ def makeCompositeHists(hist_file, name, members, lumi, hists=None, underflow=Fal
         if hists == None:
             hists = []
             for hloop in hist_file.Get(directory).GetListOfKeys():
-                if not "Gen" in hloop.GetName(): #Only process RECO for now in ZZPlotting
-                    hists.append(hloop.GetName())
+                #if not "Gen" in hloop.GetName(): #Only process RECO for now in ZZPlotting
+                hists.append(hloop.GetName())
             
             #hists = [i.GetName() for i in hist_file.Get(directory).GetListOfKeys()]
         sumweights = 0
@@ -364,8 +364,8 @@ def makeCompositeHists_scaling(hist_file, name, members, lumi, hists=None, under
         if hists == None:
             hists = []
             for hloop in hist_file.Get(directory).GetListOfKeys():
-                if not "Gen" in hloop.GetName(): #Only process RECO for now in ZZPlotting
-                    hists.append(hloop.GetName())
+                #if not "Gen" in hloop.GetName(): #Only process RECO for now in ZZPlotting
+                hists.append(hloop.GetName())
             #hists = [i.GetName() for i in hist_file.Get(directory).GetListOfKeys()]
         sumweights = 0
         if "data" not in directory.lower():

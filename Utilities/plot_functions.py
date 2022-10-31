@@ -329,7 +329,7 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
                 if tmpData.GetBinContent(i) == 0: 
                     continue
 
-            #Don't understand why not just extract errorUp/Down from ratio hist
+            #Don't understand why not just extract errorUp/Down from ratio hist => to preserve poisson error in numerator
 
             if not switch_ratio:
                 errorUp = (tmpData.GetBinContent(i)+tmpData.GetBinErrorUp(i))/centralRatioHist.GetBinContent(i)
@@ -381,8 +381,8 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     centralRatioHist.GetYaxis().SetNdivisions(003)
     centralRatioHist.GetYaxis().SetTitleSize(centralRatioHist.GetYaxis().GetTitleSize()*0.8)
     centralRatioHist.GetYaxis().SetLabelSize(centralRatioHist.GetYaxis().GetLabelSize()*0.8)
-    #shouldn't need to draw it now
-    #centralRatioHist.Draw("E2")
+    #shouldn't need to draw it now, but if don't draw it other objects won't show up unless define axis in draw option of TGraphAsymmErrors
+    centralRatioHist.Draw("E2")
     #=========================================================
 
     #ratioband.GetYaxis().SetTitle(ratio_text)

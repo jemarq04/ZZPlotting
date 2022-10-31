@@ -55,7 +55,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     ycoords = [ymax, ymax - 0.08*unique_entries*args.scalelegy]
     coords = [xcoords[0], ycoords[0], xcoords[1], ycoords[1]]
     
-    doSyst_diagnostic = False
+    doSyst_diagnostic = True
     dosyst = glb_doSyst and doSyst_diagnostic
     if dosyst:
         mainband,ratioband=getSystValue(hist_stacks[0].GetStack().Last())
@@ -795,6 +795,7 @@ def getSystValue(hMain):
     #Not needed for RECO plotting, but used to calculate ratio between channels
     
     hTrueDic=OutputTools.getHistsInDic(ewkmc,["Gen"+s for s in varList],channels)
+    hTrueDic_qqZZonly=OutputTools.getHistsInDic(ewkmc_qqZZonly,["Gen"+s for s in varList],channels)
     #hTrueDic_ggZZonly=OutputTools.getHistsInDic(ewkmc_ggZZonly,["Gen"+s for s in varList],channels)
     #hTrueDic_ggZZup=OutputTools.getHistsInDic(ewkmc_ggZZup,["Gen"+s for s in varList],channels)
     #hTrueDic_ggZZdn=OutputTools.getHistsInDic(ewkmc_ggZZdn,["Gen"+s for s in varList],channels)
@@ -839,7 +840,7 @@ def getSystValue(hMain):
     SysDic = {"Up":{},"Down":{}}
     errkeys = ['ggZZXsec','generator','lumi','PU','jes','jer','e_eff','m_eff',"trigger"] #not used, for information
 
-    with open("ChannelRatio.txt","w") as fchan:
+    with open("ChannelRatio.txt","a") as fchan:
         fchan.write("Variable:%s\n"%variable)
 
     for chan in channels:
@@ -849,13 +850,22 @@ def getSystValue(hMain):
         hBkgMCNominal = hbkgMCDic[chan][variable].Clone()
         hBkgNominal = rebin(hBkgNominal,variable)
         hTrue = hTrueDic[chan]["Gen"+variable]
+        hTrue_qqZZonly = hTrueDic_qqZZonly[chan]["Gen"+variable]
         hTrueBinCont = [hTrue.GetBinContent(htb) for htb in range(1,hTrue.GetNbinsX()+1)]
         hTrueInt = hTrue.Integral(1,hTrue.GetNbinsX())
+
+        hTrueBinCont_qqZZonly = [hTrue_qqZZonly.GetBinContent(htb) for htb in range(1,hTrue_qqZZonly.GetNbinsX()+1)]
+        hTrueInt_qqZZonly = hTrue_qqZZonly.Integral(1,hTrue_qqZZonly.GetNbinsX())
+
         with open("ChannelRatio.txt","a") as fchan:
             fchan.write("Channel:%s\n"%chan)
-            fchan.write("Bin Content:\m")
-            fchan.write(hTrueBinCont)
-            fchan.write("Total event:%s"%hTrueInt)
+            fchan.write("Bin Content:\n")
+            fchan.write("%s\n"%hTrueBinCont)
+            fchan.write("Total event:%s\n"%hTrueInt)
+
+            fchan.write("qqZZ Bin Content:\n")
+            fchan.write("%s\n"%hTrueBinCont_qqZZonly)
+            fchan.write("Total qqZZ event:%s\n"%hTrueInt_qqZZonly)
 
         #truncateTH1(hBkgNominal)
         hBkgMCNominal = rebin(hBkgMCNominal,variable)
