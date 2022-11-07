@@ -850,7 +850,9 @@ def getSystValue(hMain):
         hBkgMCNominal = hbkgMCDic[chan][variable].Clone()
         hBkgNominal = rebin(hBkgNominal,variable)
         hTrue = hTrueDic[chan]["Gen"+variable]
+        hTrue = rebin(hTrue,variable)
         hTrue_qqZZonly = hTrueDic_qqZZonly[chan]["Gen"+variable]
+        hTrue_qqZZonly = rebin(hTrue_qqZZonly,variable)
         hTrueBinCont = [hTrue.GetBinContent(htb) for htb in range(1,hTrue.GetNbinsX()+1)]
         hTrueInt = hTrue.Integral(1,hTrue.GetNbinsX())
 
