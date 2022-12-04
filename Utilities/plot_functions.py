@@ -242,7 +242,7 @@ def setErrorsStyle(histErrors):
     histErrors.SetLineColor(ROOT.TColor.GetColor("#a8a8a8"))
 
 
-def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range,isMassFull):
+def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range,isMassFull,varname):
     stacks = filter(lambda p: type(p) is ROOT.THStack and "signal" not in p.GetName(), oldcanvas.GetListOfPrimitives())
     signal_stacks = filter(lambda p: type(p) is ROOT.THStack and "signal" in p.GetName(), oldcanvas.GetListOfPrimitives())
     data_list = filter(lambda p: type(p) is ROOT.TH1D and 'data' in p.GetName().lower(), oldcanvas.GetListOfPrimitives())
@@ -376,6 +376,8 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     #CentralRatioHist originally used to draw stat error band in ratio 
     centralRatioHist.GetYaxis().SetTitle(ratio_text)
     centralRatioHist.GetXaxis().SetLabelOffset(0.03)
+    if varname == "nJets":
+        centralRatioHist.GetXaxis().CenterLabels(True)
     centralRatioHist.GetYaxis().CenterTitle()
     centralRatioHist.GetYaxis().SetRangeUser(*ratio_range)
     centralRatioHist.GetYaxis().SetNdivisions(003)

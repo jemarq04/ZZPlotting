@@ -116,8 +116,15 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         
         ROOT.CMSlumi(canvas, 0, 11, "%s (13 TeV)" % scale_label,lumi_text)
                 #"Preliminary Simulation" if args.simulation else "Preliminary")
-    if args.extra_text != "":
-        lines = [x.strip() for x in args.extra_text.split(";")]
+    if args.extra_text != "" or glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]:
+        if args.extra_text != "":
+            lines = [x.strip() for x in args.extra_text.split(";")]
+        elif glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]:
+            if "0" in glb_var:
+                lines = ['Events with >= 1 jet']
+            elif "1" in glb_var:
+                lines = ["Events with >= 2 jets"]
+            
         ymax = coords[3]-0.02
         box_size = 0.05*len(lines)*args.scalelegy*5
         if args.extra_text_above:
@@ -125,9 +132,14 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
             coords[1] -= box_size
             coords[3] -= box_size
         ymin = ymax - box_size
-        #text_box = ROOT.TPaveText(coords[0]-0.5, ymin+0.4, coords[2]-0.5, ymax+0.4, "NDCnb")
+        if args.logy:
+            if glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]:
+                text_box = ROOT.TPaveText(coords[0]-0.5, ymin+0.46, coords[2]-0.5, ymax+0.46, "NDCnb")
+            else:
+                text_box = ROOT.TPaveText(coords[0]-0.5, ymin+0.4, coords[2]-0.5, ymax+0.4, "NDCnb")
         #For linear plot positions
-        text_box = ROOT.TPaveText(coords[0], ymin, coords[2], ymax, "NDCnb")
+        else:
+            text_box = ROOT.TPaveText(coords[0], ymin, coords[2], ymax, "NDCnb")
         #text_box.SetFillColor(0)
         text_box.SetFillColorAlpha(0,0.0)        
         text_box.SetFillStyle(0)
@@ -149,7 +161,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         #pdb.set_trace()
         canvas = plotter.splitCanvasWithSyst(ratioband,canvas, canvas_dimensions,
                 "#scale[0.85]{Data / Pred.}" if data_hists[0] else args.ratio_text,
-                [float(i) for i in args.ratio_range],glb_isFullMass
+                [float(i) for i in args.ratio_range],glb_isFullMass,glb_var
         )
     
     #canvas.SetLogx()
