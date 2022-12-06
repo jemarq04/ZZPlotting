@@ -65,6 +65,41 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     if mainband and ratioband:
         ROOT.SetOwnership(ratioband, False)
         ROOT.SetOwnership(mainband, False)
+        #pdb.set_trace()
+
+        #By design, if input channel is eemm, mainband should return 2e2m result 
+        
+        #hmb = mainband.GetHistogram() #hist used to draw xaxis
+        totup = 0.
+        totdn = 0.
+        for bini in range(0,mainband.GetN()):
+            totup+=mainband.GetErrorYhigh(bini)
+            totdn+=mainband.GetErrorYlow(bini)
+        
+        mb_bc = [ int(mainband.GetX()[bini]) for bini in range(0,mainband.GetN())]
+        if "Mass" in glb_var:
+            with open("SystOutput.txt","a") as fsys: #append for all channels printout
+                fsys.write("\nLuminosity: %0.2f fb^{-1}" % (glb_lumi))
+                fsys.write("\nPlotting branch: %s" % glb_var)
+                fsys.write("\nChannels: %s" % (",".join(glb_chan)))
+                fsys.write("\nTotal sys up: %s"%totup)
+                fsys.write("\nTotal sys dn: %s\n"%totdn)
+            
+            if "Full" in glb_var:
+                #bin_Z = hmb.FindBin(90)-1
+                #bin_H = hmb.FindBin(125)-1
+                bin_Z = mb_bc.index(90)
+                bin_H = mb_bc.index(125)
+                Z_up = mainband.GetErrorYhigh(bin_Z)
+                Z_dn = mainband.GetErrorYlow(bin_Z)
+                H_up = mainband.GetErrorYhigh(bin_H)
+                H_dn = mainband.GetErrorYlow(bin_H)
+                with open("SystOutput.txt","a") as fsys:
+                    fsys.write("\n sys up: 80-100 GeV %s"%Z_up)
+                    fsys.write("\n sys dn: 80-100 GeV %s"%Z_dn)
+                    fsys.write("\n sys up: 120-130 GeV %s"%H_up)
+                    fsys.write("\n sys dn: 120-130 GeV %s\n"%H_dn)
+            
     
     if "none" not in args.uncertainties:
         
@@ -1099,7 +1134,8 @@ def getSystValue(hMain):
     #Not needed for TGraphAsymmErrors thus SetDirectory method doesn't exist
 
     tmpData = hMain.Clone("tmp")
-    normBW = glb_isFullMass
+    nbw_for_table = False
+    normBW = glb_isFullMass and nbw_for_table
     
 
     for i in range(1, tmpData.GetNbinsX()+1):

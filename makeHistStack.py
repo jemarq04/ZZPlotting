@@ -99,6 +99,9 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
     hist_stack = ROOT.THStack(name, "")
     ROOT.SetOwnership(hist_stack, False)
     hist_info = {}
+    first_add = True
+    first_add2 = True
+    signal_list = ["zzjj4l-ewk","ggZZ","qqZZ-amcnlo","HZZ-signal"]
     print "Plot_set in filelist"
     for plot_set in filelist:
         #pdb.set_trace()
@@ -125,21 +128,44 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
                 hist.SetBinContent(offshellbin,0.9*hist.GetBinContent(offshellbin))
                 hist.SetBinError(offshellbin,0.9*hist.GetBinError(offshellbin))
         hist_stack.Add(hist)
+
+        hist.Sumw2()
+
+        if first_add2:
+            tot_sum = hist.Clone(name+"totalsum")
+            first_add2 = False
+        else:
+            tot_sum.Add(hist)
+
+        if plot_set in signal_list:
+            if first_add:
+                signal_sum = hist.Clone(name+"signalsum")
+                first_add = False
+            else:
+                signal_sum.Add(hist)
+            
         error = array.array('d', [0])
         #pdb.set_trace()
+        
         weighted_events = hist.IntegralAndError(1, hist.GetNbinsX(), error)
+        central_error = 0. if int(raw_events) <= 0 else error[0]
         if "Mass" in branch_name:
             with open("CurrentRun_Event_output.txt", "a") as current_evt:
                 current_evt.write("\n %s: weighted events %s"%(plot_set,weighted_events))
+                current_evt.write("\n %s: weighted events Error %s"%(plot_set,central_error))
             if "Full" in branch_name:
                 bin_Z = hist.FindBin(90)
                 bin_H = hist.FindBin(125)
                 Z_events = hist.GetBinContent(bin_Z)
                 H_events = hist.GetBinContent(bin_H)
+                Z_error = hist.GetBinError(bin_Z)
+                H_error = hist.GetBinError(bin_H)
                 with open("CurrentRun_Event_output.txt", "a") as current_evt:
                     current_evt.write("\n %s: 80-100 GeV %s"%(plot_set,Z_events))
+                    current_evt.write("\n %s: 80-100 GeV Error %s"%(plot_set,Z_error))
                     current_evt.write("\n %s: 120-130 GeV %s"%(plot_set,H_events))
-        hist.Sumw2()
+                    current_evt.write("\n %s: 120-130 GeV Error %s"%(plot_set,H_error))
+        #hist.Sumw2()
         #if not hist.GetSumw2(): hist.Sumw2()
         #pdb.set_trace()
         #can use error for information, but not sure what stat error statnds for, since we should calculate sum of weight^2.
@@ -150,18 +176,77 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
                                     weighted_events/math.sqrt(raw_events) 
         }
     writeMCLogInfo(hist_info, selection, branch_name, luminosity, cut_string, latex)
- 
+
+    #total and stat unc. for signal (signal sum)
+    error_sigs = array.array('d', [0])
+    weighted_events_sigs = signal_sum.IntegralAndError(1, signal_sum.GetNbinsX(), error_sigs)
+    central_error_sigs = 0. if int(signal_sum.GetEntries()) <= 0 else error_sigs[0]
+    if "Mass" in branch_name:
+        with open("CurrentRun_Event_output.txt", "a") as current_evt:
+            current_evt.write("\n %s: weighted events %s"%("signal",weighted_events_sigs))
+            current_evt.write("\n %s: weighted events Error %s"%("signal",central_error_sigs))
+        if "Full" in branch_name:
+            bin_Z_sigs = signal_sum.FindBin(90)
+            bin_H_sigs = signal_sum.FindBin(125)
+            Z_events_sigs = signal_sum.GetBinContent(bin_Z_sigs)
+            H_events_sigs = signal_sum.GetBinContent(bin_H_sigs)
+            Z_error_sigs = signal_sum.GetBinError(bin_Z_sigs)
+            H_error_sigs = signal_sum.GetBinError(bin_H_sigs)
+            with open("CurrentRun_Event_output.txt", "a") as current_evt:
+                current_evt.write("\n %s: 80-100 GeV %s"%("signal",Z_events_sigs))
+                current_evt.write("\n %s: 80-100 GeV Error %s"%("signal",Z_error_sigs))
+                current_evt.write("\n %s: 120-130 GeV %s"%("signal",H_events_sigs))
+                current_evt.write("\n %s: 120-130 GeV Error %s"%("signal",H_error_sigs))
+
+    error_tots = array.array('d', [0])
+    weighted_events_tots = tot_sum.IntegralAndError(1, tot_sum.GetNbinsX(), error_tots)
+    central_error_tots = 0. if int(tot_sum.GetEntries()) <= 0 else error_tots[0]
+    if "Mass" in branch_name:
+        with open("CurrentRun_Event_output.txt", "a") as current_evt:
+            current_evt.write("\n %s: weighted events %s"%("totexp",weighted_events_tots))
+            current_evt.write("\n %s: weighted events Error %s"%("totexp",central_error_tots))
+        if "Full" in branch_name:
+            bin_Z_tots = tot_sum.FindBin(90)
+            bin_H_tots = tot_sum.FindBin(125)
+            Z_events_tots = tot_sum.GetBinContent(bin_Z_tots)
+            H_events_tots = tot_sum.GetBinContent(bin_H_tots)
+            Z_error_tots = tot_sum.GetBinError(bin_Z_tots)
+            H_error_tots = tot_sum.GetBinError(bin_H_tots)
+            with open("CurrentRun_Event_output.txt", "a") as current_evt:
+                current_evt.write("\n %s: 80-100 GeV %s"%("totexp",Z_events_tots))
+                current_evt.write("\n %s: 80-100 GeV Error %s"%("totexp",Z_error_tots))
+                current_evt.write("\n %s: 120-130 GeV %s"%("totexp",H_events_tots))
+                current_evt.write("\n %s: 120-130 GeV Error %s"%("totexp",H_error_tots))
+
     return hist_stack
 def main():
     #pdb.set_trace()
-    
+    #=================================
+    #When printing for table, remember to swithch bw normalization in helper_functions and FromFileHistProducer
+    #=================================
     args = getComLineArgs()
-    doSyst = True
-    if not args.channels == "eeee,eemm,mmee,mmmm": #only run syst band for total channels
-        doSyst = False
+    doSyst = False
+    do3ChanSys = False #Do 3 channels separately and totoal for table printout
+   
+    if not do3ChanSys:
+        if not args.channels == "eeee,eemm,mmee,mmmm": #only run syst band for total channels
+            #return
+            doSyst = False
+        if args.channels == "eemm" or args.channels == "mmee": #only look at combined 2e2m channel
+            return
+            
+            if "mmee" in args.channels:
+                return
+                doSyst = False
+    else:
+        if not args.channels == "eeee,eemm,mmee,mmmm": #only run syst band for total channels
+            
+            if "mmee" in args.channels: #only allow eeee,eemm,mmmm as input
+                return
+                
 
-    if args.channels == "eemm" or args.channels == "mmee": #only look at combined 2e2m channel
-        return
+    #if args.channels == "eemm" or args.channels == "mmee": #only look at combined 2e2m channel
+    #    return
         
     with open('varsFile.json') as var_json_file:
         myvar_dict = json.load(var_json_file)
