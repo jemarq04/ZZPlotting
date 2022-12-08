@@ -1,10 +1,85 @@
 import pdb
 #fins = ["16Info.txt","17Info.txt","18Info.txt"]
-#years = ["16","17","18"]
-years = ["Run2"]
+years = ["16","17","18"]
+#years = []
 MC = ["VVV","nonprompt","qqZZ-amcnlo","zzjj4l-ewk","ggZZ","HZZ-signal"]+["signalSum","totexp"]
 MC2 = ["VVV","nonprompt","qqZZ-amcnlo","zzjj4l-ewk","ggZZ","HZZ-signal"]
 MC_print = ["VVV","Nonprompt","qqZZ","ZZEWK","ggZZ","HZZ"] + ["Total signal", "Total expected"]
+
+def sumlist(l1,l2):
+    list = [a+b for (a,b) in zip(l1,l2)]
+    return list
+
+def roundlist(l,x):
+    return [round(a,x) for a in l]
+
+
+def readSysDic(fin): # run this function for two files, one with fake rate syst, one without
+    start = False
+    var = ""
+    dict = {}
+    for jm in ["allj","0j","1j","2j","3j","4j"]:
+        dict[jm] = {}
+        for chan in ["allchan","eeee","eemm","mmmm"]:
+            dict[jm][chan] = {}
+
+            
+            dict[jm][chan]["signal"] = [] #list of syst unc. in order [on-shell u/d Z u/d, H u/d]
+            
+
+    for line in fin:
+        if "Plotting branch: " in line:
+            start = True
+            var = line.strip().split("Plotting branch: ")[1]
+            channel = ""
+            nj = var.replace("Mass","").replace("Full","")
+            if nj == "":
+                nj = "allj"
+            isFull = "Full" in var
+            nevt = 0.
+            nerr = 0.
+        
+        if start:
+            if "Channels: " in line:
+                chans = line.strip().split("Channels: ")[1]
+                #pdb.set_trace()
+                if chans == "eeee,eemm,mmmm":
+                    channel = "allchan"
+                else:
+                    channel = chans
+
+            #nevt and nerr are just from previous naming for convenience, not the same meaning
+            if "sys" in line:
+                if not isFull: 
+                    if "sys up" in line:
+                        mcstr = "sys up: " 
+                        nevt = float(line.strip().split(mcstr)[1])
+                    #pdb.set_trace()
+                        dict[nj][channel]["signal"].append(nevt)
+                    else:
+                        mcestr = "sys dn: " 
+                        nerr= float(line.strip().split(mcestr)[1])
+                        dict[nj][channel]["signal"].append(nerr)
+
+                if isFull:
+                    #this should append in correct order since first process Massxj then MassxjFull
+                    if " 80-100 GeV " in line:
+                        if "sys up" in line:
+                            nevt = float(line.strip().split(" 80-100 GeV ")[1])
+                            dict[nj][channel]["signal"].append(nevt) 
+                        else:
+                            nerr= float(line.strip().split(" 80-100 GeV ")[1])
+                            dict[nj][channel]["signal"].append(nerr) 
+                    if " 120-130 GeV " in line:
+                        if "sys up" in line:
+                            nevt = float(line.strip().split(" 120-130 GeV ")[1])
+                            dict[nj][channel]["signal"].append(nevt) 
+                        else:
+                            nerr = float(line.strip().split(" 120-130 GeV ")[1])
+                            dict[nj][channel]["signal"].append(nerr) 
+
+
+    return dict
 
 def readDic(fin):
     start = False
@@ -31,6 +106,7 @@ def readDic(fin):
                 nj = "allj"
             isFull = "Full" in var
             nevt = 0.
+            nerr = 0.
         
         if start:
             if "Channels: " in line:
@@ -102,7 +178,7 @@ def printTable(fout,fout2,dic,yr):
     fout.write("\\topcaption{The observed and expected yields of %s $\cPZ\cPZ$ events in different mass ranges,\
     and estimated yields of background\
     events, shown for each final state and\
-    the total.\
+    the total. The statistical uncertainties are presented.\
     }"%year+"\n")
 
 
@@ -161,7 +237,7 @@ def printTable(fout,fout2,dic,yr):
     fout2.write("\\centering"+"\n")
     fout2.write("\\topcaption{The observed and expected yields of %s $\cPZ\cPZ$ events in different mass ranges,\
     and estimated yields of background\
-    events, shown for each jet multiplicity.\
+    events, shown for each jet multiplicity. The statistical uncertainties are presented.\
     }"%year+"\n")
 
     fout2.write("\\begin{tabular}{ |l|c|c|c| } "+"\n")
@@ -213,15 +289,200 @@ def printTable(fout,fout2,dic,yr):
     fout2.write("\\end{tabular}"+"\n")
     fout2.write("\\label{table:resultsByJetMul_%s}"%yr+"\n")
     fout2.write("\\end{table}"+"\n")
+
+def printTableRun2(fout,fout2,dic,dicWF,dicWOF,dicts):
+
+    fout.write("\\begin{table}[htbp]"+"\n") 
+    fout.write("\\centering"+"\n")
+    fout.write("\\topcaption{The observed and expected yields of %s $\cPZ\cPZ$ events in different mass ranges,\
+    and estimated yields of background\
+    events, shown for each final state and\
+    the total. The statistical (first) and systematic (second) uncertainties are presented.\
+    }"%"Run2"+"\n")
+
+
+    #Table 1, split by channels and mass range
+    fout.write("\\begin{tabular}{ |l|c|c|c|c| } "+"\n")
+    fout.write("\\hline"+"\n")         
+    fout.write("       Process       & $\Pe\Pe\Pe\Pe$  & $\Pe\Pe\Pgm\Pgm$  & $\Pgm\Pgm\Pgm\Pgm$ & $2\ell2\ell'$  \\\\"+"\n")
+    fout.write("\\hline"+"\n")  
+
+    for zin in [2,0]: #Z range index, currently look at Z [index 2,3] and on-shell region [index 0,1], provided each list has 6 numbers version
+        if zin == 0:
+            fout.write("\multicolumn{5}{|c|}{$60<m_{\cPZ_1},m_{\cPZ_2}<120 GeV$} \\\\"+"\n")
+            fout.write("\\hline"+"\n")
+            #fout.write("                             $60<m_{\cPZ_1},m_{\cPZ_2}<120 GeV$\n")
+        elif zin == 2:
+            fout.write("\multicolumn{5}{|c|}{$80< m_{4\\ell} < 100 GeV$} \\\\"+"\n")
+            fout.write("\\hline"+"\n")
+            #fout.write("                             $80< m_{4\\ell} < 100 GeV$\n")
+        bkgPstr = "         Background       "
+        signalPstr = "         Signal       "
+        expPstr = "         Total expected       "
+        dataPstr = "         Data       "
+        for chan in ["eeee","eemm","mmmm","allchan"]:
+            
+            #Background
+            for din,d in enumerate(dicts): #Sum the event numbers for 3 years
+                #if zin == 0:
+                #    pdb.set_trace()
+                tmpZXlist = d["allj"][chan]["nonprompt"][zin]
+                tmpbkglist = sumlist(d["allj"][chan]["VVV"], d["allj"][chan]["nonprompt"])[zin]
+                tmpSignal = d["allj"][chan]["signalSum"][zin]
+                tmptotexp = d["allj"][chan]["totexp"][zin]
+                if din == 0: #only number in current version, not list
+                    bkglist = tmpbkglist
+                    ZXlist = tmpZXlist
+                    signalist = tmpSignal
+                    totexplist = tmptotexp
+                else:
+                    bkglist += tmpbkglist
+                    ZXlist += tmpZXlist
+                    signalist +=tmpSignal
+                    totexplist+=tmptotexp
+
+            bkgsyslist = round(ZXlist*0.4,1)
+            bkglist = round(bkglist,1)
+            bkgerrlist = round(dic["allj"][chan]["nonprompt"][zin+1],1)
+            bkgstr = "&  {} $\\pm$ {} $\\pm$ {}".format(bkglist,bkgerrlist,bkgsyslist)
+            bkgPstr+= bkgstr
+
+            signalsys = dicWOF["allj"][chan]["signal"][zin:zin+2]
+            signalsys = roundlist(signalsys,1)
+            signalist = round(signalist,1)
+            signalerr = round(dic["allj"][chan]["signalSum"][zin+1],1)
+            signalstr = "&  %s $\\pm$ %s $^{+%s}_{-%s}$"%(signalist,signalerr,signalsys[0],signalsys[1])
+            signalPstr += signalstr
+
+            expsys = dicWF["allj"][chan]["signal"][zin:zin+2]
+            expsys = roundlist(expsys,1)
+            explist = round(totexplist,1)
+            experr = round(dic["allj"][chan]["totexp"][zin+1],1)
+            expstr = "&  %s $\\pm$ %s $^{+%s}_{-%s}$"%(explist,experr,expsys[0],expsys[1])
+            expPstr +=expstr
+        
+
+            datalist = dic["allj"][chan]["data"][int(zin/2.)]
+            datastr = "&  %s"%datalist
+            dataPstr += datastr
+
+        for x in [bkgPstr,signalPstr,expPstr,dataPstr]:
+            fout.write(x+"\\\\"+"\n")
+        fout.write("\\hline"+"\n") 
+        #if zin == 0:
+        #    fout.write(""+"\n")
+    fout.write("\\end{tabular}"+"\n")
+    fout.write("\\label{table:resultsByChannel_%s}"%"Run2"+"\n")
+    fout.write("\\end{table}"+"\n")
+
+    #Table 2, split by jet mult and mass range
+    #print("======================================================")
+    #print("")
+    fout2.write("\\begin{table}[htbp]"+"\n")
+    fout2.write("\\centering"+"\n")
+    fout2.write("\\topcaption{The observed and expected yields of %s $\cPZ\cPZ$ events in different mass ranges,\
+    and estimated yields of background\
+    events, shown for each jet multiplicity. The statistical (first) and systematic (second) uncertainties are presented.\
+    }"%"Run2"+"\n")
+
+    fout2.write("\\resizebox{\\columnwidth}{!}{"+"\n")
+    fout2.write("\\begin{tabular}{ |l|c|c|c|c|c| } "+"\n")
+    fout2.write("\\hline"+"\n")         
+    fout2.write("       Process       & 0 jet  & 1 jet & 2 jets & 3 jets & 4 jets \\\\"+"\n")
+    fout2.write("\\hline"+"\n")  
+
+    for zin in [2,0]: #Z range index, currently look at Z [index 2,3] and on-shell region [index 0,1], provided each list has 6 numbers version
+        if zin == 0:
+            fout2.write("\multicolumn{6}{|c|}{$60<m_{\cPZ_1},m_{\cPZ_2}<120 GeV$} \\\\"+"\n")
+            fout2.write("\\hline"+"\n")
+            #fout.write("                             $60<m_{\cPZ_1},m_{\cPZ_2}<120 GeV$\n")
+        elif zin == 2:
+            fout2.write("\multicolumn{6}{|c|}{$80< m_{4\\ell} < 100 GeV$} \\\\"+"\n")
+            fout2.write("\\hline"+"\n")
+            #fout.write("                             $80< m_{4\\ell} < 100 GeV$\n")
+        bkgPstr = "         Background       "
+        signalPstr = "         Signal       "
+        expPstr = "         Total expected       "
+        dataPstr = "         Data       "
+        
+        for jm in ["0j","1j","2j","3j","4j"]: #allj included in 4l case
+            for din,d in enumerate(dicts): #Sum the event numbers for 3 years
+                tmpZXlist = d[jm]["allchan"]["nonprompt"][zin]
+                tmpbkglist = sumlist(d[jm]["allchan"]["VVV"], d[jm]["allchan"]["nonprompt"])[zin]
+                tmpSignal = d[jm]["allchan"]["signalSum"][zin]
+                tmptotexp = d[jm]["allchan"]["totexp"][zin]
+                if din == 0: #only number in current version, not list
+                    bkglist = tmpbkglist
+                    ZXlist = tmpZXlist
+                    signalist = tmpSignal
+                    totexplist = tmptotexp
+                else:
+                    bkglist += tmpbkglist
+                    ZXlist += tmpZXlist
+                    signalist +=tmpSignal
+                    totexplist+=tmptotexp
+
+            bkgsyslist = round(ZXlist*0.4,1)
+            bkglist = round(bkglist,1)
+            bkgerrlist = round(dic[jm]["allchan"]["nonprompt"][zin+1],1)
+            bkgstr = "&  {} $\\pm$ {} $\\pm$ {}".format(bkglist,bkgerrlist,bkgsyslist)
+            bkgPstr+= bkgstr
+
+            signalsys = dicWOF[jm]["allchan"]["signal"][zin:zin+2]
+            signalsys = roundlist(signalsys,1)
+            signalist = round(signalist,1)
+            signalerr = round(dic[jm]["allchan"]["signalSum"][zin+1],1)
+            signalstr = "&  %s $\\pm$ %s $^{+%s}_{-%s}$"%(signalist,signalerr,signalsys[0],signalsys[1])
+            signalPstr += signalstr
+
+            expsys = dicWF[jm]["allchan"]["signal"][zin:zin+2]
+            expsys = roundlist(expsys,1)
+            explist = round(totexplist,1)
+            experr = round(dic[jm]["allchan"]["totexp"][zin+1],1)
+            expstr = "&  %s $\\pm$ %s $^{+%s}_{-%s}$"%(explist,experr,expsys[0],expsys[1])
+            expPstr +=expstr
+        
+
+            datalist = dic[jm]["allchan"]["data"][int(zin/2.)]
+            datastr = "&  %s"%datalist
+            dataPstr += datastr     
+        for x in [bkgPstr,signalPstr,expPstr,dataPstr]:
+            fout2.write(x+"\\\\"+"\n")
+        #if zin == 0:
+        #    fout2.write(""+"\n")  
+        fout2.write("\\hline"+"\n") 
+    fout2.write("\\end{tabular}}"+"\n")
+    fout2.write("\\label{table:resultsByJetMul_%s}"%"Run2"+"\n")
+    fout2.write("\\end{table}"+"\n")
+
+
+
+
+
+
+
 #Main
 dicts=[]
+#This works even with old 16,17,18Info.txt, but event list has 3 instead of 6 entries, and printTable won't work,
+#but this can be used for first testing
 for yr in years:
-    with open(yr+"Info.txt") as fin:
+    with open(yr+"Info2.txt") as fin:
         with open(yr+".tex","w") as fout1:
             with open(yr+"_2.tex","w") as fout2:
                 dicyr = readDic(fin) 
                 dicts.append(dicyr)
                 printTable(fout1,fout2,dicyr,yr)
+
+with open("Run2Info.txt") as fin:
+    with open("Run2SysWithFake.txt") as fin2:
+        with open("Run2SysWithoutFake.txt") as fin3:
+            with open("Run2.tex","w") as fout1:
+                with open("Run2_2.tex","w") as fout2:
+                    dicyr = readDic(fin) 
+                    dicWF = readSysDic(fin2)
+                    dicWOF = readSysDic(fin3)
+                    
+                    printTableRun2(fout1,fout2,dicyr,dicWF,dicWOF,dicts)
 #print(dicts)
 
 
