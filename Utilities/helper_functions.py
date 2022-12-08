@@ -30,6 +30,13 @@ import ConfigureJobs
 import HistTools
 
 #logging.basicConfig(level=logging.DEBUG)
+def truncateTH1(hist):
+    
+    for i in range(1,hist.GetNbinsX()+1):
+        if hist.GetBinContent(i)<0.:
+            tmperror = abs(hist.GetBinError(i)) #should be positive error, just in case
+            hist.SetBinContent(i,0.)
+            hist.SetBinError(i,tmperror)
 
 def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[]):
     canvas_dimensions = [800, 800] if "unrolled" not in name else [1200, 800]
@@ -76,6 +83,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
             totup+=mainband.GetErrorYhigh(bini)
             totdn+=mainband.GetErrorYlow(bini)
         
+        #mainband bin centers (at least in the case of full mass range plots)
         mb_bc = [ int(mainband.GetX()[bini]) for bini in range(0,mainband.GetN())]
         if "Mass" in glb_var:
             with open("SystOutput.txt","a") as fsys: #append for all channels printout
@@ -885,7 +893,7 @@ def getSystValue(hMain):
     hbkgMCSystDic=OutputTools.getHistsInDic(allVVVmc,systList,channels)
 
     SysDic = {"Up":{},"Down":{}}
-    errkeys = ['ggZZXsec','generator','lumi','PU','jes','jer','e_eff','m_eff',"trigger"] #not used, for information
+    errkeys = ['ggZZXsec','generator','lumi','PU','jes','jer','e_eff','m_eff',"trigger","fake"] #not used, for information
 
     with open("ChannelRatio.txt","a") as fchan:
         fchan.write("Variable:%s\n"%variable)
@@ -1026,6 +1034,26 @@ def getSystValue(hMain):
                 SysDic[sys]['trigger'].Add(hChangeTrig)
 
 
+        # fake rate
+        turnoffFake = False
+        if not turnoffFake:
+            fakeUnc = 0.4
+            fakeScale = {'Up':1.+fakeUnc,'Down':1.-fakeUnc}
+            for sys, scale in fakeScale.iteritems():
+
+                hBkgFake = hbkgDic[chan][variable+"_Fakes"].Clone()
+                hBkgFake=rebin(hBkgFake,variable)
+                truncateTH1(hBkgFake)
+                hBkgFake.Scale(scale-1.)
+                #hBkgFake.SetDirectory(0)
+                
+
+                if chan == channels[0]:
+                    SysDic[sys]['fake'] = hBkgFake
+                    
+                else:
+                    SysDic[sys]['fake'].Add(hBkgFake)
+            
 
         #Pileup reweight
         for sys in ['Up','Down']:
