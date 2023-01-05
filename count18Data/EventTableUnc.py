@@ -252,7 +252,10 @@ def printTable(fout,fout2,dic,yr):
             jmP = "All jets"
         else:
             nj = int(jm.replace("j",""))
-            if nj>1:
+            
+            if nj==4:
+                jmP = "$\\geq$%s jet"%nj
+            elif nj>1:
                 jmP = "%s jets"%nj
             else:
                 jmP = "%s jet"%nj
@@ -388,7 +391,7 @@ def printTableRun2(fout,fout2,dic,dicWF,dicWOF,dicts):
     fout2.write("\\resizebox{\\columnwidth}{!}{"+"\n")
     fout2.write("\\begin{tabular}{ |l|c|c|c|c|c| } "+"\n")
     fout2.write("\\hline"+"\n")         
-    fout2.write("       Process       & 0 jet  & 1 jet & 2 jets & 3 jets & 4 jets \\\\"+"\n")
+    fout2.write("       Process       & 0 jet  & 1 jet & 2 jets & 3 jets & $\\geq$4 jets \\\\"+"\n")
     fout2.write("\\hline"+"\n")  
 
     for zin in [2,0]: #Z range index, currently look at Z [index 2,3] and on-shell region [index 0,1], provided each list has 6 numbers version
