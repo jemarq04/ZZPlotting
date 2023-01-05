@@ -1,4 +1,6 @@
 import pdb
+import math
+
 #fins = ["16Info.txt","17Info.txt","18Info.txt"]
 years = ["16","17","18"]
 #years = []
@@ -12,6 +14,48 @@ def sumlist(l1,l2):
 
 def roundlist(l,x):
     return [round(a,x) for a in l]
+
+#return a list containing corresponding rounded numbers according to number of significant digits
+def sigRound(cent,stat,up,dn=None): #central, stat. unc., syst up and dn
+
+    sigDigit = 2
+    if dn:
+        cand = max(abs(up),abs(dn),abs(stat))
+    else:
+        cand = max(abs(up),abs(stat))
+
+    intDigit = int(math.floor(math.log10(abs(cand))))+1 #number of integer digit, 123.4 gives 3
+    num = sigDigit-intDigit
+
+    #assume up and down have similar size, and cent always larger than up/dn
+    up_r = round(up,num)
+    cent_r = round(cent,num)
+
+    
+    stat_r1 = round(stat,num)
+    stat_r2 = round(stat)
+
+    if abs(stat-stat_r1) < abs(stat-stat_r2):
+        stat_r = stat_r1
+    else:
+        stat_r = stat_r2
+
+    list = [cent_r,stat_r,up_r]
+    listf = []
+    if dn:
+        dn_r = round(dn,num)
+        list.append(dn_r)
+    
+    for i in list:
+        if cand >=10 and math.floor(i) == i: #turn 123.0 into 123
+            listf.append(int(i))
+        else:
+            listf.append(i)
+
+    return listf
+
+    
+
 
 
 def readSysDic(fin): # run this function for two files, one with fake rate syst, one without
@@ -347,21 +391,26 @@ def printTableRun2(fout,fout2,dic,dicWF,dicWOF,dicts):
             bkgsyslist = round(ZXlist*0.4,1)
             bkglist = round(bkglist,1)
             bkgerrlist = round(dic["allj"][chan]["nonprompt"][zin+1],1)
-            bkgstr = "&  {} $\\pm$ {} $\\pm$ {}".format(bkglist,bkgerrlist,bkgsyslist)
+            #stands for "place holder"
+            #pdb.set_trace()
+            ph1,ph2,ph3 = sigRound(bkglist,bkgerrlist,bkgsyslist)
+            bkgstr = "&  {} $\\pm$ {} $\\pm$ {}".format(ph1,ph2,ph3)
             bkgPstr+= bkgstr
 
             signalsys = dicWOF["allj"][chan]["signal"][zin:zin+2]
             signalsys = roundlist(signalsys,1)
             signalist = round(signalist,1)
             signalerr = round(dic["allj"][chan]["signalSum"][zin+1],1)
-            signalstr = "&  %s $\\pm$ %s $^{+%s}_{-%s}$"%(signalist,signalerr,signalsys[0],signalsys[1])
+            ph1,ph2,ph3,ph4 = sigRound(signalist,signalerr,signalsys[0],signalsys[1])
+            signalstr = "&  %s $\\pm$ %s $^{+%s}_{-%s}$"%(ph1,ph2,ph3,ph4)
             signalPstr += signalstr
 
             expsys = dicWF["allj"][chan]["signal"][zin:zin+2]
             expsys = roundlist(expsys,1)
             explist = round(totexplist,1)
             experr = round(dic["allj"][chan]["totexp"][zin+1],1)
-            expstr = "&  %s $\\pm$ %s $^{+%s}_{-%s}$"%(explist,experr,expsys[0],expsys[1])
+            ph1,ph2,ph3,ph4 = sigRound(explist,experr,expsys[0],expsys[1])
+            expstr = "&  %s $\\pm$ %s $^{+%s}_{-%s}$"%(ph1,ph2,ph3,ph4)
             expPstr +=expstr
         
 
@@ -428,21 +477,24 @@ def printTableRun2(fout,fout2,dic,dicWF,dicWOF,dicts):
             bkgsyslist = round(ZXlist*0.4,1)
             bkglist = round(bkglist,1)
             bkgerrlist = round(dic[jm]["allchan"]["nonprompt"][zin+1],1)
-            bkgstr = "&  {} $\\pm$ {} $\\pm$ {}".format(bkglist,bkgerrlist,bkgsyslist)
+            ph1,ph2,ph3 = sigRound(bkglist,bkgerrlist,bkgsyslist)
+            bkgstr = "&  {} $\\pm$ {} $\\pm$ {}".format(ph1,ph2,ph3)
             bkgPstr+= bkgstr
 
             signalsys = dicWOF[jm]["allchan"]["signal"][zin:zin+2]
             signalsys = roundlist(signalsys,1)
             signalist = round(signalist,1)
             signalerr = round(dic[jm]["allchan"]["signalSum"][zin+1],1)
-            signalstr = "&  %s $\\pm$ %s $^{+%s}_{-%s}$"%(signalist,signalerr,signalsys[0],signalsys[1])
+            ph1,ph2,ph3,ph4 = sigRound(signalist,signalerr,signalsys[0],signalsys[1])
+            signalstr = "&  %s $\\pm$ %s $^{+%s}_{-%s}$"%(ph1,ph2,ph3,ph4)
             signalPstr += signalstr
 
             expsys = dicWF[jm]["allchan"]["signal"][zin:zin+2]
             expsys = roundlist(expsys,1)
             explist = round(totexplist,1)
             experr = round(dic[jm]["allchan"]["totexp"][zin+1],1)
-            expstr = "&  %s $\\pm$ %s $^{+%s}_{-%s}$"%(explist,experr,expsys[0],expsys[1])
+            ph1,ph2,ph3,ph4 = sigRound(explist,experr,expsys[0],expsys[1])
+            expstr = "&  %s $\\pm$ %s $^{+%s}_{-%s}$"%(ph1,ph2,ph3,ph4)
             expPstr +=expstr
         
 
