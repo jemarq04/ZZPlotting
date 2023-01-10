@@ -183,8 +183,8 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
     central_error_sigs = 0. if int(signal_sum.GetEntries()) <= 0 else error_sigs[0]
     if "Mass" in branch_name:
         with open("CurrentRun_Event_output.txt", "a") as current_evt:
-            current_evt.write("\n %s: weighted events %s"%("signal",weighted_events_sigs))
-            current_evt.write("\n %s: weighted events Error %s"%("signal",central_error_sigs))
+            current_evt.write("\n %s: weighted events %s"%("signalSum",weighted_events_sigs))
+            current_evt.write("\n %s: weighted events Error %s"%("signalSum",central_error_sigs))
         if "Full" in branch_name:
             bin_Z_sigs = signal_sum.FindBin(90)
             bin_H_sigs = signal_sum.FindBin(125)
@@ -193,10 +193,10 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
             Z_error_sigs = signal_sum.GetBinError(bin_Z_sigs)
             H_error_sigs = signal_sum.GetBinError(bin_H_sigs)
             with open("CurrentRun_Event_output.txt", "a") as current_evt:
-                current_evt.write("\n %s: 80-100 GeV %s"%("signal",Z_events_sigs))
-                current_evt.write("\n %s: 80-100 GeV Error %s"%("signal",Z_error_sigs))
-                current_evt.write("\n %s: 120-130 GeV %s"%("signal",H_events_sigs))
-                current_evt.write("\n %s: 120-130 GeV Error %s"%("signal",H_error_sigs))
+                current_evt.write("\n %s: 80-100 GeV %s"%("signalSum",Z_events_sigs))
+                current_evt.write("\n %s: 80-100 GeV Error %s"%("signalSum",Z_error_sigs))
+                current_evt.write("\n %s: 120-130 GeV %s"%("signalSum",H_events_sigs))
+                current_evt.write("\n %s: 120-130 GeV Error %s"%("signalSum",H_error_sigs))
 
     error_tots = array.array('d', [0])
     weighted_events_tots = tot_sum.IntegralAndError(1, tot_sum.GetNbinsX(), error_tots)
@@ -225,12 +225,12 @@ def main():
     #When printing for table, remember to swithch bw normalization in helper_functions and FromFileHistProducer
     #=================================
     args = getComLineArgs()
-    doSyst = False
+    doSyst = True
     do3ChanSys = False #Do 3 channels separately and totoal for table printout
    
     if not do3ChanSys:
         if not args.channels == "eeee,eemm,mmee,mmmm": #only run syst band for total channels
-            #return
+            return
             doSyst = False
         if args.channels == "eemm" or args.channels == "mmee": #only look at combined 2e2m channel
             return
