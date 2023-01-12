@@ -41,6 +41,8 @@ def truncateTH1(hist):
 def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[]):
     canvas_dimensions = [800, 800] if "unrolled" not in name else [1200, 800]
     canvas = ROOT.TCanvas("%s_canvas" % name, name, *canvas_dimensions) 
+    #canvas.SetFrameLineWidth(3)
+    ROOT.gStyle.SetLineWidth(3) #For hists created before this command, line width not affected, if created after then affected
     first = True
     for hist_stack, data_hist, signal_stack in zip(hist_stacks, data_hists, signal_stacks):
         print "makePlot called"
@@ -62,7 +64,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     ycoords = [ymax, ymax - 0.08*unique_entries*args.scalelegy]
     coords = [xcoords[0], ycoords[0], xcoords[1], ycoords[1]]
     
-    doSyst_diagnostic = True
+    doSyst_diagnostic = False #True
     dosyst = glb_doSyst and doSyst_diagnostic
     if dosyst:
         mainband,ratioband=getSystValue(hist_stacks[0].GetStack().Last())
@@ -114,7 +116,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         histErrors = getHistErrors(hist_stacks[0], args.nostack) if not errors else errors
         for error_hist,signal_stack,data_hist in zip(histErrors, signal_stacks, data_hists):
             ROOT.SetOwnership(error_hist, False)
-            error_hist.SetLineWidth(1)
+            error_hist.SetLineWidth(1) #Changed from 1 to 3
             ROOT.gStyle.SetHatchesLineWidth(1)
             ROOT.gStyle.SetHatchesSpacing(0.75)
             #error_hist.Draw("same e2")
@@ -125,6 +127,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
                 signal_stack.Draw("nostack same hist")
             if not args.no_data:
                 #pdb.set_trace()
+                data_hist.SetLineWidth(3)
                 data_hist.Draw("e0 same")
             #error_title = "Stat. unc."
             error_title = "Syst. unc."
@@ -188,9 +191,10 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         text_box.SetFillStyle(0)
         #text_box.SetLineColor(0)
         text_box.SetLineColorAlpha(0, 0.0)
-        text_box.SetTextFont(70)
+        #text_box.SetTextFont(70)
         for i, line in enumerate(lines):
             text_box.AddText(line)
+            #text_box.AddText("#geq 4")
         text_box.Draw()
         ROOT.SetOwnership(text_box, False)
     if args.logy:
@@ -243,7 +247,7 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
         if not "yield" in name.lower() and not glb_isFullMass:
             data_hist.Sumw2(False)
             data_hist.SetBinErrorOption(ROOT.TH1.kPoisson)
-        data_hist.Draw("e0 same")
+        data_hist.Draw("e0 same") #Two places of data_hist.Draw
     first_stack.GetYaxis().SetTitleSize(hists[0].GetYaxis().GetTitleSize())    
     first_stack.GetYaxis().SetTitleOffset(hists[0].GetYaxis().GetTitleOffset())    
     first_stack.GetYaxis().SetTitle(
@@ -1162,7 +1166,7 @@ def getSystValue(hMain):
     #Not needed for TGraphAsymmErrors thus SetDirectory method doesn't exist
 
     tmpData = hMain.Clone("tmp")
-    nbw_for_table = False
+    nbw_for_table = True #Set False when printing table and don't want to normalize by BW
     normBW = glb_isFullMass and nbw_for_table
     
 

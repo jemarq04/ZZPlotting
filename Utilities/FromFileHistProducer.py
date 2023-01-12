@@ -38,7 +38,7 @@ class FromFileHistProducer(HistProducer):
         if "Mass" in hist_name and "Full" in hist_name:
             #pdb.set_trace()
             hist.Sumw2()
-            normBW = True
+            normBW = True #Set False when printing table and don't want to normalize by BW
             if normBW:
                 for ib in range(1,hist.GetNbinsX()+1):
                     width = hist.GetBinWidth(ib)

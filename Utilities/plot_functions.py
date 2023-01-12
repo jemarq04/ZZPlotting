@@ -255,8 +255,10 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
         print "Can't form ratio from < 2 histograms"
         return oldcanvas
     name = oldcanvas.GetName()
+    #ROOT.gStyle.SetLineWidth(3)
     canvas = ROOT.TCanvas(name+'__new', name, *dimensions)
     ratioPad = ROOT.TPad('ratioPad', 'ratioPad', 0., 0., 1., .3)
+    #ratioPad.SetFrameLineWidth(3)
     if isMassFull:
         ratioPad.SetLogx()
     ratioPad.Draw()
@@ -376,8 +378,14 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     #CentralRatioHist originally used to draw stat error band in ratio 
     centralRatioHist.GetYaxis().SetTitle(ratio_text)
     centralRatioHist.GetXaxis().SetLabelOffset(0.03)
+    if "Mass" in varname and "Full" in varname:
+        centralRatioHist.GetXaxis().SetMoreLogLabels(True)
+        centralRatioHist.GetXaxis().SetTickLength(0.07)
+        centralRatioHist.GetXaxis().SetLabelSize(0.025)
+        centralRatioHist.GetXaxis().ChangeLabel(1,-1,0.,-1,-1,-1,"")
     if varname == "nJets":
         centralRatioHist.GetXaxis().CenterLabels(True)
+        centralRatioHist.GetXaxis().ChangeLabel(4,-1,-1,-1,-1,-1,"#geq 3") #require higher CMSSW than current 8_0_26
     centralRatioHist.GetYaxis().CenterTitle()
     centralRatioHist.GetYaxis().SetRangeUser(*ratio_range)
     centralRatioHist.GetYaxis().SetNdivisions(003)
