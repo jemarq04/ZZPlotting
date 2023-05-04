@@ -64,7 +64,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     ycoords = [ymax, ymax - 0.08*unique_entries*args.scalelegy]
     coords = [xcoords[0], ycoords[0], xcoords[1], ycoords[1]]
     
-    doSyst_diagnostic = False #True
+    doSyst_diagnostic = True
     dosyst = glb_doSyst and doSyst_diagnostic
     if dosyst:
         mainband,ratioband=getSystValue(hist_stacks[0].GetStack().Last())
@@ -167,9 +167,9 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
             lines = [x.strip() for x in args.extra_text.split(";")]
         elif glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]:
             if "0" in glb_var:
-                lines = ['Events with >= 1 jet']
+                lines = ['Events with #geq 1 jet']
             elif "1" in glb_var:
-                lines = ["Events with >= 2 jets"]
+                lines = ["Events with #geq 2 jets"]
             
         ymax = coords[3]-0.02
         box_size = 0.05*len(lines)*args.scalelegy*5
@@ -1222,7 +1222,7 @@ def getSystValue(hMain):
         #ratioGraph.SetPointY(i-1,1.)
         ratioGraph.SetPointEYhigh(i-1, errorUp)
         ratioGraph.SetPointEYlow(i-1, errorDn)
-    ratioGraph.SetFillColorAlpha(1,0.5)
+    ratioGraph.SetFillColorAlpha(1,0.3)
     ratioGraph.SetFillStyle(3001)
     
     #MainGraph.SetDirectory(0)

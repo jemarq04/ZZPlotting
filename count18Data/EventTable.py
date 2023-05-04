@@ -1,6 +1,6 @@
 import pdb
 #fins = ["16Info.txt","17Info.txt","18Info.txt"]
-years = ["16","17"]
+years = ["16","17","18"]
 MC = ["VVV","nonprompt","qqZZ-amcnlo","zzjj4l-ewk","ggZZ","HZZ-signal"]
 MC_print = ["VVV","Nonprompt","qqZZ","ZZEWK","ggZZ","HZZ"]
 

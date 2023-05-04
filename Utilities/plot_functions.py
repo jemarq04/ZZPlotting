@@ -386,6 +386,12 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     if varname == "nJets":
         centralRatioHist.GetXaxis().CenterLabels(True)
         centralRatioHist.GetXaxis().ChangeLabel(4,-1,-1,-1,-1,-1,"#geq 3") #require higher CMSSW than current 8_0_26
+        centralRatioHist.GetXaxis().SetTitle("Number of jets") # Fixed title, remove >30GeV text
+    if varname == "mjj":
+        centralRatioHist.GetXaxis().SetTitle("Dijet Mass [GeV]")
+    if varname == "dEtajj":
+        centralRatioHist.GetXaxis().SetTitle("|#Delta#eta(j_{1}, j_{2})|")
+    
     centralRatioHist.GetYaxis().CenterTitle()
     centralRatioHist.GetYaxis().SetRangeUser(*ratio_range)
     centralRatioHist.GetYaxis().SetNdivisions(003)

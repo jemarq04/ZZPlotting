@@ -6,6 +6,7 @@
         "ggZZ4t", 
         "ggZZ2e2mu", 
         "ggZZ2e2tau", 
+        "ggZZ2mu2tau", 
         "ggHZZ", 
         "vbfHZZ", 
         "WplusHToZZ", 
@@ -15,10 +16,10 @@
     ], 
     "sigLabel": "MG5_aMC@NLO+MCFM+Pythia8", 
     "sigLabelAlt": "POWHEG+MCFM+Pythia8", 
-    "fFull": "SpecBkgTruncate.root", 
+    "fFull": "allFull.root", 
     "reg": true, 
     "nomname": "zz4l-amcatnlo", 
-    "f18": "SpecBkgTruncate_2018_fixed.root", 
+    "f18": "2018Full.root", 
     "altname": "zz4l-powheg", 
     "altEWK": [
         "zz4l-powheg", 
@@ -27,6 +28,7 @@
         "ggZZ4t", 
         "ggZZ2e2mu", 
         "ggZZ2e2tau", 
+        "ggZZ2mu2tau", 
         "ggHZZ", 
         "vbfHZZ", 
         "WplusHToZZ", 
@@ -34,6 +36,6 @@
         "ZHToZZ_4L", 
         "ttH_HToZZ_4L"
     ], 
-    "f16": "SpecBkgTruncate_2016_fixed.root", 
-    "f17": "SpecBkgTruncate_2017_fixed.root"
+    "f16": "SpecBkgTruncate_2016.root", 
+    "f17": "SpecBkgTruncate_2017.root"
 }
