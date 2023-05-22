@@ -150,25 +150,30 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     if not args.no_decorations:
         ROOT.dotrootImport('hhe62/CMSPlotDecorations')
         scale_label = "Normalized to Unity" if args.luminosity < 0 else \
-            "%0.1f fb^{-1}" % args.luminosity
+            "%s fb^{-1}" % int(round(float(args.luminosity)))
         
         lumi_text = ""
+        force_notPre = True
         if args.thesis:
             lumi_text = "Thesis" 
         elif args.preliminary:
             lumi_text = "Preliminary" 
+            if force_notPre:
+                lumi_text = ""    
         if args.simulation:
             lumi_text += "Simulation" 
         
         ROOT.CMSlumi(canvas, 0, 11, "%s (13 TeV)" % scale_label,lumi_text)
                 #"Preliminary Simulation" if args.simulation else "Preliminary")
-    if args.extra_text != "" or glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]:
+    if args.extra_text != "" or glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","mjj","dEtajj"]:
         if args.extra_text != "":
             lines = [x.strip() for x in args.extra_text.split(";")]
-        elif glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]:
+        elif glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","mjj","dEtajj"]:
             if "0" in glb_var:
                 lines = ['Events with #geq 1 jet']
             elif "1" in glb_var:
+                lines = ["Events with #geq 2 jets"]
+            else:
                 lines = ["Events with #geq 2 jets"]
             
         ymax = coords[3]-0.02
@@ -179,7 +184,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
             coords[3] -= box_size
         ymin = ymax - box_size
         if args.logy:
-            if glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]:
+            if glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","mjj","dEtajj"]:
                 text_box = ROOT.TPaveText(coords[0]-0.5, ymin+0.46, coords[2]-0.5, ymax+0.46, "NDCnb")
             else:
                 text_box = ROOT.TPaveText(coords[0]-0.5, ymin+0.4, coords[2]-0.5, ymax+0.4, "NDCnb")
@@ -251,7 +256,7 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
     first_stack.GetYaxis().SetTitleSize(hists[0].GetYaxis().GetTitleSize())    
     first_stack.GetYaxis().SetTitleOffset(hists[0].GetYaxis().GetTitleOffset())    
     first_stack.GetYaxis().SetTitle(
-        hists[0].GetYaxis().GetTitle() if not glb_isFullMass else hists[0].GetYaxis().GetTitle()+"/GeV")
+        hists[0].GetYaxis().GetTitle()+"/bin" if not glb_isFullMass else "<"+hists[0].GetYaxis().GetTitle()+"/GeV>")
 
     if not args.no_ratio and float(ROOT.gROOT.GetVersion().split("/")[0]) > 6.07:
         # Remove first bin label to avoid overlap of canvases

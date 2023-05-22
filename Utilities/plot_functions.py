@@ -391,6 +391,14 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
         centralRatioHist.GetXaxis().SetTitle("Dijet Mass [GeV]")
     if varname == "dEtajj":
         centralRatioHist.GetXaxis().SetTitle("|#Delta#eta(j_{1}, j_{2})|")
+    if varname == "jetPt[0]":
+        centralRatioHist.GetXaxis().SetTitle("p_{T}^{j1} [GeV]")
+    if varname == "jetPt[1]":
+        centralRatioHist.GetXaxis().SetTitle("p_{T}^{j2} [GeV]")
+    if varname == "absjetEta[0]":
+        centralRatioHist.GetXaxis().SetTitle("|#eta_{j1}|")
+    if varname == "absjetEta[1]":
+        centralRatioHist.GetXaxis().SetTitle("|#eta_{j2}|")
     
     centralRatioHist.GetYaxis().CenterTitle()
     centralRatioHist.GetYaxis().SetRangeUser(*ratio_range)
