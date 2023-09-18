@@ -377,16 +377,20 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     #==================================================
     #CentralRatioHist originally used to draw stat error band in ratio 
     centralRatioHist.GetYaxis().SetTitle(ratio_text)
+    #centralRatioHist.GetYaxis().SetTitleOffset(2)
     centralRatioHist.GetXaxis().SetLabelOffset(0.03)
     if "Mass" in varname and "Full" in varname:
         centralRatioHist.GetXaxis().SetMoreLogLabels(True)
         centralRatioHist.GetXaxis().SetTickLength(0.07)
         centralRatioHist.GetXaxis().SetLabelSize(0.025)
         centralRatioHist.GetXaxis().ChangeLabel(1,-1,0.,-1,-1,-1,"")
-    if varname == "nJets":
+    if "nJets" in varname:
+        #centralRatioHist.GetXaxis().SetNdivisions(505)
         centralRatioHist.GetXaxis().CenterLabels(True)
         centralRatioHist.GetXaxis().ChangeLabel(4,-1,-1,-1,-1,-1,"#geq 3") #require higher CMSSW than current 8_0_26
         centralRatioHist.GetXaxis().SetTitle("Number of jets") # Fixed title, remove >30GeV text
+        if "_central" in varname:
+            centralRatioHist.GetXaxis().SetTitle("Number of central jets")
     if varname == "mjj":
         centralRatioHist.GetXaxis().SetTitle("Dijet Mass [GeV]")
     if varname == "dEtajj":

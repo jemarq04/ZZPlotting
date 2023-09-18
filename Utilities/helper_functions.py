@@ -64,7 +64,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     ycoords = [ymax, ymax - 0.08*unique_entries*args.scalelegy]
     coords = [xcoords[0], ycoords[0], xcoords[1], ycoords[1]]
     
-    doSyst_diagnostic = True
+    doSyst_diagnostic = False#True
     dosyst = glb_doSyst and doSyst_diagnostic
     if dosyst:
         mainband,ratioband=getSystValue(hist_stacks[0].GetStack().Last())
@@ -252,6 +252,7 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
         if not "yield" in name.lower() and not glb_isFullMass:
             data_hist.Sumw2(False)
             data_hist.SetBinErrorOption(ROOT.TH1.kPoisson)
+        data_hist.SetLineColor(ROOT.kBlack)
         data_hist.Draw("e0 same") #Two places of data_hist.Draw
     first_stack.GetYaxis().SetTitleSize(hists[0].GetYaxis().GetTitleSize())    
     first_stack.GetYaxis().SetTitleOffset(hists[0].GetYaxis().GetTitleOffset())    
@@ -1193,7 +1194,7 @@ def getSystValue(hMain):
         MainGraph.SetPointEYhigh(i-1, errorUp)
         MainGraph.SetPointEYlow(i-1, errorDn)
     MainGraph.SetFillColorAlpha(1,0.3)
-#        
+    #MainGraph.SetFillColor(14)     
     MainGraph.SetFillStyle(3001)
     MainGraph.SetLineColor(0)
     #pdb.set_trace()
@@ -1228,6 +1229,7 @@ def getSystValue(hMain):
         ratioGraph.SetPointEYhigh(i-1, errorUp)
         ratioGraph.SetPointEYlow(i-1, errorDn)
     ratioGraph.SetFillColorAlpha(1,0.3)
+    #ratioGraph.SetFillColor(14)   
     ratioGraph.SetFillStyle(3001)
     
     #MainGraph.SetDirectory(0)
