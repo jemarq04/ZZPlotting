@@ -392,7 +392,7 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
         if "_central" in varname:
             centralRatioHist.GetXaxis().SetTitle("Number of central jets")
     if varname == "mjj":
-        centralRatioHist.GetXaxis().SetTitle("Dijet Mass [GeV]")
+        centralRatioHist.GetXaxis().SetTitle("Dijet mass [GeV]")
     if varname == "dEtajj":
         centralRatioHist.GetXaxis().SetTitle("|#Delta#eta(j_{1}, j_{2})|")
     if varname == "jetPt[0]":

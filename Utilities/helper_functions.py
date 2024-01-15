@@ -64,7 +64,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     ycoords = [ymax, ymax - 0.08*unique_entries*args.scalelegy]
     coords = [xcoords[0], ycoords[0], xcoords[1], ycoords[1]]
     
-    doSyst_diagnostic = False#True
+    doSyst_diagnostic = False
     dosyst = glb_doSyst and doSyst_diagnostic
     if dosyst:
         mainband,ratioband=getSystValue(hist_stacks[0].GetStack().Last())
@@ -177,7 +177,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
                 lines = ["Events with #geq 2 jets"]
             
         ymax = coords[3]-0.02
-        box_size = 0.05*len(lines)*args.scalelegy*5
+        box_size = 0.05*len(lines)*args.scalelegy*5        
         if args.extra_text_above:
             ymax = coords[1] 
             coords[1] -= box_size
@@ -185,7 +185,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         ymin = ymax - box_size
         if args.logy:
             if glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","mjj","dEtajj"]:
-                text_box = ROOT.TPaveText(coords[0]-0.5, ymin+0.46, coords[2]-0.5, ymax+0.46, "NDCnb")
+                text_box = ROOT.TPaveText(coords[0]-0.4, ymin+0.46, coords[2]-0.4, ymax+0.46, "NDCnb")
             else:
                 text_box = ROOT.TPaveText(coords[0]-0.5, ymin+0.4, coords[2]-0.5, ymax+0.4, "NDCnb")
         #For linear plot positions
@@ -200,6 +200,10 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         for i, line in enumerate(lines):
             text_box.AddText(line)
             #text_box.AddText("#geq 4")
+        if glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","mjj","dEtajj"]:
+            text_box.SetTextSize(0.035)
+        elif "Mass" in glb_var and "j" in glb_var:
+            text_box.SetTextSize(0.035)
         text_box.Draw()
         ROOT.SetOwnership(text_box, False)
     if args.logy:
