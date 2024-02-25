@@ -621,11 +621,8 @@ def getScaleFactorExpressionAllTight(state):
                 "m3TightIDSF*" \
                 "pileupSF"
 def getPlotPaths(selection, folder_name, write_log_file=False):
-    if "hep.wisc.edu" in os.environ['HOSTNAME']:
-        storage_area = "/nfs_scratch/uhussain"
-        html_area = "/afs/hep.wisc.edu/home/hhe62/public_html"
-    else:
-        storage_area,html_area  = ConfigureJobs.getStorageArea()
+
+    storage_area,html_area  = ConfigureJobs.getStorageArea()
         
     base_dir = "%s/ZZAnalysisData/PlottingResults" % storage_area
     plot_path = "/".join([base_dir, selection] +

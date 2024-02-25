@@ -260,8 +260,7 @@ def main():
         ROOT.TProof.Open('workers=12')
     filelist = UserInput.getListOfFiles(args.files_to_plot, args.selection)
     print filelist
-    path = "/cms/uhussain" if "hep.wisc.edu" in os.environ['HOSTNAME'] else \
-        ConfigureJobs.getManagerPath()[:-1]
+    path = ConfigureJobs.getManagerPath()[:-1]
     config_factory = ConfigHistFactory(
         "%s/ZZ4lRun2DatasetManager" % path,
         args.selection.split("_")[0],
