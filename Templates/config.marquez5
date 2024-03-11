@@ -1,5 +1,6 @@
 [Setup]
 user = marquez5
+gituser = jemarq04
 analysis = ZZ
 dataset_manager_path = /afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/histograms/src/Data_manager
 dataset_manager_name = ZZ4lRun2DatasetManager

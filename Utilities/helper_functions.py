@@ -17,6 +17,12 @@ import array
 from IPython import embed
 import pdb
 import json
+try:
+    import configparser
+except:
+    import ConfigParser as configparser
+    #from six.moves import configparser
+
 
 with open("Templates/config.%s" % os.getlogin()) as fconfig:
     for line in fconfig:
@@ -148,7 +154,14 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     legend.Draw()
 
     if not args.no_decorations:
-        ROOT.dotrootImport('jemarq04/CMSPlotDecorations')
+        config_name = "../Templates/config.%s" % os.getlogin()
+        if not os.path.isfile(config_name):
+            raise IOError("Failed to find valid config file. Looking for %s" % config_name)
+        config = configparser.ConfigParser()
+        config.read_file(open(config_name))
+        if "gituser" not in config['Setup']:
+            raise ValueError("gituser not specified in config file %s" % config_name)
+        ROOT.dotrootImport('%s/CMSPlotDecorations' % config["Setup"]["gituser"])
         scale_label = "Normalized to Unity" if args.luminosity < 0 else \
             "%s fb^{-1}" % int(round(float(args.luminosity)))
         

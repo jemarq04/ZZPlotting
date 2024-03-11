@@ -6,6 +6,12 @@ import logging
 import os
 import glob
 import array
+try:
+    import configparser
+except:
+    import ConfigParser as configparser
+    #from six.moves import configparser
+
 class ConfigHistFactory(object):
     def __init__(self, dataset_manager_path, dataset_name, object_restrict=""):
         self.manager_path = dataset_manager_path
@@ -136,7 +142,14 @@ class ConfigHistFactory(object):
     def getListOfPlotObjects(self):
         return self.plot_objects.keys()
 def main():
-    test = ConfigHistFactory("/afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/histograms/src/Data_manager",
+    config_name = "../Templates/config.%s" % os.getlogin()
+    if not os.path.isfile(config_name):
+        raise IOError("Failed to find valid config file. Looking for %s" % config_name)
+    config = configparser.ConfigParser()
+    config.read_file(open(config_name))
+    if "dataset_manager_path" not in config['Setup']:
+        raise ValueError("dataset_manager_path not specified in config file %s" % config_name)
+    test = ConfigHistFactory(config["Setup"]["dataset_manager_path"],
         "ZZAnalysis", "Zselection")
     draw_expr = test.getHistDrawExpr("l1Pt", "zz4l-powheg", "eeee")
     hist_name = draw_expr.split(">>")[1].split("(")[0]
