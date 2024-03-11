@@ -148,7 +148,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     legend.Draw()
 
     if not args.no_decorations:
-        ROOT.dotrootImport('hhe62/CMSPlotDecorations')
+        ROOT.dotrootImport('jemarq04/CMSPlotDecorations')
         scale_label = "Normalized to Unity" if args.luminosity < 0 else \
             "%s fb^{-1}" % int(round(float(args.luminosity)))
         
