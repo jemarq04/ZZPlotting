@@ -473,6 +473,32 @@
         "responseClassNames": "testJet", 
         "top_size": 0.1
     }, 
+    "LepEta": {
+        "ratio_min": 0.4, 
+        "top_xy": [
+            0.2, 
+            0.87
+        ], 
+        "bottom_size": 0.08, 
+        "ymin_fac": 1.0, 
+        "_binning": [
+            0.0, 
+            1.5, 
+            2.4, 
+            3.2, 
+            4.7
+        ], 
+        "ymax_fac": 1.0, 
+        "ratio_max": 1.8, 
+        "prettyVars": "Lep #eta", 
+        "bottom_xy": [
+            0.2, 
+            0.91
+        ], 
+        "units": "", 
+        "responseClassNames": "testJet", 
+        "top_size": 0.1
+    }, 
     "absjetEtaN1": {
         "ratio_min": 0.4, 
         "top_xy": [
@@ -864,6 +890,74 @@
         "ymax_fac": 1.0, 
         "ratio_max": 1.8, 
         "prettyVars": "Z Mass", 
+        "bottom_xy": [
+            0.2, 
+            0.91
+        ], 
+        "units": "[GeV]", 
+        "responseClassNames": "testJet", 
+        "top_size": 0.1
+    }, 
+    "Z1Mass": {
+        "ratio_min": 0.4, 
+        "top_xy": [
+            0.2, 
+            0.87
+        ], 
+        "bottom_size": 0.08, 
+        "ymin_fac": 1.0, 
+        "_binning": [
+            0.0, 
+            10.0, 
+            20.0, 
+            30.0, 
+            40.0, 
+            50.0, 
+            60.0, 
+            70.0, 
+            80.0, 
+            90.0, 
+            100.0, 
+            110.0, 
+            120.0
+        ], 
+        "ymax_fac": 1.0, 
+        "ratio_max": 1.8, 
+        "prettyVars": "Primary Z Mass", 
+        "bottom_xy": [
+            0.2, 
+            0.91
+        ], 
+        "units": "[GeV]", 
+        "responseClassNames": "testJet", 
+        "top_size": 0.1
+    }, 
+    "Z2Mass": {
+        "ratio_min": 0.4, 
+        "top_xy": [
+            0.2, 
+            0.87
+        ], 
+        "bottom_size": 0.08, 
+        "ymin_fac": 1.0, 
+        "_binning": [
+            0.0, 
+            10.0, 
+            20.0, 
+            30.0, 
+            40.0, 
+            50.0, 
+            60.0, 
+            70.0, 
+            80.0, 
+            90.0, 
+            100.0, 
+            110.0, 
+            120.0
+        ], 
+        "ymax_fac": 1.0, 
+        "ratio_max": 1.8, 
+        "prettyVars": "Secondary Z Mass", 
         "bottom_xy": [
             0.2, 
             0.91
