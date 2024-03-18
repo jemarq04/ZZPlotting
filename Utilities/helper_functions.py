@@ -154,7 +154,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     legend.Draw()
 
     if not args.no_decorations:
-        config_name = "../Templates/config.%s" % os.getlogin()
+        config_name = "Templates/config.%s" % os.getlogin()
         if not os.path.isfile(config_name):
             raise IOError("Failed to find valid config file. Looking for %s" % config_name)
         config = configparser.ConfigParser()

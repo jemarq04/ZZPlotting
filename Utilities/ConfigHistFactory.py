@@ -142,7 +142,7 @@ class ConfigHistFactory(object):
     def getListOfPlotObjects(self):
         return self.plot_objects.keys()
 def main():
-    config_name = "../Templates/config.%s" % os.getlogin()
+    config_name = "Templates/config.%s" % os.getlogin()
     if not os.path.isfile(config_name):
         raise IOError("Failed to find valid config file. Looking for %s" % config_name)
     config = configparser.ConfigParser()
