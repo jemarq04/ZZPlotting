@@ -166,7 +166,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
             "%s fb^{-1}" % int(round(float(args.luminosity)))
         
         lumi_text = ""
-        force_notPre = True
+        force_notPre = False
         if args.thesis:
             lumi_text = "Thesis" 
         elif args.preliminary:
