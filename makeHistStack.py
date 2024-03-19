@@ -101,7 +101,7 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
     hist_info = {}
     first_add = True
     first_add2 = True
-    signal_list = ["zzjj4l-ewk","ggZZ","qqZZ-amcnlo","HZZ-signal"]
+    #signal_list = ["zzjj4l-ewk","ggZZ","qqZZ-amcnlo","HZZ-signal"] 
     print "Plot_set in filelist"
     for plot_set in filelist:
         #pdb.set_trace()
@@ -137,12 +137,14 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
         else:
             tot_sum.Add(hist)
 
-        if plot_set in signal_list:
-            if first_add:
-                signal_sum = hist.Clone(name+"signalsum")
-                first_add = False
-            else:
-                signal_sum.Add(hist)
+        #if plot_set in signal_list:
+        #    if first_add:
+        #        signal_sum = hist.Clone(name+"signalsum")
+        #        first_add = False
+        #    else:
+        #        signal_sum.Add(hist)
+        #else:
+        #  print("NOTE: never made signal_sum")
             
         error = array.array('d', [0])
         #pdb.set_trace()
@@ -179,24 +181,24 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
 
     #total and stat unc. for signal (signal sum)
     error_sigs = array.array('d', [0])
-    weighted_events_sigs = signal_sum.IntegralAndError(1, signal_sum.GetNbinsX(), error_sigs)
-    central_error_sigs = 0. if int(signal_sum.GetEntries()) <= 0 else error_sigs[0]
-    if "Mass" in branch_name:
-        with open("CurrentRun_Event_output.txt", "a") as current_evt:
-            current_evt.write("\n %s: weighted events %s"%("signalSum",weighted_events_sigs))
-            current_evt.write("\n %s: weighted events Error %s"%("signalSum",central_error_sigs))
-        if "Full" in branch_name:
-            bin_Z_sigs = signal_sum.FindBin(90)
-            bin_H_sigs = signal_sum.FindBin(125)
-            Z_events_sigs = signal_sum.GetBinContent(bin_Z_sigs)
-            H_events_sigs = signal_sum.GetBinContent(bin_H_sigs)
-            Z_error_sigs = signal_sum.GetBinError(bin_Z_sigs)
-            H_error_sigs = signal_sum.GetBinError(bin_H_sigs)
-            with open("CurrentRun_Event_output.txt", "a") as current_evt:
-                current_evt.write("\n %s: 80-100 GeV %s"%("signalSum",Z_events_sigs))
-                current_evt.write("\n %s: 80-100 GeV Error %s"%("signalSum",Z_error_sigs))
-                current_evt.write("\n %s: 120-130 GeV %s"%("signalSum",H_events_sigs))
-                current_evt.write("\n %s: 120-130 GeV Error %s"%("signalSum",H_error_sigs))
+    #weighted_events_sigs = signal_sum.IntegralAndError(1, signal_sum.GetNbinsX(), error_sigs)
+    #central_error_sigs = 0. if int(signal_sum.GetEntries()) <= 0 else error_sigs[0]
+    #if "Mass" in branch_name:
+       # with open("CurrentRun_Event_output.txt", "a") as current_evt:
+            #current_evt.write("\n %s: weighted events %s"%("signalSum",weighted_events_sigs))
+            #current_evt.write("\n %s: weighted events Error %s"%("signalSum",central_error_sigs))
+        #if "Full" in branch_name:
+            #bin_Z_sigs = signal_sum.FindBin(90)
+            #bin_H_sigs = signal_sum.FindBin(125)
+            #Z_events_sigs = signal_sum.GetBinContent(bin_Z_sigs)
+            #H_events_sigs = signal_sum.GetBinContent(bin_H_sigs)
+            #Z_error_sigs = signal_sum.GetBinError(bin_Z_sigs)
+            #H_error_sigs = signal_sum.GetBinError(bin_H_sigs)
+            #with open("CurrentRun_Event_output.txt", "a") as current_evt:
+            #    current_evt.write("\n %s: 80-100 GeV %s"%("signalSum",Z_events_sigs))
+            #    current_evt.write("\n %s: 80-100 GeV Error %s"%("signalSum",Z_error_sigs))
+            #    current_evt.write("\n %s: 120-130 GeV %s"%("signalSum",H_events_sigs))
+            #    current_evt.write("\n %s: 120-130 GeV Error %s"%("signalSum",H_error_sigs))
 
     error_tots = array.array('d', [0])
     weighted_events_tots = tot_sum.IntegralAndError(1, tot_sum.GetNbinsX(), error_tots)
@@ -226,7 +228,7 @@ def main():
     #=================================
     args = getComLineArgs()
     doSyst = True
-    do3ChanSys = False #Do 3 channels separately and totoal for table printout
+    do3ChanSys = True #Do 3 channels separately and totoal for table printout
    
     if not do3ChanSys:
         if not args.channels == "eeee,eemm,mmee,mmmm": #only run syst band for total channels
@@ -261,8 +263,9 @@ def main():
     filelist = UserInput.getListOfFiles(args.files_to_plot, args.selection)
     print filelist
     path = ConfigureJobs.getManagerPath()[:-1]
+    manager_name = ConfigureJobs.getManagerName()
     config_factory = ConfigHistFactory(
-        "%s/ZZ4lRun2DatasetManager" % path,
+        "%s/%s" % (path, manager_name),
         args.selection.split("_")[0],
         args.object_restrict
     )
