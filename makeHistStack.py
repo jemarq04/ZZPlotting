@@ -41,6 +41,9 @@ def getComLineArgs():
     parser.add_argument("--blinding", type=list, default=["Mass < 400",
         "Pt < 200", "mjj < 500", "dEtajj < 2.5", "MTWZ < 400"],
         help="Blinding cuts to apply (only to that distribution)")
+    parser.add_argument("--lhe_weight_id", type=float, default=None,
+        help="LHE weight ID used to retrieve plots from LHE weight plots." \
+        + " can only be used with modified UWVV ntuples")
     return parser.parse_args()
 
 log_info = ""
@@ -95,7 +98,7 @@ def writeMCLogInfo(hist_info, selection, branch_name, luminosity, cut_string, la
     #    current_evt.write("\n"+(mc_info.get_string() if not latex else mc_info.get_latex_string())+"\n")
         
 def getStacked(name, config_factory, selection, filelist, branch_name, channels, blinding, addOverflow, latex,
-               cut_string="", luminosity=1, rebin=0, uncertainties="none", hist_file=""):
+               cut_string="", luminosity=1, rebin=0, uncertainties="none", hist_file="", lhe_weight_id=None):
     hist_stack = ROOT.THStack(name, "")
     ROOT.SetOwnership(hist_stack, False)
     hist_info = {}
@@ -112,7 +115,7 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
                     uncertainties)
         else:
             hist = helper.getConfigHistFromFile(hist_file, config_factory, plot_set, 
-                        selection, branch_name, channels, luminosity, addOverflow=addOverflow, rebin=rebin)
+                        selection, branch_name, channels, luminosity, addOverflow=addOverflow, rebin=rebin, lhe_weight_id=lhe_weight_id)
             print "hists",hist
         if luminosity < 0:
             hist.Scale(1/hist.Integral())
@@ -300,7 +303,7 @@ def main():
                 #pdb.set_trace()
                 hist_stack = getStacked("stack_"+branch_name, config_factory, args.selection, filelist, 
                         branch_name, args.channels, args.blinding, not args.no_overflow, args.latex, cut_string,
-                        args.luminosity, args.rebin, args.uncertainties, args.hist_file)
+                        args.luminosity, args.rebin, args.uncertainties, args.hist_file, args.lhe_weight_id)
             except ValueError as e:
                 logging.warning('\033[91m'+ str(e)+'\033[0m')
                 continue
@@ -314,7 +317,7 @@ def main():
                 else:
                     #data_hist = helper.getConfigHistFromFile(args.hist_file, config_factory, "data_all",
                     data_hist = helper.getConfigHistFromFile(args.hist_file, config_factory, "data_all", 
-                            args.selection, branch_name, args.channels,addOverflow=(not args.no_overflow), rebin=args.rebin)
+                            args.selection, branch_name, args.channels,addOverflow=(not args.no_overflow), rebin=args.rebin, lhe_weight_id=args.lhe_weight_id)
                 with open("temp.txt", "a") as events_log_file:
                     events_log_file.write("\nNumber of events in data: %i\n" % data_hist.Integral())
                 with open("CurrentRun_Event_output.txt", "a") as current_evt:

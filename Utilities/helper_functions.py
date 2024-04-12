@@ -3,6 +3,7 @@ import plot_functions as plotter
 import Utilities.WeightInfo as WeightInfo
 from Utilities.WeightedHistProducer import WeightedHistProducer
 from Utilities.FromFileHistProducer import FromFileHistProducer
+from Utilities.FromFileLHEHistProducer import FromFileLHEHistProducer
 from Utilities.ConfigHistFactory import ConfigHistFactory 
 from collections import OrderedDict
 import os,sys
@@ -228,6 +229,10 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         #        [float(i) for i in args.ratio_range]
         #)
         #pdb.set_trace()
+        #for item in canvas.GetListOfPrimitives():
+        #    if type(item) is ROOT.THStack:
+        #        for i in range(item.GetNhists()):
+        #            print("NOTE: ===> %s" % item.GetHists()[i].GetName())
         canvas = plotter.splitCanvasWithSyst(ratioband,canvas, canvas_dimensions,
                 "#scale[0.85]{Data / Pred.}" if data_hists[0] else args.ratio_text,
                 [float(i) for i in args.ratio_range],glb_isFullMass,glb_var
@@ -336,7 +341,7 @@ def getPrettyLegend(hist_stack, data_hist, signal_stack, error_hists, coords):
     for error_hist in error_hists:
         legend.AddEntry(error_hist, error_hist.GetTitle(), "f")
     return legend
-def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=None):
+def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=None, lhe_weight_id=None):
     if "Gen" not in selection:
         metaTree_name = "metaInfo/metaInfo"
         sum_weights_branch = "summedWeights"
@@ -387,7 +392,10 @@ def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=
         if not hist_file:
             histProducer = WeightedHistProducer(weight_info, weight_branch)  
         else:
-            histProducer = FromFileHistProducer(weight_info, hist_file)  
+            if lhe_weight_id is None:
+                histProducer = FromFileHistProducer(weight_info, hist_file)  
+            else:
+                histProducer = FromFileLHEHistProducer(weight_info, lhe_weight_id, hist_file)
         if "data" not in name.lower() and name != "nonprompt":
             histProducer.setLumi(luminosity)
         hist_factory[name].update({"histProducer" : histProducer})
@@ -480,17 +488,16 @@ def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, st
     return hist
 
 def getConfigHistFromFile(filename, config_factory, plot_group, selection, branch_name, channels,
-        luminosity=1, addOverflow=False, rebin=0, uncertainties="none", removeNegatives=True):
+        luminosity=1, addOverflow=False, rebin=0, uncertainties="none", removeNegatives=True,
+        lhe_weight_id=None):
     try:
         filelist = config_factory.getPlotGroupMembers(plot_group)
     except ValueError as e:
         logging.warning(e.message)
         logging.warning("Treating %s as file name" % plot_group)
         filelist = [plot_group]
-    #print "Is error happening here in config_factory"
     if branch_name not in config_factory.getListOfPlotObjects():
         raise ValueError("Invalid histogram %s for selection %s" % (branch_name, selection))
-    #print "No, somewhere else"
     
     # If reading from file, the weighted 1D hists need to be precomputed
     # Look for them stored in the file with the plot_group name
@@ -502,7 +509,7 @@ def getConfigHistFromFile(filename, config_factory, plot_group, selection, branc
     hist_file = ROOT.TFile(filename)
     ROOT.SetOwnership(hist_file, False)
     
-    hist_factory = getHistFactory(config_factory, selection, filelist, luminosity, hist_file)
+    hist_factory = getHistFactory(config_factory, selection, filelist, luminosity, hist_file, lhe_weight_id)
 
     bin_info = config_factory.getHistBinInfo(branch_name)
     states = channels.split(",")
