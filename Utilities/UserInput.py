@@ -169,7 +169,9 @@ def getListOfFiles(file_set, selection):
                 #filelist.append("EWK-Extra4lg")
                 #filelist.append("EWK-Extra2e2mujjg")
         elif "zzeft" in fileset_nc:
-                filelist.append("pp_eemm")
+                filelist.append("ZZEFT_cHWB")
+                #filelist.append("ZZEFT_cHG")
+                #filelist.append("ZZEFT_cll1")
                 filelist.append("nonprompt")
                 filelist.append("VVV")
                 filelist.append("ggZZ")
