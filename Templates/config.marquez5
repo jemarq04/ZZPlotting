@@ -12,3 +12,4 @@ combine_output = %(output_path)s/CombineData
 storage_area = /afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/histograms/src/plots
 html_area = /afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/www
 scriptPath = /afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/histograms/src/ZZPlotting/Utilities/otherscripts
+lhe_storage_path = /hdfs/store/user/marquez/SMEFTsim/LHE/
