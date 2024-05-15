@@ -4,6 +4,7 @@ import os,sys
 import glob
 import json
 from collections import OrderedDict
+import re
 
 with open("Templates/config.%s" % os.getlogin()) as fconfig:
     for line in fconfig:
