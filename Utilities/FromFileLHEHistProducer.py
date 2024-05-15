@@ -32,16 +32,21 @@ class FromFileLHEHistProducer(HistProducer):
         whist = self.hist_file.Get(whist_name)
         widhist = self.hist_file.Get(widhist_name)
         if not whist or not widhist:
+            #print("NOTE: No weight plots found for %s!" % hist_name)
             hist = self.hist_file.Get(hist_name)
         else:
-            weight_idx = 0
-            for i in range(1, widhist.GetNbinsX()+1):
-                if abs(self.lhe_weight_id - widhist.GetBinContent(i)) <= 0.0001:
-                    weight_idx = i
-                    break
-            hist = whist.ProjectionX(hist_name + "%.03f" % self.lhe_weight_id, weight_idx, weight_idx)
-            print("NOTE: Made a slice at bin %i for weight %.03f" % (weight_idx, self.lhe_weight_id))
-            #hist = self.hist_file.Get(hist_name)
+            if whist.GetEntries() == 0 or widhist.GetEntries() == 0:
+                #print("NOTE: Empty weight plot. Using default histogram")
+                hist = self.hist_file.Get(hist_name)
+            else:
+                weight_idx = 0
+                for i in range(1, widhist.GetNbinsX()+1):
+                    if abs(self.lhe_weight_id - widhist.GetBinContent(i)) <= 0.0001:
+                        weight_idx = i
+                        break
+                hist = whist.ProjectionX(hist_name + "%.03f" % self.lhe_weight_id, weight_idx, weight_idx)
+                #print("NOTE: Made a slice at bin %i for weight %.03f. (%s)" % (weight_idx, self.lhe_weight_id, hist_name))
+                #hist = self.hist_file.Get(hist_name)
         ROOT.SetOwnership(hist, False)
         if not hist:
             raise ValueError("Hist %s not found in file %s" % (hist_name, self.hist_file))
@@ -49,6 +54,9 @@ class FromFileLHEHistProducer(HistProducer):
         hist.Sumw2() #hist.GetSumw2() doesn't seem useful for checking, since this structure always exist. It doesn't hurt to call Sumw2 anyway
         #if not hist.GetSumw2(): hist.Sumw2()
         #pdb.set_trace()
+        #print("NOTE: ==> Scale factor = %s" % self.getHistScaleFactor())
+        #print("NOTE: ==> Xsec, WgtSum = %s, %s" % (self.weight_info.getCrossSection(), self.weight_info.getSumOfWeights()))
+        #print("NOTE: ==> Lumi: %s" % self.lumi)
         hist.Scale(self.getHistScaleFactor())
         # This causes GetEntries() to return 1 greater than the "actual"
         # number of entries in the hist
