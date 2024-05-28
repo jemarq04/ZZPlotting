@@ -1,7 +1,7 @@
 #filename="Hists12Apr2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (default reweight first and ZZEFT reorg.)
 #filename="Hists02May2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (2e2mu)
-#filename="Hists03May2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (2e2mu) + SMlimit
-filename="Hists13May2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (eemm) + SMlimit
+#filename="Hists21May2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit) eemm
+filename="Hists28May2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm
 selection="ZZSelectionsTightLeps"
 VVAnalysis_path="/afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/histograms/src/Analysis/VVAnalysis"
 variable="Mass ZMass Z1Mass Z2Mass LepPt LepEta"
@@ -10,9 +10,11 @@ variable="Mass ZMass Z1Mass Z2Mass LepPt LepEta"
 #./Utilities/CorrectLHEXsection.py $weightID pp_eemm-cHWB_massless pp_eemm-cHG_massless pp_eemm-cll1_massless
 
 weightID=0.0
-restrict="SMlimit"
+restrict="cHWB"
 filelist="ZZEFT_$restrict"
 dir="output_$restrict-$weightID"
+#./makeHistStack.py -s ZZ4l2018/${selection} -f ZZEFT_cHWB_SMfull_nobkg -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/${filename} --folder_name SMratio/eemm -b Mass -c eemm --preliminary --scaleymax 1.2 --scalelegx 1.2 --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0 --lhe_weight_id $weightID
+#./makeHistStack.py -s ZZ4l2018/${selection} -f ZZEFT_cHWB_SMlimit_nobkg -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/${filename} --folder_name SMlimitratio/eemm -b Mass -c eemm --preliminary --scaleymax 1.2 --scalelegx 1.2 --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0 --lhe_weight_id $weightID
 
 for var in $variable; do
 
