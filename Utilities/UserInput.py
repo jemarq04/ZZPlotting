@@ -169,17 +169,21 @@ def getListOfFiles(file_set, selection):
                 #filelist.append("EWK-Extra4lg")
                 #filelist.append("EWK-Extra2e2mujjg")
         elif "zzeft" in fileset_nc:
+                if "smfull" in fileset_nc:
+                    filelist.append("ZZEFT_SMfull") #SM w/o EFT model
+                if "smlimit" in fileset_nc:
+                    filelist.append("ZZEFT_SMlimit")
                 if "chwb" in fileset_nc:
                     filelist.append("ZZEFT_cHWB")
-                elif "chg" in fileset_nc:
+                if "chg" in fileset_nc:
                     filelist.append("ZZEFT_cHG")
-                elif "cll1" in fileset_nc:
+                if "cll1" in fileset_nc:
                     filelist.append("ZZEFT_cll1")
-                elif "smlimit" in fileset_nc:
-                    filelist.append("ZZEFT_SMlimit")
-                filelist.append("nonprompt")
-                filelist.append("VVV")
-                filelist.append("ggZZ")
+                #Backgrounds
+                if "nobkg" not in fileset_nc:
+                    filelist.append("nonprompt")
+                    filelist.append("VVV")
+                    filelist.append("ggZZ")
         else:
             filelist.append(files)
     return filelist
