@@ -14,6 +14,9 @@ sys.path.insert(0,scriptPath)
 import ConfigureJobs
 
 def main():
+    print("Deprecated - no use for this")
+    return
+
     print "Correcting LHE cross sections"
     DESC = ""
     parser = argparse.ArgumentParser(description=DESC, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
