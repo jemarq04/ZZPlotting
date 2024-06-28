@@ -251,7 +251,14 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
     hists = hist_stack.GetHists()
     first_stack = hist_stack
 
-    hist_stack.Draw(stack_drawexpr + (same if "same" not in stack_drawexpr else ""))
+    if not args.scatter:
+        hist_stack.Draw(stack_drawexpr + (same if "same" not in stack_drawexpr else ""))
+    else:
+        hist_drawexpr = "PLC PFC"
+        for hist in hists:
+            print("Drawing %s" % hist.GetName())
+            hist.Draw(hist_drawexpr)
+            hist_drawexpr += " same" if " same" not in hist_drawexpr else ""
     if signal_stack:
         if stack_signal:
             sum_stack = hists[0].Clone()
@@ -276,20 +283,28 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
             data_hist.SetBinErrorOption(ROOT.TH1.kPoisson)
         data_hist.SetLineColor(ROOT.kBlack)
         data_hist.Draw("e0 same") #Two places of data_hist.Draw
-    first_stack.GetYaxis().SetTitleSize(hists[0].GetYaxis().GetTitleSize())    
-    first_stack.GetYaxis().SetTitleOffset(hists[0].GetYaxis().GetTitleOffset())    
-    first_stack.GetYaxis().SetTitle(
-        hists[0].GetYaxis().GetTitle()+"/bin" if not glb_isFullMass else "<"+hists[0].GetYaxis().GetTitle()+"/GeV>")
+    if not args.scatter:
+        first_stack.GetYaxis().SetTitleSize(hists[0].GetYaxis().GetTitleSize())    
+        first_stack.GetYaxis().SetTitleOffset(hists[0].GetYaxis().GetTitleOffset())    
+        first_stack.GetYaxis().SetTitle(
+            hists[0].GetYaxis().GetTitle()+"/bin" if not glb_isFullMass else "<"+hists[0].GetYaxis().GetTitle()+"/GeV>")
+    else:
+        hists[0].GetYaxis().SetTitle(
+            hists[0].GetYaxis().GetTitle()+"/bin" if not glb_isFullMass else "<"+hists[0].GetYaxis().GetTitle()+"/GeV>")
 
     if not args.no_ratio and float(ROOT.gROOT.GetVersion().split("/")[0]) > 6.07:
         # Remove first bin label to avoid overlap of canvases
         if hists[0].GetMinimum() == 0.0:
             first_stack.GetYaxis().ChangeLabel(1, -1.0, 0)
         print hists[0].GetMinimum() 
-    first_stack.GetHistogram().GetXaxis().SetTitle(
-        hists[0].GetXaxis().GetTitle())
-    first_stack.GetHistogram().SetLabelSize(0.04)
-    first_stack.SetMinimum(hists[0].GetMinimum()*args.scaleymin)
+    if not args.scatter:
+        first_stack.GetHistogram().GetXaxis().SetTitle(
+            hists[0].GetXaxis().GetTitle())
+        first_stack.GetHistogram().SetLabelSize(0.04)
+        first_stack.SetMinimum(hists[0].GetMinimum()*args.scaleymin)
+    else:
+        hists[0].SetLabelSize(0.04)
+        hists[0].SetMinimum(hists[0].GetMinimum()*args.scaleymin)
     ## Adding an arbirary factor of 100 here so the scaling doesn't cut off info from
     ## Hists. Not applied when lumi < 1. This should be fixed
     scale = args.luminosity/100 if args.luminosity > 0 else 1
@@ -297,17 +312,18 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
         dataMax=data_hist.GetMaximum()
     else:
         dataMax=0
-    mcMax=sum(map(lambda x:x.GetMaximum(),hists))
+    mcMax=sum(map(lambda x:x.GetMaximum(),hists)) if not args.scatter else max(map(lambda x:x.GetMaximum(),hists))
+    hist_or_stack = first_stack if not args.scatter else hists[0]
     if (dataMax>mcMax):
         print "scaleymax: ",args.scaleymax
         print "data_histMax: ",dataMax
-        first_stack.SetMaximum(dataMax*args.scaleymax)
+        hist_or_stack.SetMaximum(dataMax*args.scaleymax)
     elif(mcMax>dataMax):
         print "scaleymax: ",args.scaleymax
         print "MC_StackMaxSum: ",mcMax
-        first_stack.SetMaximum(mcMax*args.scaleymax)
+        hist_or_stack.SetMaximum(mcMax*args.scaleymax)
     else:
-        first_stack.SetMaximum(hists[0].GetMaximum()*args.scaleymax*scale)
+        hist_or_stack.SetMaximum(hists[0].GetMaximum()*args.scaleymax*scale)
 def getHistErrors(hist_stack, separate):
     histErrors = []
     for hist in hist_stack.GetHists():
@@ -341,7 +357,8 @@ def getPrettyLegend(hist_stack, data_hist, signal_stack, error_hists, coords):
     for error_hist in error_hists:
         legend.AddEntry(error_hist, error_hist.GetTitle(), "f")
     return legend
-def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=None, lhe_weight_id=None):
+def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=None, 
+        unweighted=False, lhe_weight_id=None):
     if "Gen" not in selection:
         metaTree_name = "metaInfo/metaInfo"
         sum_weights_branch = "summedWeights"
@@ -370,7 +387,7 @@ def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=
                 metaTree = ROOT.TChain(metaTree_name)
                 metaTree.Add(hist_factory[name]["file_path"])
                 weight_info = WeightInfo.WeightInfoProducer(metaTree, 
-                        mc_info[base_name]['cross_section']*kfac,
+                        mc_info[base_name]['cross_section']*kfac if not unweighted else 1,
                         sum_weights_branch).produce()
             else:
                 # Not the most elegant way to go about it, but better to read
@@ -382,7 +399,7 @@ def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=
                     sumweights_hist = hist_file.Get(str("/".join([base_name, "sumweights"])))
                 ROOT.SetOwnership(sumweights_hist, False)
                 weight_info = WeightInfo.WeightInfo(
-                        mc_info[base_name]['cross_section']*kfac,
+                        mc_info[base_name]['cross_section']*kfac if not unweighted else 1,
                         sumweights_hist.Integral(0,sumweights_hist.GetNbinsX()+1) if sumweights_hist else 0
                 )
                 #pdb.set_trace()
@@ -485,11 +502,15 @@ def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, st
     #myoutputFile.Close()
     #print("File written")
     #sys.exit()
+    print("NOTE: Created hist %s" % hist.GetName())
+    for i in range(1, hist.GetNbinsX()+1):
+        if hist.GetBinError(i):
+            print("NOTE: ==> Bin %s error is %s" % (i, hist.GetBinError(i)))
     return hist
 
 def getConfigHistFromFile(filename, config_factory, plot_group, selection, branch_name, channels,
         luminosity=1, addOverflow=False, rebin=0, uncertainties="none", removeNegatives=True,
-        lhe_weight_id=None):
+        unweighted=False, lhe_weight_id=None):
     try:
         filelist = config_factory.getPlotGroupMembers(plot_group)
     except ValueError as e:
@@ -509,7 +530,7 @@ def getConfigHistFromFile(filename, config_factory, plot_group, selection, branc
     hist_file = ROOT.TFile(filename)
     ROOT.SetOwnership(hist_file, False)
     
-    hist_factory = getHistFactory(config_factory, selection, filelist, luminosity, hist_file, lhe_weight_id)
+    hist_factory = getHistFactory(config_factory, selection, filelist, luminosity, hist_file, unweighted, lhe_weight_id)
 
     bin_info = config_factory.getHistBinInfo(branch_name)
     states = channels.split(",")
