@@ -150,8 +150,14 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     #legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], histErrors, coords)
     if mainband:
         legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], [mainband], coords)
+        stack_hists_temp = filter(lambda p: type(p) is ROOT.TH1D and 'signal' not in p.GetName(), canvas.GetListOfPrimitives())
+        if stack_hists_temp:
+            stack_hists_temp[0].SetTitle("")
     else:
         legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], [], coords)
+        stack_hists_temp = filter(lambda p: type(p) is ROOT.TH1D and 'signal' not in p.GetName(), canvas.GetListOfPrimitives())
+        if stack_hists_temp:
+            stack_hists_temp[0].SetTitle("")
     legend.Draw()
 
     if not args.no_decorations:
@@ -222,7 +228,9 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         ROOT.SetOwnership(text_box, False)
     if args.logy:
         canvas.SetLogy()
-    if not args.no_ratio:
+    if args.scatter:
+      pass
+    elif not args.no_ratio:
         #pdb.set_trace()
         #canvas = plotter.splitCanvas(canvas, canvas_dimensions,
         #        "#scale[0.85]{Data / Pred.}" if data_hists[0] else args.ratio_text,
@@ -254,6 +262,7 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
     if not args.scatter:
         hist_stack.Draw(stack_drawexpr + (same if "same" not in stack_drawexpr else ""))
     else:
+        ROOT.gStyle.SetOptStat(0);
         hist_drawexpr = "PLC PFC"
         for hist in hists:
             print("Drawing %s" % hist.GetName())

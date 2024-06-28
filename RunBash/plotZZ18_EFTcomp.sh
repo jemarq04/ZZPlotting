@@ -1,10 +1,10 @@
 #filename="Hists28May2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm
-filename="Hists26Jun2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm - 100K
+filename="Hists28Jun2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm - 100K
 selection="ZZSelectionsTightLeps"
 VVAnalysis_path="/afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/histograms/src/Analysis/VVAnalysis"
 variable="Mass" # ZMass Z1Mass Z2Mass ZPt ZZPt LepPt LepEta"
 
-options="-s ZZ4l2018/$selection -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/$filename --preliminary --scaleymax 1.2 --scalelegx 1.2 --lhe_weight_id 0.0"
+options="-s ZZ4l2018/$selection -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/$filename --preliminary --scaleymax 1.5 --scalelegx 1.5 --lhe_weight_id 0.0"
 
 filelist="ZZEFT_all_nobkg"
 dir="EFTcompare/eemm"
