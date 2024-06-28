@@ -263,6 +263,7 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
         hist_stack.Draw(stack_drawexpr + (same if "same" not in stack_drawexpr else ""))
     else:
         ROOT.gStyle.SetOptStat(0);
+        #ROOT.gStyle.SetPalette(ROOT.kGreenRedViolet)
         hist_drawexpr = "PLC PFC"
         for hist in hists:
             print("Drawing %s" % hist.GetName())
@@ -301,12 +302,12 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
         hists[0].GetYaxis().SetTitle(
             hists[0].GetYaxis().GetTitle()+"/bin" if not glb_isFullMass else "<"+hists[0].GetYaxis().GetTitle()+"/GeV>")
 
-    if not args.no_ratio and float(ROOT.gROOT.GetVersion().split("/")[0]) > 6.07:
-        # Remove first bin label to avoid overlap of canvases
-        if hists[0].GetMinimum() == 0.0:
-            first_stack.GetYaxis().ChangeLabel(1, -1.0, 0)
-        print hists[0].GetMinimum() 
     if not args.scatter:
+        if not args.no_ratio and float(ROOT.gROOT.GetVersion().split("/")[0]) > 6.07:
+            # Remove first bin label to avoid overlap of canvases
+            if hists[0].GetMinimum() == 0.0:
+                first_stack.GetYaxis().ChangeLabel(1, -1.0, 0)
+            print hists[0].GetMinimum() 
         first_stack.GetHistogram().GetXaxis().SetTitle(
             hists[0].GetXaxis().GetTitle())
         first_stack.GetHistogram().SetLabelSize(0.04)
