@@ -240,8 +240,6 @@ def main():
     doSyst = True
     do3ChanSys = True #Do 3 channels separately and totoal for table printout
    
-    if args.scatter:
-        args.no_ratio = True
     if not do3ChanSys:
         if not args.channels == "eeee,eemm,mmee,mmmm": #only run syst band for total channels
             return
