@@ -26,7 +26,7 @@ def getDefaultParser():
                         help="Read histograms from file")
     parser.add_argument("--stat_file", type=str, default="",
                         help="Read histograms from file")
-    parser.add_argument("--rebin", type=lambda x: [float(i) for i in x.split(",")], default=0,
+    parser.add_argument("--rebin", type=lambda x: [float(i) for i in x.split(",")], default=[0.0],
                         help="Rebin (integer)")
     parser.add_argument("--legend_left", action="store_true",
                         help="Put legend left or right")
@@ -169,15 +169,16 @@ def getListOfFiles(file_set, selection):
                 #filelist.append("EWK-Extra4lg")
                 #filelist.append("EWK-Extra2e2mujjg")
         elif "zzeft" in fileset_nc:
+                draw_all = "all" in fileset_nc
                 if "smfull" in fileset_nc:
                     filelist.append("ZZEFT_SMfull") #SM w/o EFT model
-                if "smlimit" in fileset_nc:
+                if draw_all or "smlimit" in fileset_nc:
                     filelist.append("ZZEFT_SMlimit")
-                if "chwb" in fileset_nc:
+                if draw_all or "chwb" in fileset_nc:
                     filelist.append("ZZEFT_cHWB")
-                if "chg" in fileset_nc:
+                if draw_all or "chg" in fileset_nc:
                     filelist.append("ZZEFT_cHG")
-                if "cll1" in fileset_nc:
+                if draw_all or "cll1" in fileset_nc:
                     filelist.append("ZZEFT_cll1")
                 #Backgrounds
                 if "nobkg" not in fileset_nc:
