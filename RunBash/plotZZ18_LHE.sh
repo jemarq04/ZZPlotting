@@ -1,57 +1,46 @@
-#filename="Hists12Apr2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (default reweight first and ZZEFT reorg.)
 #filename="Hists02May2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (2e2mu)
-#filename="Hists21May2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit) eemm
-filename="Hists28May2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm
+#filename="Hists28May2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm
+#filename="Hists29May2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm - unweighted
+filename="Hists08Jun2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm - unweighted 100K
+filename="Hists26Jun2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm - 100K
 selection="ZZSelectionsTightLeps"
 VVAnalysis_path="/afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/histograms/src/Analysis/VVAnalysis"
-variable="Mass ZMass Z1Mass Z2Mass LepPt LepEta"
+variable="Mass ZMass Z1Mass Z2Mass LepPt LepEta Z1PolCos Z2PolCos"
 
 #The following command was found to be incorrect - the xsec must be calculated for default weights
 #./Utilities/CorrectLHEXsection.py $weightID pp_eemm-cHWB_massless pp_eemm-cHG_massless pp_eemm-cll1_massless
 
+options="-s ZZ4l2018/$selection -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/$filename --preliminary --scaleymax 1.2 --scalelegx 1.2"
+
+unweighted=false
+if $unweighted; then
+  var="Mass"
+  for restrict in cHWB cHG cll1 SMlimit; do
+    filelist="ZZEFT_${restrict}_nobkg"
+    dir="${restrict}_nowgt"
+    moreoptions="--unweighted --no_ratio -f $filelist -b ${var}"
+    ./makeHistStack.py $options $moreoptions --folder_name ${dir}/eemm -c eemm --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0
+  done
+fi
+
 weightID=0.0
-restrict="cHWB"
-filelist="ZZEFT_$restrict"
-dir="output_$restrict-$weightID"
-#./makeHistStack.py -s ZZ4l2018/${selection} -f ZZEFT_cHWB_SMfull_nobkg -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/${filename} --folder_name SMratio/eemm -b Mass -c eemm --preliminary --scaleymax 1.2 --scalelegx 1.2 --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0 --lhe_weight_id $weightID
-#./makeHistStack.py -s ZZ4l2018/${selection} -f ZZEFT_cHWB_SMlimit_nobkg -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/${filename} --folder_name SMlimitratio/eemm -b Mass -c eemm --preliminary --scaleymax 1.2 --scalelegx 1.2 --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0 --lhe_weight_id $weightID
-
-for var in $variable; do
-
-  if [ $var = "Mass" ]; then
+for restrict in cHWB cHG cll1; do
+	filelist="ZZEFT_$restrict"
+	dir="output_$restrict-$weightID"
+	for var in $variable; do
+    moreoptions="--lhe_weight_id $weightID -f $filelist -b ${var}"
     echo ${var}
-    #echo "All Channels"
-    #./makeHistStack.py -s ZZ4l2018/${selection} -f $filelist -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/${filename} --folder_name ${dir} -b ${var} --preliminary --scaleymax 1.2 --scalelegx 1.2 --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0 
-    echo "Plotting eemm channel"
-    ./makeHistStack.py -s ZZ4l2018/${selection} -f $filelist -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/${filename} --folder_name ${dir}/eemm -b ${var} -c eemm --preliminary --scaleymax 1.2 --scalelegx 1.2 --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0 --lhe_weight_id $weightID
-    #echo "Plotting 2e2mu channel"
-    #./makeHistStack.py -s ZZ4l2018/${selection} -f $filelist -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/${filename} --folder_name ${dir}/2e2m -b ${var} -c eemm,mmee --preliminary --scaleymax 1.2 --scalelegx 1.2 --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0 --lhe_weight_id $weightID
-
-  elif [ $var = "ZMass" ]; then
-    echo ${var}
-    #echo "All Channels"
-    #./makeHistStack.py -s ZZ4l2018/${selection} -f $filelist -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/${filename} --folder_name ${dir} -b ${var} --preliminary --scaleymax 1.2 --scalelegx 1.2 
-    echo "Plotting eemm channel"
-    ./makeHistStack.py -s ZZ4l2018/${selection} -f $filelist -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/${filename} --folder_name ${dir}/eemm -b ${var} -c eemm --preliminary --scaleymax 1.2 --scalelegx 1.2 --lhe_weight_id $weightID
-
-  elif [ $var = "LepPt" ]; then
-    echo ${var}
-    #echo "All Channels"
-    #./makeHistStack.py -s ZZ4l2018/${selection} -f $filelist -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/${filename} --folder_name ${dir} -b ${var} --preliminary --scaleymax 1.2 --scalelegx 1.2 #--no_decorations
-    echo "Plotting eemm channel"
-    ./makeHistStack.py -s ZZ4l2018/${selection} -f $filelist -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/${filename} --folder_name ${dir}/eemm -b ${var} -c eemm --preliminary --scaleymax 1.2 --scalelegx 1.2 --lhe_weight_id $weightID #--no_decorations   
-
-  elif [ $var = "LepEta" ]; then
-    echo ${var}
-    #echo "All Channels"
-    #./makeHistStack.py -s ZZ4l2018/${selection} -f $filelist -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/${filename} --folder_name ${dir} -b ${var} --preliminary --scaleymax 1.2 --scalelegx 1.2 #--no_decorations
-    echo "Plotting eemm channel"
-    ./makeHistStack.py -s ZZ4l2018/${selection} -f $filelist -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/${filename} --folder_name ${dir}/eemm -b ${var} -c eemm --preliminary --scaleymax 1.2 --scalelegx 1.2 --lhe_weight_id $weightID #--no_decorations
-	
-	else
-		echo "Attempting ${var}"
-		echo "Plotting eemm channel"
-    ./makeHistStack.py -s ZZ4l2018/${selection} -f $filelist -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/${filename} --folder_name ${dir}/eemm -b ${var} -c eemm --preliminary --scaleymax 1.2 --scalelegx 1.2 --lhe_weight_id $weightID #--no_decorations
-  fi
-
+	  if [ $var = "Mass" ]; then
+      #echo "All Channels"
+      #./makeHistStack.py $options $moreoptions --folder_name $dir --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0
+      echo "Plotting eemm channel"
+      ./makeHistStack.py $options $moreoptions --folder_name $dir/eemm -c eemm --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0
+      #echo "Plotting 2e2mu channel"
+      #./makeHistStack.py $options $moreoptions --folder_name $dir/2e2m -c eemm,mmee --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0
+		else
+			echo "Attempting ${var}"
+			echo "Plotting eemm channel"
+      ./makeHistStack.py $options $moreoptions --folder_name ${dir}/eemm -c eemm
+	  fi
+	done
 done
