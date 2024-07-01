@@ -512,10 +512,6 @@ def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, st
     #myoutputFile.Close()
     #print("File written")
     #sys.exit()
-    print("NOTE: Created hist %s" % hist.GetName())
-    for i in range(1, hist.GetNbinsX()+1):
-        if hist.GetBinError(i):
-            print("NOTE: ==> Bin %s error is %s" % (i, hist.GetBinError(i)))
     return hist
 
 def getConfigHistFromFile(filename, config_factory, plot_group, selection, branch_name, channels,
