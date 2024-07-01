@@ -1,21 +1,18 @@
 #filename="Hists02May2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (2e2mu)
-#filename="Hists28May2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm
-#filename="Hists29May2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm - unweighted
-filename="Hists08Jun2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm - unweighted 100K
+filename="Hists30Jun2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm - 100K unweighted
 filename="Hists28Jun2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm - 100K
 selection="ZZSelectionsTightLeps"
 VVAnalysis_path="/afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/histograms/src/Analysis/VVAnalysis"
 variable="Mass ZMass Z1Mass Z2Mass LepPt LepEta Z1PolCos Z2PolCos"
+params="cHWB cHG cll1"
+weightID=0.0
 
-#The following command was found to be incorrect - the xsec must be calculated for default weights
-#./Utilities/CorrectLHEXsection.py $weightID pp_eemm-cHWB_massless pp_eemm-cHG_massless pp_eemm-cll1_massless
-
-options="-s ZZ4l2018/$selection -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/$filename --preliminary --scaleymax 1.2 --scalelegx 1.2"
+options="-s ZZ4l2018/$selection -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/$filename --preliminary --scaleymax 1.2 --scalelegx 1.5 --no_ratio"
 
 unweighted=false
 if $unweighted; then
   var="Mass"
-  for restrict in cHWB cHG cll1 SMlimit; do
+  for restrict in $params SMlimit; do
     filelist="ZZEFT_${restrict}_nobkg"
     dir="${restrict}_nowgt"
     moreoptions="--unweighted --no_ratio -f $filelist -b ${var}"
@@ -23,8 +20,7 @@ if $unweighted; then
   done
 fi
 
-weightID=0.0
-for restrict in cHWB cHG cll1; do
+for restrict in $params; do
 	filelist="ZZEFT_$restrict"
 	dir="output_$restrict-$weightID"
 	for var in $variable; do
