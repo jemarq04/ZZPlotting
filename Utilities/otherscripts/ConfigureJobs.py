@@ -411,3 +411,32 @@ def getTriggerName(sample_name, analysis, selection):
             if name in sample_name:
                 return "-t " + name
     return "-t MonteCarlo"
+
+def getLHEWeightIDs(sample_name, analysis, precision=3):
+    import ROOT
+    manager_path = os.path.join(getManagerPath(), getManagerName())
+    filename = os.path.join(manager_path, "FileInfo", analysis, "ntuples.json")
+    precstr = "%%.%if" % precision
+
+    if not os.path.isfile(filename):
+        raise ValueError("error reading file: %s" % filename)
+
+    wids = []
+    with open(filename) as infile:
+        try:
+            info = json.load(infile)
+        except:
+            raise ValueError("error loading JSON file")
+        chain = ROOT.TChain("eemm/ntuple")
+        if sample_name not in info:
+            raise ValueError("sample '%s' not in JSON file" % sample_name)
+        elif "file_path" not in info[sample_name]:
+            raise ValueError("'file_path' not in JSON file entry")
+        root_file_path = info[sample_name]["file_path"]
+        if root_file_path.startswith("/store"):
+            root_file_path = "/hdfs" + root_file_path
+        chain.Add(root_file_path)
+        for event in chain:
+            wids = [precstr % wid for wid in event.scaleWeightIDs]
+            break
+    return wids
