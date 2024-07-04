@@ -22,6 +22,7 @@ if $unweighted; then
 fi
 
 for restrict in $params; do
+  echo pp_eemm-${restrict}_massless
   wids=$(python Utilities/GetLHEWeightIDs.py -a $analysis pp_eemm-${restrict}_massless)
   if [[ $? -ne 0 ]]; then
     echo "error finding weight IDs for pp_eemm-${restrict}_massless:"
@@ -29,13 +30,14 @@ for restrict in $params; do
     echo $wids
     continue
   fi
-  for wid in $(python Utilities/GetLHEWeightIDs.py -a $analysis pp_eemm-${restrict}_massless); do
+  for wid in $wids; do 
     foundwid=false
     if [[ "$weightID" != "all" ]]; then
       widdiff=$(bc -l <<< "$weightID - $wid")
       (( $(bc -l <<< "$widdiff * (($widdiff>0)-($widdiff<0)) < 0.0001") )) && foundwid=true
     fi
     if $foundwid || [[ "$weightID" == "all" ]]; then
+      echo Plotting Weight ID $wid
       filelist="ZZEFT_$restrict"
       dir="output_$restrict-$wid"
       for var in $variable; do
