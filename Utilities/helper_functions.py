@@ -172,18 +172,16 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         scale_label = "Normalized to Unity" if args.luminosity < 0 else \
             "%s fb^{-1}" % int(round(float(args.luminosity)))
         
-        lumi_text = ""
+        lumi_text = []
         force_notPre = False
         if args.thesis:
-            lumi_text = "Thesis" 
-        elif args.preliminary:
-            lumi_text = "Preliminary" 
-            if force_notPre:
-                lumi_text = ""    
+            lumi_text.append("Thesis")
+        elif args.preliminary and not force_notPre:
+            lumi_text.append("Preliminary")
         if args.simulation:
-            lumi_text += "Simulation" 
+            lumi_text.append("Simulation")
         
-        ROOT.CMSlumi(canvas, 0, 11, "%s (13 TeV)" % scale_label,lumi_text)
+        ROOT.CMSlumi(canvas, 0, 11, "%s (13 TeV)" % scale_label," ".join(lumi_text))
                 #"Preliminary Simulation" if args.simulation else "Preliminary")
     if args.extra_text != "" or glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","mjj","dEtajj"]:
         if args.extra_text != "":
@@ -717,7 +715,7 @@ def savePlot(canvas, plot_path, html_path, branch_name, write_log_file, args):
         canvas.Print(output_name + ".png")
         canvas.Print(output_name + ".eps")
         #canvas.Print(output_name + ".pdf")
-        subprocess.call(["epstopdf", "--outfile=%s" % output_name+".pdf", output_name+".eps"],env={})
+        subprocess.call(["epstopdf", "--outfile=%s" % output_name+".pdf", output_name+".eps"],env=os.environ)
         os.remove(output_name+".eps")
         if write_log_file:
             makeDirectory(html_path + "/logs")
