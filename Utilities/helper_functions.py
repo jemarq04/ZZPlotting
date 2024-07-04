@@ -715,7 +715,7 @@ def savePlot(canvas, plot_path, html_path, branch_name, write_log_file, args):
         canvas.Print(output_name + ".png")
         canvas.Print(output_name + ".eps")
         #canvas.Print(output_name + ".pdf")
-        subprocess.call(["epstopdf", "--outfile=%s" % output_name+".pdf", output_name+".eps"],env=os.environ)
+        subprocess.call(["epstopdf", "--outfile=%s" % output_name+".pdf", output_name+".eps"],env={"PATH":os.environ["PATH"]})
         os.remove(output_name+".eps")
         if write_log_file:
             makeDirectory(html_path + "/logs")
