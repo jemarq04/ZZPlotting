@@ -11,12 +11,12 @@ class ConfigObject:
         initialize = self.data[object_name]['Initialize']
         if "TH1" in initialize['type']:
             if "varbins" not in initialize:
-                print "Still initialize to xmin"
+                print("Still initialize to xmin")
                 tObject = ROOT.TH1D(object_name, title, 
                     initialize['nbins'], initialize['xmin'], 
                     initialize['xmax'])
             else:
-                print "Will initialize to varbins"
+                print("Will initialize to varbins")
                 tObject = ROOT.TH1D(object_name, object_name, 
                     initialize['nbins'], 
                     array.array('d', initialize['varbins'])) 
@@ -56,7 +56,7 @@ class ConfigObject:
 
     def setAttributes(self, tObject, attributes):
         functions = []
-        for function_call, params in attributes.iteritems():
+        for function_call, params in attributes.items():
             if not isinstance(params, list): 
                 params = [params]
             parsed_params = []

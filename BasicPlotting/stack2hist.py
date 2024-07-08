@@ -36,12 +36,12 @@ def createDataH1(ch,channels):
     sumweights_hist = ROOT.TH1D("sumweights", "sumweights", 1,0,100)
     meta_tree.Draw("1>>sumweights","summedWeights")
     sumweights = sumweights_hist.Integral()
-    print "2017sumweights: ",sumweights
+    print("2017sumweights: ",sumweights)
 
     nevents_hist = ROOT.TH1D("nevents", "nevents", 1,0,100)
     meta_tree.Draw("1>>nevents","nevents")
     nevents = nevents_hist.Integral()
-    print "2017nevents: ",nevents
+    print("2017nevents: ",nevents)
     xsec = 1.256*1000
     h1.Scale((xsec*lumi)/sumweights)
     h1.SetLineColor(ROOT.kRed)
@@ -54,7 +54,7 @@ def createDataH1(ch,channels):
     h1.GetYaxis().SetTitle("")
     h1.GetYaxis().SetTickLength(0)
     h1.GetYaxis().SetLabelOffset(999)
-    print h1.Integral()
+    print(h1.Integral())
     gROOT.cd()
     h2017 = h1.Clone()
     return h2017
@@ -78,12 +78,12 @@ def createMCStack(ch,channels):
     sumweights_hist = ROOT.TH1D("sumweights", "sumweights", 1,0,100)
     meta_tree.Draw("1>>sumweights","summedWeights")
     sumweights = sumweights_hist.Integral()
-    print "2016sumweights: ",sumweights
+    print("2016sumweights: ",sumweights)
 
     nevents_hist = ROOT.TH1D("nevents", "nevents", 1,0,100)
     meta_tree.Draw("1>>nevents","nevents")
     nevents = nevents_hist.Integral()
-    print "2016nevents: ",nevents
+    print("2016nevents: ",nevents)
     xsec = 1.256*1000
     hist.Scale((xsec*lumi)/sumweights)
     hist.SetFillColor(ROOT.kBlue)
@@ -100,7 +100,7 @@ def createRatio(h1, h2):
         stackerror = hStackLast.GetBinError(i)
         datacontent = h1.GetBinContent(i)
         dataerror = h1.GetBinError(i)
-        print "stackcontent: ",stackcontent," and data content: ",datacontent
+        print("stackcontent: ",stackcontent," and data content: ",datacontent)
         ratiocontent=0
         if(datacontent!=0):
             ratiocontent = datacontent/stackcontent
@@ -108,7 +108,7 @@ def createRatio(h1, h2):
             error = ratiocontent*(math.sqrt(math.pow((dataerror/datacontent),2) + math.pow((stackerror/stackcontent),2)))
         else:
             error = 2.07
-        print "ratio content: ",ratiocontent," and error: ",error
+        print("ratio content: ",ratiocontent," and error: ",error)
         Ratio.SetBinContent(i,ratiocontent)
         Ratio.SetBinError(i,error)
 
@@ -187,10 +187,10 @@ def stackplot(ch,channels):
 
     c,pad1 = createCanvasPads()
     h1 = createDataH1(ch,channels)
-    print "2017 ZZTo4L Integral: ", h1.Integral()
+    print("2017 ZZTo4L Integral: ", h1.Integral())
     Datamaximum = h1.GetMaximum()
     h2 = createMCStack(ch,channels)
-    print "2016 ZZTo4L Integral",h2.Integral()
+    print("2016 ZZTo4L Integral",h2.Integral())
     h2maximum = h2.GetMaximum()
     h2.SetTitle("ZZTo4L_2016vs2017_"+ch)
     #h2.Draw("HIST")
@@ -249,5 +249,5 @@ def stackplot(ch,channels):
 
 if __name__ == "__main__":
     for ch in channels:
-        print "Plotting channel: ",ch
+        print("Plotting channel: ",ch)
         stackplot(ch,channels)

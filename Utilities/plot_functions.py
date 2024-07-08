@@ -7,14 +7,14 @@ from IPython import embed
 
 def getHistFromFile(root_file, name_in_file, rename, path_to_hist):
     if not root_file:
-        print 'Failed to open %s' % file
+        print('Failed to open %s' % file)
         exit(0)
     hist = ROOT.TH1D()   
     if path_to_hist != "":
         name_in_file = path_to_hist.join(["/", name_in_file]) 
     hist = root_file.Get(name_in_file)
     if not hist:
-        print 'Failed to get hist %s from file' % name_in_file
+        print('Failed to get hist %s from file' % name_in_file)
         exit(0)
     hist.SetDirectory(ROOT.gROOT) # detach "hist" from the file
     if rename != "":
@@ -29,44 +29,44 @@ def loadHistFromChain(hist, file_list, path_to_tree, branch_name,
 def loadHistFromTree(hist, root_file, path_to_tree, branch_name, 
                      cut_string, max_entries, append=False):
     if not root_file:
-        print 'Failed to open %s' % root_file
+        print('Failed to open %s' % root_file)
         exit(0)
     tree = root_file.Get(path_to_tree)
     loadHist(hist, tree, branch_name, cut_string, max_entries, append)
 def loadHist(hist, tree, branch_name, cut_string, max_entries, append=False):
     if not tree:
-        print 'Failed to get tree from file'
+        print('Failed to get tree from file')
         exit(0)
     hist.GetDirectory().cd() 
     hist_name = "".join(["+ " if append else "", hist.GetName()])
-    print "name is %s" % hist_name
+    print("name is %s" % hist_name)
     old_num = hist.GetEntries()
     num = tree.Draw(branch_name + ">>" + hist_name, 
             cut_string,
             "",
             max_entries if max_entries > 0 else 1000000000)
-    print "Draw Comand is %s" % branch_name + ">>" + hist_name
-    print "With cut string %s" % cut_string
+    print("Draw Comand is %s" % branch_name + ">>" + hist_name)
+    print("With cut string %s" % cut_string)
     if append:
         if num < old_num:
-            print "Failed to append to hist"
+            print("Failed to append to hist")
     #else:
     #    hist.SetDirectory(ROOT.gROOT) # detach "hist" from the file
-    print hist.GetEntries()
+    print(hist.GetEntries())
     return num
 # Modified from Nick Smith, U-Wisconsin
 # https://gitlab.cern.ch/ncsmith/monoZ/blob/master/plotter/plotting/splitCanvas.py
 def splitCanvas(oldcanvas, dimensions, ratio_text, ratio_range):
-    stacks = filter(lambda p: type(p) is ROOT.THStack and "signal" not in p.GetName(), oldcanvas.GetListOfPrimitives())
-    signal_stacks = filter(lambda p: type(p) is ROOT.THStack and "signal" in p.GetName(), oldcanvas.GetListOfPrimitives())
-    data_list = filter(lambda p: type(p) is ROOT.TH1D and 'data' in p.GetName().lower(), oldcanvas.GetListOfPrimitives())
+    stacks = [p for p in oldcanvas.GetListOfPrimitives() if type(p) is ROOT.THStack and "signal" not in p.GetName()]
+    signal_stacks = [p for p in oldcanvas.GetListOfPrimitives() if type(p) is ROOT.THStack and "signal" in p.GetName()]
+    data_list = [p for p in oldcanvas.GetListOfPrimitives() if type(p) is ROOT.TH1D and 'data' in p.GetName().lower()]
     compareData = True
     stack_hists = [i for s in stacks for i in s.GetHists()]
     signal_hists = [i for s in signal_stacks for i in s.GetHists()]
     if len(data_list) == 0:
         compareData = False
     elif len(stack_hists) < 2:
-        print "Can't form ratio from < 2 histograms"
+        print("Can't form ratio from < 2 histograms")
         return oldcanvas
     name = oldcanvas.GetName()
     canvas = ROOT.TCanvas(name+'__new', name, *dimensions)
@@ -99,7 +99,7 @@ def splitCanvas(oldcanvas, dimensions, ratio_text, ratio_range):
         if errors:
             centralRatioHist = errors.Clone(centralRatioHist.GetName())
         elif len(stack_hists) > 1:
-            map(centralRatioHist.Add, stack_hists[1:])
+            list(map(centralRatioHist.Add, stack_hists[1:]))
     centralHist = centralRatioHist.Clone("temp")
     centralRatioHist.SetFillColor(ROOT.TColor.GetColor("#828282"))
     #centralRatioHist.SetFillStyle(1001)
@@ -144,7 +144,7 @@ def splitCanvas(oldcanvas, dimensions, ratio_text, ratio_range):
     centralRatioHist.GetXaxis().SetLabelOffset(0.03)
     centralRatioHist.GetYaxis().CenterTitle()
     centralRatioHist.GetYaxis().SetRangeUser(*ratio_range)
-    centralRatioHist.GetYaxis().SetNdivisions(003)
+    centralRatioHist.GetYaxis().SetNdivisions(3)
     centralRatioHist.GetYaxis().SetTitleSize(centralRatioHist.GetYaxis().GetTitleSize()*0.8)
     centralRatioHist.GetYaxis().SetLabelSize(centralRatioHist.GetYaxis().GetLabelSize()*0.8)
     centralRatioHist.Draw("E2")
@@ -161,7 +161,7 @@ def splitCanvas(oldcanvas, dimensions, ratio_text, ratio_range):
         else:
             drawOpt += " PZE0"
         ratioHist.Draw(drawOpt)
-    stacks = filter(lambda p: type(p) is ROOT.THStack, stackPad.GetListOfPrimitives())
+    stacks = [p for p in stackPad.GetListOfPrimitives() if type(p) is ROOT.THStack]
     for stack in stacks:
         stack.GetXaxis().SetTitle("")
         stack.GetXaxis().SetLabelOffset(999)
@@ -243,16 +243,16 @@ def setErrorsStyle(histErrors):
 
 
 def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range,isMassFull,varname):
-    stacks = filter(lambda p: type(p) is ROOT.THStack and "signal" not in p.GetName(), oldcanvas.GetListOfPrimitives())
-    signal_stacks = filter(lambda p: type(p) is ROOT.THStack and "signal" in p.GetName(), oldcanvas.GetListOfPrimitives())
-    data_list = filter(lambda p: type(p) is ROOT.TH1D and 'data' in p.GetName().lower(), oldcanvas.GetListOfPrimitives())
+    stacks = [p for p in oldcanvas.GetListOfPrimitives() if type(p) is ROOT.THStack and "signal" not in p.GetName()]
+    signal_stacks = [p for p in oldcanvas.GetListOfPrimitives() if type(p) is ROOT.THStack and "signal" in p.GetName()]
+    data_list = [p for p in oldcanvas.GetListOfPrimitives() if type(p) is ROOT.TH1D and 'data' in p.GetName().lower()]
     compareData = True
     stack_hists = [i for s in stacks for i in s.GetHists()]
     signal_hists = [i for s in signal_stacks for i in s.GetHists()]
     if len(data_list) == 0:
         compareData = False
     elif len(stack_hists) < 2:
-        print "Can't form ratio from < 2 histograms"
+        print("Can't form ratio from < 2 histograms")
         return oldcanvas
     name = oldcanvas.GetName()
     #ROOT.gStyle.SetLineWidth(3)
@@ -290,7 +290,7 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
         if errors:
             centralRatioHist = errors.Clone(centralRatioHist.GetName()) #stat error_hist is also just sum of MC stack
         elif len(stack_hists) > 1:
-            map(centralRatioHist.Add, stack_hists[1:])
+            list(map(centralRatioHist.Add, stack_hists[1:]))
     centralHist = centralRatioHist.Clone("temp") #just a copy of original centralratiohist for dividing
     centralHist2 = centralRatioHist.Clone("temp2")
     centralRatioHist.SetFillColor(ROOT.TColor.GetColor("#828282"))
@@ -406,7 +406,7 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     
     centralRatioHist.GetYaxis().CenterTitle()
     centralRatioHist.GetYaxis().SetRangeUser(*ratio_range)
-    centralRatioHist.GetYaxis().SetNdivisions(003)
+    centralRatioHist.GetYaxis().SetNdivisions(3)
     centralRatioHist.GetYaxis().SetTitleSize(centralRatioHist.GetYaxis().GetTitleSize()*0.8)
     centralRatioHist.GetYaxis().SetLabelSize(centralRatioHist.GetYaxis().GetLabelSize()*0.8)
     #shouldn't need to draw it now, but if don't draw it other objects won't show up unless define axis in draw option of TGraphAsymmErrors
@@ -417,7 +417,7 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     #ratioband.GetXaxis().SetLabelOffset(0.03)
     #ratioband.GetYaxis().CenterTitle()
     #ratioband.GetYaxis().SetRangeUser(*ratio_range)
-    #ratioband.GetYaxis().SetNdivisions(003)
+    #ratioband.GetYaxis().SetNdivisions(3)
     #ratioband.GetYaxis().SetTitleSize(ratioband.GetYaxis().GetTitleSize()*0.8)
     #ratioband.GetYaxis().SetLabelSize(ratioband.GetYaxis().GetLabelSize()*0.8)
     if ratioband:
@@ -440,7 +440,7 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
         ratioHist.Draw(drawOpt)
     #================================================
 
-    stacks = filter(lambda p: type(p) is ROOT.THStack, stackPad.GetListOfPrimitives())
+    stacks = [p for p in stackPad.GetListOfPrimitives() if type(p) is ROOT.THStack]
     for stack in stacks:
         stack.GetXaxis().SetTitle("")
         stack.GetXaxis().SetLabelOffset(999)

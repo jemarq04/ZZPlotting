@@ -53,7 +53,7 @@ def writeMCLogInfo(hist_info, selection, branch_name, luminosity, cut_string, la
     total_err2 = 0
     signal = 0
     signal_err = 0
-    for plot_set, entry in hist_info.iteritems():
+    for plot_set, entry in hist_info.items():
         wevents = round(entry["weighted_events"], 3 if entry["weighted_events"] < 1 else 2) 
         mc_info.add_row([plot_set, wevents, 
             round(entry["error"],2),
@@ -82,7 +82,7 @@ def writeMCLogInfo(hist_info, selection, branch_name, luminosity, cut_string, la
     with open("temp.txt", "a") as mc_file:
         mc_file.write("\n"+(mc_info.get_string() if not latex else mc_info.get_latex_string())+"\n")
         mc_file.write("\nTotal sum of Monte Carlo: %0.2f +/- %0.2f" % (round(weighted_events, 2), 
-            round(math.sqrt(sum([x["error"]*x["error"] for x in hist_info.values()])), 2)))
+            round(math.sqrt(sum([x["error"]*x["error"] for x in list(hist_info.values())])), 2)))
         mc_file.write("\nTotal sum of background Monte Carlo: %0.2f +/- %0.2f" % (round(total_background, 2), 
             round(math.sqrt(background_err), 2)))
         mc_file.write("\nRatio S/(S+B): %0.2f +/- %0.2f" % (round(sigbkgd, 2), 
@@ -94,10 +94,10 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
     hist_stack = ROOT.THStack(name, "")
     ROOT.SetOwnership(hist_stack, False)
     hist_info = {}
-    print "Plot_set in filelist"
+    print("Plot_set in filelist")
     for plot_set in filelist:
         #pdb.set_trace()
-        print plot_set
+        print(plot_set)
         if hist_file == "":
             hist = helper.getConfigHistFromTree(config_factory, plot_set, selection,  
                     branch_name, channels, blinding, luminosity, addOverflow, rebin, cut_string, 
@@ -105,7 +105,7 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
         else:
             hist = helper.getConfigHistFromFile(hist_file, config_factory, plot_set, 
                         selection, branch_name, channels, luminosity, addOverflow=addOverflow, rebin=rebin)
-            print "hists",hist
+            print("hists",hist)
         if luminosity < 0:
             hist.Scale(1/hist.Integral())
         raw_events = hist.GetEntries() - 1
@@ -140,7 +140,7 @@ def main():
         return
     with open('varsFile.json') as var_json_file:
         myvar_dict = json.load(var_json_file)
-    for key in myvar_dict.keys():
+    for key in list(myvar_dict.keys()):
         if args.branches==str(key):
             args.rebin = myvar_dict[key]['_binning']
             
@@ -149,7 +149,7 @@ def main():
     if args.hist_file == "":
         ROOT.TProof.Open('workers=12')
     filelist = UserInput.getListOfFiles(args.files_to_plot, args.selection)
-    print filelist
+    print(filelist)
     path = "/cms/uhussain" if "hep.wisc.edu" in os.environ['HOSTNAME'] else \
         ConfigureJobs.getManagerPath()[:-1]
     config_factory = ConfigHistFactory(
@@ -161,7 +161,7 @@ def main():
     #print args.rebin
     branches = config_factory.getListOfPlotObjects() if args.branches == "all" \
             else [x.strip() for x in args.branches.split(",")]
-    print branches
+    print(branches)
     cut_string = args.make_cut
     (plot_path, html_path) = helper.getPlotPaths(args.selection, args.folder_name, True)
     meta_info = '-'*80 + '\n' + \

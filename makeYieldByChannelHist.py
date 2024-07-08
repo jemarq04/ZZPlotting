@@ -105,7 +105,7 @@ def makeLogFile(channels, hist_stack, data_hist, signal_stack):
             # is the first bin with channel content (mmm/emm/eem/eee by default)
             yield_info[chan] = getFormattedYieldAndError(hist, i+2, sigfigs)
         yield_info["Total Yield"] = getFormattedYieldAndError(hist, 1, sigfigs)
-        yield_table.add_row([formatted_names[hist.GetName().replace("_standalone","")]] + yield_info.values())
+        yield_table.add_row([formatted_names[hist.GetName().replace("_standalone","")]] + list(yield_info.values()))
     with open("temp.txt", "a") as log_file:
         log_file.write(yield_table.get_latex_string())
 

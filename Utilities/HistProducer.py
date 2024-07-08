@@ -1,11 +1,9 @@
 import ROOT
-import WeightInfo
+from . import WeightInfo
 import abc
 import array,pdb
 
-class HistProducer(object):
-    __metaclass__ = abc.ABCMeta
-
+class HistProducer(object, metaclass=abc.ABCMeta):
     def __init__(self, weight_info):
         self.weight_info = weight_info 
         self.lumi = 1

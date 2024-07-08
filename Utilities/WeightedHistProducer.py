@@ -1,5 +1,5 @@
 import ROOT
-from HistProducer import HistProducer
+from .HistProducer import HistProducer
 import logging
 from IPython import embed
 
@@ -26,7 +26,7 @@ class WeightedHistProducer(HistProducer):
 
     def produce(self, draw_expr, proof_path="", overflow=False, cut_string=""): 
         proof = ROOT.gProof
-        print "PROOF PATH IS", proof_path
+        print("PROOF PATH IS", proof_path)
         if cut_string == "":
             cut_string = self.cut_string
         append_cut = lambda x: "*(%s)" % x if x != "" else x

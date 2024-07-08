@@ -1,5 +1,5 @@
 import ROOT
-import plot_functions as plotter
+from . import plot_functions as plotter
 import Utilities.WeightInfo as WeightInfo
 from Utilities.WeightedHistProducer import WeightedHistProducer
 from Utilities.FromFileHistProducer import FromFileHistProducer
@@ -31,7 +31,7 @@ with open("Templates/config.%s" % os.getlogin()) as fconfig:
             
             scriptPath = line.split(" = ")[1].strip()
 sys.path.insert(0,scriptPath)
-import UserInput
+from . import UserInput
 import OutputTools
 import ConfigureJobs
 import HistTools
@@ -52,7 +52,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     ROOT.gStyle.SetLineWidth(3) #For hists created before this command, line width not affected, if created after then affected
     first = True
     for hist_stack, data_hist, signal_stack in zip(hist_stacks, data_hists, signal_stacks):
-        print "makePlot called"
+        print("makePlot called")
         makePlot(hist_stack, data_hist, name, args, signal_stack, 
             same=(" same" if not first else ""))
         first = False
@@ -150,12 +150,12 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     #legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], histErrors, coords)
     if mainband:
         legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], [mainband], coords)
-        stack_hists_temp = filter(lambda p: type(p) is ROOT.TH1D and 'signal' not in p.GetName(), canvas.GetListOfPrimitives())
+        stack_hists_temp = [p for p in canvas.GetListOfPrimitives() if type(p) is ROOT.TH1D and 'signal' not in p.GetName()]
         if stack_hists_temp:
             stack_hists_temp[0].SetTitle("")
     else:
         legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], [], coords)
-        stack_hists_temp = filter(lambda p: type(p) is ROOT.TH1D and 'signal' not in p.GetName(), canvas.GetListOfPrimitives())
+        stack_hists_temp = [p for p in canvas.GetListOfPrimitives() if type(p) is ROOT.TH1D and 'signal' not in p.GetName()]
         if stack_hists_temp:
             stack_hists_temp[0].SetTitle("")
     legend.Draw()
@@ -305,7 +305,7 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
             # Remove first bin label to avoid overlap of canvases
             if hists[0].GetMinimum() == 0.0:
                 first_stack.GetYaxis().ChangeLabel(1, -1.0, 0)
-            print hists[0].GetMinimum() 
+            print(hists[0].GetMinimum()) 
         first_stack.GetHistogram().GetXaxis().SetTitle(
             hists[0].GetXaxis().GetTitle())
         first_stack.GetHistogram().SetLabelSize(0.04)
@@ -320,15 +320,15 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
         dataMax=data_hist.GetMaximum()
     else:
         dataMax=0
-    mcMax=sum(map(lambda x:x.GetMaximum(),hists)) if not args.scatter else max(map(lambda x:x.GetMaximum(),hists))
+    mcMax=sum([x.GetMaximum() for x in hists]) if not args.scatter else max([x.GetMaximum() for x in hists])
     hist_or_stack = first_stack if not args.scatter else hists[0]
     if (dataMax>mcMax):
-        print "scaleymax: ",args.scaleymax
-        print "data_histMax: ",dataMax
+        print("scaleymax: ",args.scaleymax)
+        print("data_histMax: ",dataMax)
         hist_or_stack.SetMaximum(dataMax*args.scaleymax)
     elif(mcMax>dataMax):
-        print "scaleymax: ",args.scaleymax
-        print "MC_StackMaxSum: ",mcMax
+        print("scaleymax: ",args.scaleymax)
+        print("MC_StackMaxSum: ",mcMax)
         hist_or_stack.SetMaximum(mcMax*args.scaleymax)
     else:
         hist_or_stack.SetMaximum(hists[0].GetMaximum()*args.scaleymax*scale)
@@ -380,7 +380,7 @@ def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=
     hist_factory = OrderedDict() 
     for name in filelist:
         base_name = name.split("__")[0]
-        if name not in all_files.keys():
+        if name not in list(all_files.keys()):
             if not hist_file is None and not hist_file.Get(name):
                 logging.warning("%s is not a valid file name (must match a definition in FileInfo/%s.json)" % \
                     (name, selection))
@@ -390,7 +390,7 @@ def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=
             hist_factory[name] = dict(all_files[name])
         if "data" not in name.lower() and name != "nonprompt":
             #pdb.set_trace()
-            kfac = 1. if 'kfactor' not in mc_info[base_name].keys() else mc_info[base_name]['kfactor']
+            kfac = 1. if 'kfactor' not in list(mc_info[base_name].keys()) else mc_info[base_name]['kfactor']
             if not hist_file:
                 metaTree = ROOT.TChain(metaTree_name)
                 metaTree.Add(hist_factory[name]["file_path"])
@@ -436,15 +436,15 @@ def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, st
     hist = ROOT.gROOT.FindObject(hist_name)
     if hist:
         hist.Delete()
-    if not hist_factory.itervalues().next()["fromFile"]:
+    if not next(iter(hist_factory.values()))["fromFile"]:
         if "binning" in bin_info:
             hist = ROOT.TH1D(hist_name, hist_name, bin_info['nbins'], bin_info['binning'])
-            print "FromFile doesn't go here: ",hist
+            print("FromFile doesn't go here: ",hist)
         else:
             hist = ROOT.TH1D(hist_name, hist_name, bin_info['nbins'], bin_info['xmin'], bin_info['xmax'])
     log_info = "" 
     final_counts = {c : 0 for c in states}
-    for name, entry in hist_factory.iteritems():
+    for name, entry in hist_factory.items():
         log_info += "_"*80 + "\n"
         log_info += "Results for file %s in plot group %s\n" % (name, plot_group)
         producer = entry["histProducer"]
@@ -820,14 +820,14 @@ def getSystValue(hMain):
 
     global _binning
     _binning = {}
-    for key in myvar_dict.keys(): #key is the variable
+    for key in list(myvar_dict.keys()): #key is the variable
         _binning[key] = myvar_dict[key]["_binning"]
         
     sigSampleDic=ConfigureJobs.getListOfFilesWithXSec(ConfigureJobs.getListOfEWK())
-    sigSampleList=[str(i) for i in sigSampleDic.keys()]
+    sigSampleList=[str(i) for i in list(sigSampleDic.keys())]
     
     AltsigSampleDic=ConfigureJobs.getListOfFilesWithXSec([myaltname,])
-    AltsigSampleList=[str(i) for i in AltsigSampleDic.keys()]
+    AltsigSampleList=[str(i) for i in list(AltsigSampleDic.keys())]
     
     #Combine sigSamples
     TotSigSampleList = list(set(sigSampleList) | set(AltsigSampleList))
@@ -1029,7 +1029,7 @@ def getSystValue(hMain):
             lumiUnc = 0.025
             
         lumiScale = {'Up':1.+lumiUnc,'Down':1.-lumiUnc}
-        for sys, scale in lumiScale.iteritems():
+        for sys, scale in lumiScale.items():
             hNoFake = hMain.Clone("NoFakeLumi")
             #hNoFake.SetDirectory(0)
 
@@ -1061,7 +1061,7 @@ def getSystValue(hMain):
                 hChangelep.Add(hSigNominal,-1)
                 hChangelep.Add(hBkgMCNominal,-1)
 
-                if not SysDic[sys].has_key(lep+'_eff'):
+                if lep+'_eff' not in SysDic[sys]:
                     SysDic[sys][lep+'_eff'] = hChangelep
                 
                 else:
@@ -1070,7 +1070,7 @@ def getSystValue(hMain):
         #Trigger efficiency
         TrigUnc = 0.02
         TrigScale = {'Up':1.+TrigUnc,'Down':1.-TrigUnc}
-        for sys, scale in TrigScale.iteritems():
+        for sys, scale in TrigScale.items():
             hNoFakeTrig = hMain.Clone("NoFakeTrig")
             #hNoFake.SetDirectory(0)
 
@@ -1095,7 +1095,7 @@ def getSystValue(hMain):
         if not turnoffFake:
             fakeUnc = 0.4
             fakeScale = {'Up':1.+fakeUnc,'Down':1.-fakeUnc}
-            for sys, scale in fakeScale.iteritems():
+            for sys, scale in fakeScale.items():
 
                 hBkgFake = hbkgDic[chan][variable+"_Fakes"].Clone()
                 hBkgFake=rebin(hBkgFake,variable)
@@ -1192,7 +1192,7 @@ def getSystValue(hMain):
     histbins=array.array('d',_binning[variable])
     hUncUp=ROOT.TH1D("hUncUp","Total Up Uncert.",len(histbins)-1,histbins)
     hUncDn=ROOT.TH1D("hUncDn","Total Dn Uncert.",len(histbins)-1,histbins)
-    sysList = SysDic['Up'].keys()
+    sysList = list(SysDic['Up'].keys())
     UncUpHistos= [SysDic['Up'][sys] for sys in sysList]
     UncDnHistos= [SysDic['Down'][sys] for sys in sysList]
     totUncUp=totUncDn=0.

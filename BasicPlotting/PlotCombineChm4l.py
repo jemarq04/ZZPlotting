@@ -41,12 +41,12 @@ else:
     lowmass=lowmass+highmass
 
 arraylength=len(lowmass)-1
-print "arraylength: ", arraylength
+print("arraylength: ", arraylength)
 #lowBin=lowmass[0]
 #UpBin=lowmass[arraylength]
 #nbins=int((UpBin-lowBin)/2.0)
 #print "nbins: ",nbins," lowBin: ",lowBin, " UpBin: ",UpBin
-print "lowmass: ",lowmass
+print("lowmass: ",lowmass)
 variables = ["e1_e2_Mass","m1_m2_Mass","Mass"]
 channels = {"eeee":variables[2],"eemm":variables[2],"mmmm":variables[2]}
 #channels = {"mmmm":variables[1]}
@@ -64,7 +64,7 @@ def createDataH1(channels):
             #print 'dataDir: ',dataDir
             dataFiles+=glob(dataDir+"/*.root")
             #print 'dataFiles added'
-    print 'Length of dataFiles: ',len(dataFiles)
+    print('Length of dataFiles: ',len(dataFiles))
     for ch in channels:
         locals()['chain_{0}'.format(ch)] = ROOT.TChain(ch+"/ntuple")
     for f in dataFiles:
@@ -100,7 +100,7 @@ def createDataH1(channels):
         #else:
         #    (locals()['chain_{0}'.format(ch)]).Draw("(( abs(e1_e2_Mass-91.1876)<abs(m1_m2_Mass-91.1876) ) ? e1_e2_Mass : m1_m2_Mass)>>"+data_hist, "(nZZTightIsoElec+nZZTightIsoMu==4)&&(Mass<115 || Mass>150)")
         #    #(locals()['chain_{0}'.format(ch)]).Draw("(( abs(e1_e2_Mass-91.1876)<abs(m1_m2_Mass-91.1876) ) ? e1_e2_Mass : m1_m2_Mass)>>"+data_hist, "")
-        print "DataIntegral_",ch,": ",h1.Integral()
+        print("DataIntegral_",ch,": ",h1.Integral())
         hdataSum.Add(h1)
         h1.SetDirectory(0)
 
@@ -150,8 +150,8 @@ def createMCStack(channels,leg):
     #channels = ["eeee/ntuple","eemm/ntuple", "eeee/ntuple"]  
     MCStack = ROOT.THStack("stack", "stack")
     ROOT.SetOwnership(MCStack, False)
-    print plotgroups.keys()
-    for plotgroup in plotgroups.keys():
+    print(list(plotgroups.keys()))
+    for plotgroup in list(plotgroups.keys()):
         members=plotgroups[plotgroup]["Members"]
         mc_Group = "m4l_AllChannels_"+plotgroup
         hmcGroup = ROOT.TH1F(mc_Group, mc_Group, arraylength, array('d',lowmass))
@@ -240,18 +240,18 @@ def createMCStack(channels,leg):
         #print "length is", len(MCStack.GetHists())
         #print hist.Integral()
     #ROOT.SetOwnership(MCStack, False)
-    for i in MCStack.GetHists(): print i.GetName(), "Integral is", i.Integral()
+    for i in MCStack.GetHists(): print(i.GetName(), "Integral is", i.Integral())
     return MCStack
 def createRatio(h1, h2):
     Nbins = h1.GetNbinsX()
-    print "Nbins: ", Nbins
+    print("Nbins: ", Nbins)
     Ratio = h1.Clone("Ratio")
     hStackLast = h2.Clone("hStackLast")
     for i in range(Nbins):
         stackcontent = hStackLast.GetBinContent(i)
-        print "(", hStackLast.GetXaxis().GetBinLowEdge(i),",",hStackLast.GetXaxis().GetBinUpEdge(i), ") :" ,hStackLast.GetBinWidth(i)
+        print("(", hStackLast.GetXaxis().GetBinLowEdge(i),",",hStackLast.GetXaxis().GetBinUpEdge(i), ") :" ,hStackLast.GetBinWidth(i))
         if stackcontent<0:
-            print "stackcontent: ", stackcontent, "and bin: ",i
+            print("stackcontent: ", stackcontent, "and bin: ",i)
         stackerror = hStackLast.GetBinError(i)
         datacontent = h1.GetBinContent(i)
         dataerror = h1.GetBinError(i)
@@ -342,7 +342,7 @@ def stackplot(channels):
 
     c,pad1 = createCanvasPads()
     h1 = createDataH1(channels)
-    print "Data Integral (AllChannels): ", h1.Integral()
+    print("Data Integral (AllChannels): ", h1.Integral())
     Datamaximum = h1.GetMaximum()
     leg = ROOT.TLegend(0.20,0.54,0.48,0.84,"")
     leg.AddEntry(h1,"Data")
@@ -352,7 +352,7 @@ def stackplot(channels):
     #for i in hStack.GetHists(): print i.GetName(), "BinContent(36) is: ", i.GetBinContent(36)
     h2 = hStack.GetStack().Last()
     #h2.SetFillColor(ROOT.kBlue)
-    print "Total Stack Integral",h2.Integral()
+    print("Total Stack Integral",h2.Integral())
     Stackmaximum = h2.GetMaximum()
     hStack.SetTitle("m4l_AllChannels")
     hStack.Draw("HIST")

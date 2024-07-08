@@ -1,5 +1,5 @@
 import ROOT
-from HistProducer import HistProducer
+from .HistProducer import HistProducer
 import logging,pdb
 import math
 from IPython import embed

@@ -39,7 +39,7 @@ def createDataH1(channels):
             #print 'dataDir: ',dataDir
             dataFiles+=glob(dataDir+"/*.root")
             #print 'dataFiles added'
-    print 'Length of dataFiles: ',len(dataFiles)
+    print('Length of dataFiles: ',len(dataFiles))
     for ch in channels:
         locals()['chain_{0}'.format(ch)] = ROOT.TChain(ch+"/ntuple")
     for f in dataFiles:
@@ -73,7 +73,7 @@ def createDataH1(channels):
             #Function to retrieve mZ1 in ch=eemm
             else:
                 (locals()['chain_{0}'.format(ch)]).Draw("(( abs(e1_e2_Mass-91.1876)<abs(m1_m2_Mass-91.1876) ) ? m1_m2_Mass : e1_e2_Mass)>>"+data_hist, "(nZZTightIsoElec+nZZTightIsoMu==4) && (Mass<115 || Mass>150)") 
-        print "DataIntegral_",ch,": ",h1.Integral()
+        print("DataIntegral_",ch,": ",h1.Integral())
         hdataSum.Add(h1)
         h1.SetDirectory(0)
     hdataSum.SetLineColor(ROOT.kWhite)
@@ -113,8 +113,8 @@ def createMCStack(channels,leg):
     #channels = ["eeee/ntuple","eemm/ntuple", "eeee/ntuple"]  
     MCStack = ROOT.THStack("stack", "stack")
     ROOT.SetOwnership(MCStack, False)
-    print plotgroups.keys()
-    for plotgroup in plotgroups.keys():
+    print(list(plotgroups.keys()))
+    for plotgroup in list(plotgroups.keys()):
         members=plotgroups[plotgroup]["Members"]
         mc_Group = "Z2Mass_AllChannels_"+plotgroup
         hmcGroup = ROOT.TH1F(mc_Group, mc_Group, nbins, low,high)
@@ -193,7 +193,7 @@ def createMCStack(channels,leg):
         #print hist.Integral()
         
     #ROOT.SetOwnership(MCStack, False)
-    for i in MCStack.GetHists(): print i.GetName(), "Integral is", i.Integral()
+    for i in MCStack.GetHists(): print(i.GetName(), "Integral is", i.Integral())
     return MCStack
 def createRatio(h1, h2):
     Nbins = h1.GetNbinsX()
@@ -202,11 +202,11 @@ def createRatio(h1, h2):
     for i in range(Nbins):
         stackcontent = hStackLast.GetBinContent(i)
         if stackcontent<0:
-            print "stackcontent: ", stackcontent, "and bin: ",i
+            print("stackcontent: ", stackcontent, "and bin: ",i)
         stackerror = hStackLast.GetBinError(i)
         datacontent = h1.GetBinContent(i)
         dataerror = h1.GetBinError(i)
-        print "stackcontent: ",stackcontent," and data content: ",datacontent
+        print("stackcontent: ",stackcontent," and data content: ",datacontent)
         ratiocontent=0
         if(datacontent!=0):
             ratiocontent = datacontent/stackcontent
@@ -214,7 +214,7 @@ def createRatio(h1, h2):
             error = ratiocontent*(math.sqrt(math.pow((dataerror/datacontent),2) + math.pow((stackerror/stackcontent),2)))
         else:
             error = 2.07
-        print "ratio content: ",ratiocontent," and error: ",error
+        print("ratio content: ",ratiocontent," and error: ",error)
         Ratio.SetBinContent(i,ratiocontent)
         Ratio.SetBinError(i,error)
 
@@ -294,7 +294,7 @@ def stackplot(channels):
 
     c,pad1 = createCanvasPads()
     h1 = createDataH1(channels)
-    print "Data Integral (AllChannels): ", h1.Integral()
+    print("Data Integral (AllChannels): ", h1.Integral())
     Datamaximum = h1.GetMaximum()
     leg = ROOT.TLegend(0.20,0.54,0.48,0.84,"")
     leg.AddEntry(h1,"Data")
@@ -303,7 +303,7 @@ def stackplot(channels):
     #for i in hStack.GetHists(): print i.GetName(), "BinContent(36) is: ", i.GetBinContent(36)
     h2 = hStack.GetStack().Last()
     #h2.SetFillColor(ROOT.kBlue)
-    print "Total Stack Integral",h2.Integral()
+    print("Total Stack Integral",h2.Integral())
     Stackmaximum = h2.GetMaximum()
     hStack.SetTitle("mZ2_AllChannels")
     hStack.Draw("HIST")

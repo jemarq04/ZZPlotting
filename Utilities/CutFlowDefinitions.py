@@ -1,4 +1,4 @@
-import CutFlowTools
+from . import CutFlowTools
 from collections import OrderedDict
 
 def getWZCutFlow(dataset_manager, cutflow_type):
@@ -115,7 +115,7 @@ def getWZCutFlow(dataset_manager, cutflow_type):
         cutflow_values = wz_basic_cutflow
     else:
         cutflow_values = wz_full_cutflow
-    for name, info in cutflow_values.iteritems():
+    for name, info in cutflow_values.items():
         cutflow_entry = CutFlowTools.CutFlowEntry(name, 
             dataset_manager,
             "WZxsec2016/" + info["datatier"],

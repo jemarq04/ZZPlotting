@@ -158,7 +158,7 @@ for i,var in enumerate(["LepPt","ZMass","Mass"]):
     dict[var]["responseClassNames"] = 'testJet'    
 
 #change axis range and MC symbol location
-for key in dict.keys():
+for key in list(dict.keys()):
     dict[key]['top_xy']=(0.2,0.87)
     dict[key]['top_size']=0.1
     dict[key]['bottom_xy']=(0.2,0.91) #top and bottom different pad settings

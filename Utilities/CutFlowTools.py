@@ -24,7 +24,7 @@ class CutFlowEntry(object):
     def getName(self):
         return self.name
     def getValue(self, plot_group, unc, hist_file, scale_facs=False):
-        elif hist_file == "":
+        if hist_file == "":
             hist = helper.getConfigHistFromTree(self.config_factory, 
                     plot_group, 
                     self.analysis,
@@ -54,7 +54,7 @@ class ManualCutFlowEntry(object):
     def setEntryValues(self, entry_name, entry_value):
         self.entries[entry_name] = entry_value
     def getValue(self, entry_name, unc):
-        if entry_name not in self.entries.keys():
+        if entry_name not in list(self.entries.keys()):
             return 0
         else:
             return entries[entry_name]

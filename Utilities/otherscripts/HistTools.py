@@ -67,7 +67,7 @@ def makeUnrolledHist(init_2D_hist, xbins, ybins, name=""):
         ybinned_hist = ybinned_hist.Rebin(len(xbins)-1, hist_name+"_rebin", xbins)
         hists_half_rolled.append(ybinned_hist)
 
-    if name is "":
+    if name == "":
         name = init_2D_hist.GetName().replace("2D", "unrolled")
     unrolled_hist = ROOT.TH1D(name, "Unrolled", nbins, 0, nbins)
     unrolled_hist.SetDirectory(init_2D_hist.GetDirectory())
@@ -86,7 +86,7 @@ def makeUnrolledHist(init_2D_hist, xbins, ybins, name=""):
 
 def make1DaQGCHists(orig_file, input2D_hists, plot_info, rebin=None):
     output_folders = []
-    for name, data in plot_info.iteritems():
+    for name, data in plot_info.items():
         entry = data["lheWeightEntry"]
         file_name = str(data["Members"][0])
 
@@ -299,7 +299,7 @@ def makeCompositeHists(hist_file, name, members, lumi, hists=None, underflow=Fal
     composite = ROOT.TList()
     composite.SetName(name)
     SumW={}
-    for directory in [str(i) for i in members.keys()]:
+    for directory in [str(i) for i in list(members.keys())]:
         # For aQGC, the different plot groups should already be in their own files
         if "aqgc" in directory:
             directory = name
@@ -354,7 +354,7 @@ def makeCompositeHists_scaling(hist_file, name, members, lumi, hists=None, under
     composite = ROOT.TList()
     composite.SetName(name)
     SumW={}
-    for directory in [str(i) for i in members.keys()]:
+    for directory in [str(i) for i in list(members.keys())]:
         # For aQGC, the different plot groups should already be in their own files
         if "aqgc" in directory:
             directory = name
@@ -415,7 +415,7 @@ def getTransformedHists(orig_file, folders, input_hists, transformation, transfo
             if not orig_hist:
                 if "Fakes" not in input_hist_name and \
                     "Up" not in input_hist_name and "Down" not in input_hist_name:
-                    print "WARNING: Histogram %s not found for dataset %s. Skipping." % (input_hist_name, folder)
+                    print("WARNING: Histogram %s not found for dataset %s. Skipping." % (input_hist_name, folder))
                 continue
             new_hist = transformation(orig_hist, *transform_inputs)
             ROOT.SetOwnership(new_hist, False)

@@ -71,7 +71,7 @@ def makeDataPlots(param, obj, outdir,chan):
         #data_ewkcorr_graph = invert2DHist(data_ewkcorr_graph)
         #data_ewkcorr_graph.GetYaxis().SetTitle("#eta")
         labels={"Pt":"p_{T} [GeV]","Eta":"#eta","Phi":"#phi"}
-        print labels[obj]
+        print(labels[obj])
         data_ewkcorr_graph.GetXaxis().SetTitle("%s_{l1} %s"% (param[:2],labels[obj]))
         data_ewkcorr_graph.GetYaxis().SetTitle("%s_{l2} %s"% (param[:2],labels[obj]))
     else:
@@ -141,7 +141,7 @@ def mkdir(data_outdir):
         try:
             os.makedirs(os.path.expanduser(outdir))
         except OSError as e:
-            print e
+            print(e)
             pass
 for channel in ["eeee","eemm","mmee","mmmm"]:
     OutputDir=data_outdir+"/"+channel+"/plots"

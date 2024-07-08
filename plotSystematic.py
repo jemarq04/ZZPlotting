@@ -128,7 +128,7 @@ def main():
             #down_hist.SetLineColor(ROOT.TColor.GetColor("#980000"))
 
             if "wzQCDModeling" in up_hist.GetName():
-                print "Oui oui"
+                print("Oui oui")
                 up_hist.SetLineColor(ROOT.TColor.GetColor("#980000"))
                 down_hist.SetLineColor(ROOT.TColor.GetColor("#980000"))
             #elif "wz-mgmlm_scale" in up_hist.GetName():

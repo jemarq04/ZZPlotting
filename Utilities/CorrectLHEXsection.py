@@ -17,7 +17,7 @@ def main():
     print("Deprecated - no use for this")
     return
 
-    print "Correcting LHE cross sections"
+    print("Correcting LHE cross sections")
     DESC = ""
     parser = argparse.ArgumentParser(description=DESC, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument("id", type=str, help="weight ID")
@@ -57,12 +57,12 @@ def main():
         if not os.path.isdir(os.path.join(lhe_dir, sample)):
             parser.error("Sample dir not found in LHE storage: %s" % sample)
         xsec = getXsecFromFiles(glob.glob(os.path.join(lhe_dir, sample, "*.lhe")), args.id)[args.id]
-        print "%s: %s -> %s" % (sample, info[sample]["cross_section"] if "cross_section" in info[sample] else "''", xsec)
+        print("%s: %s -> %s" % (sample, info[sample]["cross_section"] if "cross_section" in info[sample] else "''", xsec))
         info[sample]["cross_section"] = xsec
 
     with open(filepath, "w") as outfile:
         json.dump(info, outfile, indent=4)
-    print "Finish calculating LHE cross sections"
+    print("Finish calculating LHE cross sections")
 
 def getXsecFromFiles(filelist, wids, verbose=False):
   if verbose:
@@ -73,12 +73,12 @@ def getXsecFromFiles(filelist, wids, verbose=False):
       sums = getXsecFromFile(f, wids)
     else:
       temp = getXsecFromFile(f, wids)
-      for key in sums.keys():
+      for key in list(sums.keys()):
         sums[key] += temp[key]
 
   if verbose:
     print("WeightID CrossSection")
-  for key in sums.keys():
+  for key in list(sums.keys()):
     #sums[key] /= len(filelist)
     if verbose:
       print("%07s %.06f" % (key, sums[key]))

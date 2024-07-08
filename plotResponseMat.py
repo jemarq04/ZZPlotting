@@ -59,7 +59,7 @@ def makeResponseMatrix(hfile,sample,var, outdir,chan):
     ROOT.gStyle.SetPaintTextFormat("3.2f"); 
     ROOT.gStyle.SetOptStat(0)
     labels={"ZZPt":"Pt_{4l} [GeV]","Mass":"m_{4l} [GeV]"}
-    print labels[var]
+    print(labels[var])
     RespMat.SetTitle("")
     RespMat.GetXaxis().SetTitle("Reco%s"% (labels[var]))
     RespMat.GetYaxis().SetTitle("True%s"% (labels[var]))
@@ -84,7 +84,7 @@ def mkdir(mc_outdir):
         try:
             os.makedirs(os.path.expanduser(outdir))
         except OSError as e:
-            print e
+            print(e)
             pass
 hfile="Hists05Apr2019-zzPowhegWGen.root"
 for channel in ["eeee","eemm","mmee","mmmm"]:
