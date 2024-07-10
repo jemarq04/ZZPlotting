@@ -4,8 +4,9 @@ VVAnalysis_path="/afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis-e
 variable="Mass ZMass Z1Mass Z2Mass ZPt ZZPt LepPt LepEta Z1PolCos Z2PolCos"
 
 options="-s ZZ4l2018/$selection -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/$filename --preliminary --scaleymax 1.2 --scalelegx 1.5 --lhe_weight_id 0.0"
+params="cHWB cHG cll1"
 
-for restrict in cHWB cHG cll1; do
+for restrict in $params; do
   filelist="ZZEFT_${restrict}_SMlimit_nobkg"
   dir="SMlimit-${restrict}ratio/eemm"
   for var in $variable; do
@@ -13,11 +14,11 @@ for restrict in cHWB cHG cll1; do
     echo ${var}
     if [ $var = "Mass" ]; then
       echo "Plotting eemm channel"
-      python3 ./makeHistStack.py $options $moreoptions --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0
+      ./makeHistStack.py $options $moreoptions --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0
     else
       echo "Attempting ${var}"
       echo "Plotting eemm channel"
-      python3 ./makeHistStack.py $options $moreoptions
+      ./makeHistStack.py $options $moreoptions
     fi
   done
 done

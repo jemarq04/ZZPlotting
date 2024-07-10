@@ -466,8 +466,8 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     ROOT.SetOwnership(ratioPad, False)
     for obj in ratioPad.GetListOfPrimitives():
         ROOT.SetOwnership(obj, False)
-    ratioPad.GetListOfPrimitives().SetOwner(True)
+    #ratioPad.GetListOfPrimitives().SetOwner(True)
     ratioPad.RedrawAxis()
     canvas.cd()
-    canvas.GetListOfPrimitives().SetOwner(True)
+    #canvas.GetListOfPrimitives().SetOwner(True)
     return canvas
