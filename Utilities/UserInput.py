@@ -180,6 +180,10 @@ def getListOfFiles(file_set, selection):
                     filelist.append("ZZEFT_cHG")
                 if draw_all or "cll1" in fileset_nc:
                     filelist.append("ZZEFT_cll1")
+                if "qqz0z0" in fileset_nc:
+                    filelist.append("qqZ0Z0");
+                if "qqztzt" in fileset_nc:
+                    filelist.append("qqZTZT");
                 #Backgrounds
                 if "nobkg" not in fileset_nc:
                     filelist.append("nonprompt")
