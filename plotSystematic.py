@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 import Utilities.plot_functions as plotter
 import Utilities.helper_functions as helper
 import argparse
