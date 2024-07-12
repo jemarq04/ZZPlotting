@@ -123,7 +123,7 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
             hist = helper.getConfigHistFromFile(hist_file, config_factory, plot_set, 
                         selection, branch_name, channels, luminosity, addOverflow=addOverflow, rebin=rebin, 
                         unweighted=unweighted, lhe_weight_id=lhe_weight_id)
-            print("hists",hist)
+            #print("hists",hist)
         if luminosity < 0:
             hist.Scale(1/hist.Integral())
         #raw_events = hist.GetEntries() - 1
