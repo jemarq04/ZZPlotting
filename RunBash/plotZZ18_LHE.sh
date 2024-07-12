@@ -23,7 +23,7 @@ fi
 
 for restrict in $params; do
   echo pp_eemm-${restrict}_massless
-  wids=$(python Utilities/GetLHEWeightIDs.py -a $analysis pp_eemm-${restrict}_massless)
+  wids=$(./Utilities/GetLHEWeightIDs.py -a $analysis pp_eemm-${restrict}_massless)
   if [[ $? -ne 0 ]]; then
     echo "error finding weight IDs for pp_eemm-${restrict}_massless:"
     echo
