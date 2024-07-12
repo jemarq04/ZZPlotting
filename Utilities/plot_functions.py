@@ -200,11 +200,17 @@ def recursePrimitives(tobject, function, *fargs) :
         if primitives :
             for item in primitives :
                 recursePrimitives(item, function, *fargs)
-    other_children = ['Xaxis', 'Yaxis', 'Zaxis']
+    other_children = ['Xaxis', 'Yaxis']#, 'Zaxis']
     for child in other_children :
         if hasattr(tobject, 'Get'+child) :
             childCall = getattr(tobject, 'Get'+child)
             recursePrimitives(childCall(), function, *fargs)
+    checkForZ = not 'TH1' in tobject.ClassName() and not \
+        (type(tobject) is ROOT.THStack and tobject.GetHistogram().GetDimension()==1)
+    if hasattr(tobject, 'GetZaxis') and checkForZ:
+        childCall = getattr(tobject, 'GetZaxis')
+        recursePrimitives(childCall(), function, *fargs)
+        
 def fixFontSize(item, scale, axisOffsetScale=1) :
     if 'TH' in item.ClassName() :
         return
