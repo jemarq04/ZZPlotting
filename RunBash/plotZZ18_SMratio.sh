@@ -1,6 +1,6 @@
 filename="Hists28Jun2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm - 100K
 selection="ZZSelectionsTightLeps"
-VVAnalysis_path="/afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis-el9/histograms/src/Analysis/VVAnalysis"
+VVAnalysis_path="/afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/histograms/src/Analysis/VVAnalysis"
 variable="Mass ZMass Z1Mass Z2Mass ZPt ZZPt LepPt LepEta Z1PolCos Z2PolCos"
 params="cHWB cHG cll1"
 
