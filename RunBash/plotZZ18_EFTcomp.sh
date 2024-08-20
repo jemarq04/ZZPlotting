@@ -3,12 +3,12 @@ selection="ZZSelectionsTightLeps"
 VVAnalysis_path="/afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/histograms/src/Analysis/VVAnalysis"
 variable="Mass" # ZMass Z1Mass Z2Mass ZPt ZZPt LepPt LepEta Z1PolCos Z2PolCos"
 
-options="-s ZZ4l2018/$selection -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/$filename --preliminary --scaleymax 1.5 --scalelegx 1.5 --lhe_weight_id 0.0"
+options="-s ZZ4l2018/$selection --scatter -l 59.7 -u stat --no_data --latex --hist_file $VVAnalysis_path/HistFiles/$filename --preliminary --scaleymax 1.5 --scalelegx 1.5 --lhe_weight_id 0.0"
 
 filelist="ZZEFT_all_nobkg"
 dir="EFTcompare/eemm"
 for var in $variable; do
-  moreoptions="--scatter -f $filelist --folder_name $dir -c eemm -b $var"
+  moreoptions="-f $filelist --folder_name $dir -c eemm -b $var"
   echo ${var}
   if [[ $var = "Mass" ]]; then
     echo "Plotting eemm channel"
