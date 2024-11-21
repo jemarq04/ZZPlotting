@@ -101,7 +101,7 @@ def getListOfFiles(file_set, selection):
     filelist = []
     for files in [x.strip() for x in file_set.split(",")]:
         fileset_nc = files.lower()
-        if "zz4l2022" in fileset_nc:
+        if "zz4l2018" in fileset_nc:
             if "nonprompt" in fileset_nc:
                 filelist.append("HZZ-signal")
                 filelist.append("nonprompt")
@@ -189,6 +189,8 @@ def getListOfFiles(file_set, selection):
                     filelist.append("nonprompt")
                     filelist.append("VVV")
                     filelist.append("ggZZ")
+        elif "zz4l2022" in fileset_nc:
+                filelist.append("qqZZ-MCtest")
         else:
             filelist.append(files)
     return filelist
