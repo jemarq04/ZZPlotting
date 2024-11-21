@@ -1,10 +1,10 @@
 # ZZPlotting
 
 ## Basic Setup
-The histograms produced with the ZZSelector codes in [**VVAnalysis**](https://github.com/hhe62/VVAnalysis/tree/For_testing_original) repository are by default not normalized to luminosity. To do the normalization and stack histograms from different samples, set the styles etc., we use this separate repository for plotting. 
+The histograms produced with the ZZSelector codes in [**VVAnalysis**](https://github.com/jemarq04/VVAnalysis/tree/Run3Analysis) repository are by default not normalized to luminosity. To do the normalization and stack histograms from different samples, set the styles etc., we use this separate repository for plotting. 
 
  
-Please fork this repository and clone it to the CMSSW_10_3_1/src directory which was set up for your [**VVAnalysis**](https://github.com/hhe62/VVAnalysis/tree/For_testing_original):
+Please fork this repository and clone it to the CMSSW_14_0_9/src directory which was set up for your [**VVAnalysis**](https://github.com/jemarq04/VVAnalysis/tree/Run3Analysis):
 
 ```
 git clone https://github.com/YourGithubUsername/ZZPlotting/ 
@@ -13,20 +13,12 @@ cd ZZPlotting
  
 **Modify a few paths:**
 
-In Templates/, copy config.oldName to config.YourUsername, then modify the first 3 lines to your user name and data manager path, and modify the last 3 lines to point to your storage area, html area (where you want to store your results), and the "otherscripts" folder in your current repository properly.
+In Templates/, copy config.oldName to config.YourUsername, then modify the first 3 lines to your user name and data manager path, and modify the last 3 lines to point to your storage area, html area (where you want to store your results), and the "otherscripts" folder in your current repository properly. Also don't forget to modify the 'gituser' line.
 
-In Utilities/ConfigHistFactory.py, change **ConfigHistFactory("/afs/cern.ch/user/h/oldName/new_ZZ_test_Sep9/CMSSW_10_3_1/src/Data_manager/ZZ4lRun2DatasetManager)"** to your data manager path accordingly.
-
- 
 
 ## Style related:
 
-For some style control, you need to fork the following repository:
-
-https://github.com/hhe62/CMSPlotDecorations
-
-and in Utilities/helper_functions.py change ROOT.dotrootImport('oldName2/CMSPlotDecorations') to use your github user name instead.
-
+For some style control, you need to fork the following repository: https://github.com/hhe62/CMSPlotDecorations
  
 
 Then you will need to set up this repository:
@@ -37,7 +29,7 @@ as by the instructions, clone it to ~ and edit ~/.rootlogon.C to include the lin
 
  
 ### Plot group and cross sections for your sample(s)
-In ZZ4lRun2DatasetManager/PlotGroups/ZZ4l2018.json (same for other years), add a new plot group entry (e.g. "ZZ_EFT") like the following: (see existing entries for example)
+In ZZ4lDatasetManager/PlotGroups/ZZ4l2022.json (same for other years), add a new plot group entry (e.g. "ZZ_EFT") like the following: (see existing entries for example)
 
  
 ```
@@ -65,7 +57,7 @@ and at the bottom of **Utilities/UserInput.py** under **elif "jetplot" in filese
 
  
 
-In Data_manager/ZZ4lRun2DatasetManager/FileInfo/montecarlo/montecarlo_zzanalysis.json, add entries like
+In Data_manager/ZZ4lDatasetManager/FileInfo/montecarlo/montecarlo_zzanalysis.json, add entries like
 
 ```
  "Sample1" : {

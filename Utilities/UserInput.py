@@ -88,7 +88,7 @@ def getDefaultParser():
     parser.add_argument("--no_scalefactors", action='store_true',
                         help="No scale factors")
     parser.add_argument("-f", "--files_to_plot", type=str, required=False,
-                        default="ZZ4l2018", help="Files to make plots from, "
+                        default="ZZ4l2022", help="Files to make plots from, "
                         "separated by a comma (match name in file_info.json)")
     parser.add_argument("-a", "--append_to_name", type=str, default="",
                         help="Name plot as <branch_name>_<append_to_name>")
@@ -101,7 +101,7 @@ def getListOfFiles(file_set, selection):
     filelist = []
     for files in [x.strip() for x in file_set.split(",")]:
         fileset_nc = files.lower()
-        if "zz4l2018" in fileset_nc:
+        if "zz4l2022" in fileset_nc:
             if "nonprompt" in fileset_nc:
                 filelist.append("HZZ-signal")
                 filelist.append("nonprompt")
