@@ -190,7 +190,7 @@ def getListOfFiles(file_set, selection):
                     filelist.append("VVV")
                     filelist.append("ggZZ")
         elif "zz4l2022" in fileset_nc:
-                filelist.append("qqZZ-MCtest")
+                filelist.append("qqZZ")
         else:
             filelist.append(files)
     return filelist
