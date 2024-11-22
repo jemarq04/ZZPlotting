@@ -18,19 +18,13 @@ import array
 from IPython import embed
 import pdb
 import json
-try:
-    import configparser
-except:
-    import ConfigParser as configparser
-    #from six.moves import configparser
+import configparser
 
 
 with open("Templates/config.%s" % os.getlogin()) as fconfig:
-    for line in fconfig:
-        if 'scriptPath' in line:
-            
-            scriptPath = line.split(" = ")[1].strip()
-sys.path.insert(0,scriptPath)
+    config = configparser.ConfigParser()
+    config.read_file(fconfig)
+    sys.path.insert(0,config["Setup"]["scriptPath"])
 from . import UserInput
 import OutputTools
 import ConfigureJobs

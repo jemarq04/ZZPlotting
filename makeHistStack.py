@@ -17,11 +17,11 @@ from IPython import embed
 import logging
 import pdb,json
 
+import configparser
 with open("Templates/config.%s" % os.getlogin()) as fconfig:
-    for line in fconfig:
-        if 'scriptPath' in line:
-            scriptPath = line.split(" = ")[1].strip()
-sys.path.insert(0,scriptPath)
+    config = configparser.ConfigParser()
+    config.read_file(fconfig)
+    sys.path.insert(0,config["Setup"]["scriptPath"])
 import OutputTools
 import ConfigureJobs
 import HistTools

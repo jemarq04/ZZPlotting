@@ -6,11 +6,11 @@ import json
 from collections import OrderedDict
 import re
 
+import configparser
 with open("Templates/config.%s" % os.getlogin()) as fconfig:
-    for line in fconfig:
-        if 'scriptPath' in line:       
-            scriptPath = line.split(" = ")[1].strip()
-sys.path.insert(0,scriptPath)
+    config = configparser.ConfigParser()
+    config.read_file(fconfig)
+    sys.path.insert(0,config["Setup"]["scriptPath"])
 import ConfigureJobs
 
 def main():
@@ -31,10 +31,9 @@ def main():
     filepath = os.path.join(montecarlo_dir, "montecarlo_zzanalysis.json")
     lhe_dir = None
     with open("Templates/config.%s" % os.getlogin()) as fconfig:
-        for line in fconfig:
-            if 'lhe_storage_path' in line:
-                lhe_dir = line.split(" = ")[1].strip()
-                break
+        config = configparser.ConfigParser()
+        config.read_file(fconfig)
+        lhe_dir = config["Setup"]["lhe_storage_path"]
 
     if not os.path.isdir(montecarlo_dir):
         parser.error("Invalid directory: %s" % montecarlo_dir)
