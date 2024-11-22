@@ -2,13 +2,14 @@
 user = marquez5
 gituser = jemarq04
 analysis = ZZ
-dataset_manager_path = /afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/histograms_run3/src/Data_manager
+cmssw_path = /afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/histograms_run3/src
+dataset_manager_path = %(cmssw_path)s/Data_manager
 dataset_manager_name = ZZ4lDatasetManager
 combine_path = %(dataset_manager_path)s/HiggsCombine/CMSSW_10_2_13/src/HiggsAnalysis/CombinedLimit
 output_path = /eos/user/u/%(user)s/%(analysis)sAnalysisData
 fakeRate_output = %(output_path)s/FakesRates
 hist_output = %(output_path)s/HistFiles
 combine_output = %(output_path)s/CombineData
-storage_area = /afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/histograms/src/plots
+storage_area = %(cmssw_path)s/plots
 html_area = /afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/www
-scriptPath = /afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/histograms/src/ZZPlotting/Utilities/otherscripts
+scriptPath = %(cmssw_path)s/ZZPlotting/Utilities/otherscripts
