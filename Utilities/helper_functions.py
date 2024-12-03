@@ -175,7 +175,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         if args.simulation:
             lumi_text.append("Simulation")
         
-        ROOT.CMSlumi(canvas, 0, 0, "%s (13 TeV)" % scale_label," ".join(lumi_text))
+        ROOT.CMSlumi(canvas, 0, 0, "%s (13.6 TeV)" % scale_label," ".join(lumi_text))
                 #"Preliminary Simulation" if args.simulation else "Preliminary")
     if args.extra_text != "" or glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","mjj","dEtajj"]:
         if args.extra_text != "":
