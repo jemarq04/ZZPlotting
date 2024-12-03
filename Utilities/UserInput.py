@@ -26,8 +26,8 @@ def getDefaultParser():
                         help="Read histograms from file")
     parser.add_argument("--stat_file", type=str, default="",
                         help="Read histograms from file")
-    parser.add_argument("--rebin", type=lambda x: [float(i) for i in x.split(",")], default=[0.0],
-                        help="Rebin (integer)")
+    parser.add_argument("--rebin", type=lambda x: [float(i) for i in x.split(",")], default=None,
+                        help="list of comma-separated floats for hist rebinning")
     parser.add_argument("--legend_left", action="store_true",
                         help="Put legend left or right")
     parser.add_argument("--folder_name", type=str, default="",
@@ -170,20 +170,25 @@ def getListOfFiles(file_set, selection):
                 #filelist.append("EWK-Extra2e2mujjg")
         elif "zzeft" in fileset_nc:
                 draw_all = "all" in fileset_nc
-                if "smfull" in fileset_nc:
-                    filelist.append("ZZEFT_SMfull") #SM w/o EFT model
-                if draw_all or "smlimit" in fileset_nc:
-                    filelist.append("ZZEFT_SMlimit")
-                if draw_all or "chwb" in fileset_nc:
-                    filelist.append("ZZEFT_cHWB")
-                if draw_all or "chg" in fileset_nc:
-                    filelist.append("ZZEFT_cHG")
-                if draw_all or "cll1" in fileset_nc:
-                    filelist.append("ZZEFT_cll1")
-                if "qqz0z0" in fileset_nc:
-                    filelist.append("qqZ0Z0");
-                if "qqztzt" in fileset_nc:
-                    filelist.append("qqZTZT");
+                if "def" in fileset_nc:
+                    for param in ["cHWB", "cHG", "cll1"]:
+                        for i in range(10):
+                            if draw_all and param.lower() in fileset_nc:
+                                filelist.append("ZZEFT_%s%s" % (param,i))
+                            elif "%s%s" % (param.lower(), i) in fileset_nc:
+                                filelist.append("ZZEFT_%s%s" % (param,i))
+                    if draw_all or "smlimit" in fileset_nc:
+                        filelist.append("ZZEFT_SMlimit")
+                else:
+                    if "smfull" in fileset_nc:
+                        filelist.append("ZZEFT_SMfull") #SM w/o EFT model
+                    for param in ["SMlimit", "cHWB", "cHG", "cll1"]:
+                        if draw_all or param.lower() in fileset_nc:
+                            filelist.append("ZZEFT_%s" % param)
+                    if "qqz0z0" in fileset_nc:
+                        filelist.append("qqZ0Z0");
+                    if "qqztzt" in fileset_nc:
+                        filelist.append("qqZTZT");
                 #Backgrounds
                 if "nobkg" not in fileset_nc:
                     filelist.append("nonprompt")

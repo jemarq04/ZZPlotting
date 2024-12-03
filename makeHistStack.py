@@ -103,7 +103,7 @@ def writeMCLogInfo(hist_info, selection, branch_name, luminosity, cut_string, la
     #    current_evt.write("\n"+(mc_info.get_string() if not latex else mc_info.get_latex_string())+"\n")
         
 def getStacked(name, config_factory, selection, filelist, branch_name, channels, blinding, addOverflow, latex,
-               cut_string="", luminosity=1, rebin=0, uncertainties="none", hist_file="", 
+               cut_string="", luminosity=1, rebin=None, uncertainties="none", hist_file="", 
                unweighted=False, lhe_weight_id=None):
     hist_stack = ROOT.THStack(name, "")
     ROOT.SetOwnership(hist_stack, False)
@@ -260,12 +260,11 @@ def main():
     #if args.channels == "eemm" or args.channels == "mmee": #only look at combined 2e2m channel
     #    return
         
-    if args.rebin == 0:
+    if args.rebin is None:
         with open('varsFile.json') as var_json_file:
             myvar_dict = json.load(var_json_file)
-        for key in list(myvar_dict.keys()):
-            if args.branches==str(key):
-                args.rebin = myvar_dict[key]['_binning']
+        if args.branches in myvar_dict:
+            args.rebin = myvar_dict[args.branches]['_binning']
             
     ROOT.gROOT.SetBatch(True)
     ROOT.gStyle.SetOptDate(0)
@@ -354,26 +353,6 @@ def main():
 
         #embed()
         #pdb.set_trace()
-        completeHist = hist_stacks[0].GetStack().Last()
-        tmpCmpHist = ROOT.TH1D(args.branches+"_jetPUSFtest","",len(args.rebin)-1,array.array('d',args.rebin))
-        for i in range(completeHist.GetNbinsX()):
-            print("Complete Hist Content bin %s: %s"%(i+1,completeHist.GetBinContent(i+1)))
-            tmpCmpHist.SetBinContent(i+1,completeHist.GetBinContent(i+1))
-            tmpCmpHist.SetBinError(i+1,completeHist.GetBinError(i+1))
-            #Don't know why, but cannot draw this completeHist so have to copy it manually
-
-        tmpOut = False
-        if tmpOut:
-            #pdb.set_trace()
-            myoutputFile=ROOT.TFile("writeFile.root","UPDATE")
-            myoutputFile.cd()
-            completeHist2 = completeHist.Clone(args.branches+"_jetPUSFtest")
-            tmpCmpHist.Write()
-            #completeHist2.Write()
-            myoutputFile.Close()
-            print("File written")
-            sys.exit()
-
         helper.setGlobalChannel(args.channels,args.selection,args.luminosity,args.branches,args.hist_file,doSyst) 
         canvas = helper.makePlots(hist_stacks, data_hists, name, args, signal_stacks)
         helper.savePlot(canvas, plot_path, html_path, plot_name, True, args)

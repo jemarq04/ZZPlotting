@@ -14,14 +14,14 @@ class FromFileHistProducer(HistProducer):
         if not self.hist_file:
             raise ValueError("Invalid file " % file_name)
 
-    def produce(self, hist_name, overflow=False, binning=0): 
+    def produce(self, hist_name, overflow=False, binning=None): 
         hist = self.hist_file.Get(hist_name)
         ROOT.SetOwnership(hist, False)
         if not hist:
             raise ValueError("Hist %s not found in file %s" % (hist_name, self.hist_file))
         
-        hist.Sumw2() #hist.GetSumw2() doesn't seem useful for checking, since this structure always exist. It doesn't hurt to call Sumw2 anyway
-        #if not hist.GetSumw2(): hist.Sumw2()
+        #Calling Sumw2 below just in case, but using the conditional to avoid a Warning on failures
+        if not (hist.GetSumw2N() == hist.GetNcells() and not hist.GetDefaultSumw2()): hist.Sumw2()
         #pdb.set_trace()
         hist.Scale(self.getHistScaleFactor())
         # This causes GetEntries() to return 1 greater than the "actual"

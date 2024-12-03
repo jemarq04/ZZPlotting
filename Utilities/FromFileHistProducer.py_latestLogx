@@ -14,7 +14,7 @@ class FromFileHistProducer(HistProducer):
         if not self.hist_file:
             raise ValueError("Invalid file " % file_name)
 
-    def produce(self, hist_name, overflow=False, binning=0): 
+    def produce(self, hist_name, overflow=False, binning=None): 
         hist = self.hist_file.Get(hist_name)
         ROOT.SetOwnership(hist, False)
         if not hist:
