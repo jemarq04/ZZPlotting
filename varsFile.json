@@ -864,6 +864,90 @@
         "responseClassNames": "testJet", 
         "top_size": 0.1
     }, 
+    "Z1PolCos": {
+        "ratio_min": 0.4, 
+        "top_xy": [
+            0.2, 
+            0.87
+        ], 
+        "bottom_size": 0.08, 
+        "ymin_fac": 1.0, 
+        "_binning": [
+          -1.0,
+          -0.9,
+          -0.8,
+          -0.7,
+          -0.6,
+          -0.5,
+          -0.4,
+          -0.3,
+          -0.2,
+          -0.1,
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ], 
+        "ymax_fac": 1.0, 
+        "ratio_max": 1.8, 
+        "prettyVars": "Polarization Variable for Z1 cos#theta*", 
+        "bottom_xy": [
+            0.2, 
+            0.91
+        ], 
+        "units": "", 
+        "responseClassNames": "testJet", 
+        "top_size": 0.1
+    }, 
+    "Z2PolCos": {
+        "ratio_min": 0.4, 
+        "top_xy": [
+            0.2, 
+            0.87
+        ], 
+        "bottom_size": 0.08, 
+        "ymin_fac": 1.0, 
+        "_binning": [
+          -1.0,
+          -0.9,
+          -0.8,
+          -0.7,
+          -0.6,
+          -0.5,
+          -0.4,
+          -0.3,
+          -0.2,
+          -0.1,
+          0.0,
+          0.1,
+          0.2,
+          0.3,
+          0.4,
+          0.5,
+          0.6,
+          0.7,
+          0.8,
+          0.9,
+          1.0
+        ], 
+        "ymax_fac": 1.0, 
+        "ratio_max": 1.8, 
+        "prettyVars": "Polarization Variable for Z2 cos#theta*", 
+        "bottom_xy": [
+            0.2, 
+            0.91
+        ], 
+        "units": "", 
+        "responseClassNames": "testJet", 
+        "top_size": 0.1
+    }, 
     "ZMass": {
         "ratio_min": 0.4, 
         "top_xy": [
