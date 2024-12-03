@@ -260,7 +260,7 @@ def main():
     #if args.channels == "eemm" or args.channels == "mmee": #only look at combined 2e2m channel
     #    return
         
-    if args.rebin == 0:
+    if len(args.rebin) == 1 and args.rebin[0] < 0:
         with open('varsFile.json') as var_json_file:
             myvar_dict = json.load(var_json_file)
         for key in list(myvar_dict.keys()):
