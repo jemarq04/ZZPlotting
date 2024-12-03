@@ -51,8 +51,8 @@ class FromFileLHEHistProducer(HistProducer):
         if not hist:
             raise ValueError("Hist %s not found in file %s" % (hist_name, self.hist_file))
         
-        hist.Sumw2() #hist.GetSumw2() doesn't seem useful for checking, since this structure always exist. It doesn't hurt to call Sumw2 anyway
-        #if not hist.GetSumw2(): hist.Sumw2()
+        #Calling Sumw2 below just in case, but using the conditional to avoid a Warning on failures
+        if not (hist.GetSumw2N() == hist.GetNcells() and not hist.GetDefaultSumw2()): hist.Sumw2()
         #pdb.set_trace()
         #print("NOTE: ==> Scale factor = %s" % self.getHistScaleFactor())
         #print("NOTE: ==> Xsec, WgtSum = %s, %s" % (self.weight_info.getCrossSection(), self.weight_info.getSumOfWeights()))
