@@ -16,7 +16,7 @@ class FromFileLHEHistProducer(HistProducer):
         if not self.hist_file:
             raise ValueError("Invalid file " % file_name)
 
-    def produce(self, hist_name, overflow=False, binning=0): 
+    def produce(self, hist_name, overflow=False, binning=None): 
         if "_" in hist_name:
             subnames = re.findall(r"(.*)_(.*)", hist_name)[0]
             whist_name = "_".join([subnames[0], "lheWeights", subnames[1]])

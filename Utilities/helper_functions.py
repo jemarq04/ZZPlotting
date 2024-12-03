@@ -422,7 +422,7 @@ def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=
         hist_factory[name].update({"fromFile" : hist_file is not None})
     return hist_factory
 def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, states, 
-        uncertainties="none", addOverflow=False, rebin=0, cut_string="", removeNegatives=True):
+        uncertainties="none", addOverflow=False, rebin=None, cut_string="", removeNegatives=True):
     hist_name = "_".join([plot_group, selection.replace("/", "_"), branch_name])
     # TODO: Understand why this is broken in newer ROOT versions
     #rootdir = "gProof" if hasattr(ROOT, "gProof") else "gROOT"
@@ -507,7 +507,7 @@ def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, st
     return hist
 
 def getConfigHistFromFile(filename, config_factory, plot_group, selection, branch_name, channels,
-        luminosity=1, addOverflow=False, rebin=0, uncertainties="none", removeNegatives=True,
+        luminosity=1, addOverflow=False, rebin=None, uncertainties="none", removeNegatives=True,
         unweighted=False, lhe_weight_id=None):
     try:
         filelist = config_factory.getPlotGroupMembers(plot_group)
@@ -540,7 +540,7 @@ def getConfigHistFromFile(filename, config_factory, plot_group, selection, branc
     return hist
 
 def getConfigHistFromTree(config_factory, plot_group, selection, branch_name, channels, blinding=[],
-    luminosity=1, addOverflow=False, rebin=0, cut_string="", uncertainties="none"):
+    luminosity=1, addOverflow=False, rebin=None, cut_string="", uncertainties="none"):
     if "Gen" not in selection:
         states = [x.strip() for x in channels.split(",")]
         scale_weight_expr = "scaleWeights/scaleWeights[0]"

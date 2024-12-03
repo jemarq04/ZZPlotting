@@ -33,7 +33,7 @@ class HistProducer(object, metaclass=abc.ABCMeta):
         self.lumi = lumi if lumi > 0 else 1
 
     def rebin(self, hist, binning):
-        if not binning:
+        if binning is None or not binning:
             return hist
         if type(binning) == int:
             hist.Rebin(binning)
