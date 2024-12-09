@@ -25,7 +25,7 @@ class HistProducer(object, metaclass=abc.ABCMeta):
     def getSumOfWeights(self):
         return self.weight_info.getSumOfWeights()
 
-    def setLumi(self, lumi, units='pb-1'):
+    def setLumi(self, lumi, units='fb-1'):
         if units == 'pb-1':
             lumi *= 1000
         elif units != 'fb-1':
