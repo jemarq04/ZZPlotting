@@ -19,9 +19,9 @@ class HistProducer(object, metaclass=abc.ABCMeta):
         #else:
         return self.weight_info.getCrossSection()*self.lumi/self.weight_info.getSumOfWeights()
                         
-    def getCrossSection(self, units='fb'):
+    def getCrossSection(self, units='pb'):
         xsec = self.weight_info.getCrossSection()
-        if units == 'fb':
+        if units == 'pb':
             xsec *= 1000
         return xsec
     
