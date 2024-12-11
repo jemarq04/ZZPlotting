@@ -55,7 +55,7 @@ class FromFileLHEHistProducer(HistProducer):
         if not (hist.GetSumw2N() == hist.GetNcells() and not hist.GetDefaultSumw2()): hist.Sumw2()
         #pdb.set_trace()
         #print("NOTE: ==> Scale factor = %s" % self.getHistScaleFactor())
-        #print("NOTE: ==> Xsec, WgtSum = %s, %s" % (self.weight_info.getCrossSection(), self.weight_info.getSumOfWeights()))
+        #print("NOTE: ==> Xsec, WgtSum = %s, %s" % (self.getCrossSection(), self.getSumOfWeights()))
         #print("NOTE: ==> Lumi: %s" % self.lumi)
         hist.Scale(self.getHistScaleFactor())
         # This causes GetEntries() to return 1 greater than the "actual"

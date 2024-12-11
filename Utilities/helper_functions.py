@@ -486,7 +486,7 @@ def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, st
             log_info += "Number of events in %s channel: %0.2f\n" % (state, state_hist.Integral())
             log_info += "Number of entries is %i\n" % (state_hist.GetEntries() - addOverflow)
         log_info += "Total number of events: %0.2f\n" % (hist.Integral() if hist and hist.InheritsFrom("TH1") else 0)
-        log_info += "Cross section is %0.4f\n" % producer.getCrossSection()
+        log_info += "Cross section is %0.4f\n" % producer.getCrossSection('fb')
         log_info += "Sum of weights is %0.2f\n" % producer.getSumOfWeights() 
     logging.debug(log_info)
     logging.debug("Hist has %i entries" % (hist.GetEntries() if hist and hist.InheritsFrom("TH1") else 0) )
