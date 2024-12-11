@@ -191,6 +191,7 @@ def getListOfFiles(file_set, selection):
                     filelist.append("ggZZ")
         elif "zz4l2022" in fileset_nc:
                 filelist.append("qqZZ-powheg")
+                filelist.append("ggZZ")
         else:
             filelist.append(files)
     return filelist
