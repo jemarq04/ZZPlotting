@@ -9,19 +9,19 @@ class HistProducer(object, metaclass=abc.ABCMeta):
         self.lumi = 1
     
     def getHistScaleFactor(self):
-        if self.weight_info.getCrossSection() == 1:
+        if self.getCrossSection() == 1:
             return 1
-        if self.weight_info.getSumOfWeights() <= 0:
+        if self.getSumOfWeights() <= 0:
             raise ValueError("Found non-positive sum of weights")
         #pdb.set_trace()
         #if abs(self.weight_info.getCrossSection()-0.00584*1.53)<0.000001:
         #    return self.weight_info.getCrossSection()*self.lumi/(6216.00740357+6798.63211242+6798.8828435)
         #else:
-        return self.weight_info.getCrossSection()*self.lumi/self.weight_info.getSumOfWeights()
+        return self.getCrossSection()*self.lumi/self.getSumOfWeights()
                         
     def getCrossSection(self, units='pb'):
         xsec = self.weight_info.getCrossSection()
-        if units == 'pb':
+        if xsec != 1 and units == 'pb':
             xsec *= 1000
         return xsec
     

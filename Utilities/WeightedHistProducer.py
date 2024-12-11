@@ -6,8 +6,8 @@ from IPython import embed
 class WeightedHistProducer(HistProducer):
     def __init__(self, weight_info, weight_branch=""):
         super(WeightedHistProducer, self).__init__(weight_info)
-        self.event_weight = self.weight_info.getCrossSection()/self.weight_info.getSumOfWeights() \
-            if self.weight_info.getSumOfWeights() > 0 else 0
+        self.event_weight = self.getCrossSection()/self.getSumOfWeights() \
+            if self.getSumOfWeights() > 0 else 0
         self.cut_string = ""
         self.weight_branch = weight_branch
 
