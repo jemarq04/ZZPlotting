@@ -4,7 +4,7 @@ selection="ZZSelectionsTightLeps"
 VVAnalysis_path="$CMSSW_BASE/src/Analysis/VVAnalysis"
 variable="Mass ZMass Z1Mass Z2Mass LepPt LepEta Z1PolCos Z2PolCos"
 channels="eeee eemm mmmm"
-dochannels=false
+dochannels=true
 
 opts="-s $analysis/$selection -l 37.85 -u stat --latex --hist_file $VVAnalysis_path/HistFiles/$filename --preliminary --scaleymax 1.2 --scalelegx 1.5"
 
