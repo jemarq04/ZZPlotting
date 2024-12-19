@@ -1,15 +1,15 @@
-filename="Hists09Dec2024-ZZ4l2022.root"
+filename="Hists19Dec2024-ZZ4l2022.root"
 analysis="ZZ4l2022"
 selection="ZZSelectionsTightLeps"
 VVAnalysis_path="$CMSSW_BASE/src/Analysis/VVAnalysis"
 variable="Mass ZMass Z1Mass Z2Mass LepPt LepEta Z1PolCos Z2PolCos"
-channels="eeee eemm mmmm"
+channels="eeee eemm mmee mmmm"
 dochannels=true
 
-opts="-s $analysis/$selection -l 37.85 -u stat --latex --hist_file $VVAnalysis_path/HistFiles/$filename --preliminary --scaleymax 1.2 --scalelegx 1.5"
+opts="-s $analysis/$selection -l 37.90 -u stat --latex --hist_file $VVAnalysis_path/HistFiles/$filename --preliminary --scaleymax 1.2 --scalelegx 1.5"
 
-filelist="$analysis"
 dir="output_$analysis"
+filelist="$analysis"
 for var in $variable; do
   moreopts="-f $filelist -b ${var}"
   echo ${var}
@@ -23,7 +23,7 @@ for var in $variable; do
       echo "Plotting $ch channel"
       ./makeHistStack.py $opts $moreopts --folder_name ${dir}/$ch -c $ch
     done
-    #echo "Plotting 2e2mu channel"
-    #./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee
+    echo "Plotting 2e2mu channel"
+    ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee
   fi
 done
