@@ -240,22 +240,8 @@ def main():
     doSyst = True
     do3ChanSys = True #Do 3 channels separately and totoal for table printout
    
-    if not do3ChanSys:
-        if not args.channels == "eeee,eemm,mmee,mmmm": #only run syst band for total channels
-            return
-            doSyst = False
-        if args.channels == "eemm" or args.channels == "mmee": #only look at combined 2e2m channel
-            return
-            
-            if "mmee" in args.channels:
-                return
-                doSyst = False
-    else:
-        if not args.channels == "eeee,eemm,mmee,mmmm": #only run syst band for total channels
-            
-            if "mmee" in args.channels: #only allow eeee,eemm,mmmm as input
-                return
-                
+    if args.channels != "eeee,eemm,mmee,mmmm": #only run syst band for total channels
+        doSyst = False
 
     #if args.channels == "eemm" or args.channels == "mmee": #only look at combined 2e2m channel
     #    return

@@ -170,6 +170,12 @@ def getListOfFiles(file_set, selection):
                 #filelist.append("EWK-Extra2e2mujjg")
         elif "zzeft" in fileset_nc:
                 draw_all = "all" in fileset_nc
+                #Backgrounds
+                if "nobkg" not in fileset_nc:
+                    filelist.append("nonprompt")
+                    filelist.append("VVV")
+                    filelist.append("ggZZ")
+                #qqZZ
                 if "def" in fileset_nc:
                     for param in ["cHWB", "cHG", "cll1"]:
                         for i in range(10):
@@ -189,11 +195,6 @@ def getListOfFiles(file_set, selection):
                         filelist.append("qqZ0Z0");
                     if "qqztzt" in fileset_nc:
                         filelist.append("qqZTZT");
-                #Backgrounds
-                if "nobkg" not in fileset_nc:
-                    filelist.append("nonprompt")
-                    filelist.append("VVV")
-                    filelist.append("ggZZ")
         else:
             filelist.append(files)
     return filelist
