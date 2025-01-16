@@ -474,6 +474,10 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
         ROOT.SetOwnership(obj, False)
     #ratioPad.GetListOfPrimitives().SetOwner(True)
     ratioPad.RedrawAxis()
+    #a fix for an odd issue where the last plot group's name is added as text in pad
+    for p in ratioPad.GetListOfPrimitives():
+        if type(p) is ROOT.TPaveText:
+            p.Clear()
     canvas.cd()
     #canvas.GetListOfPrimitives().SetOwner(True)
     return canvas
