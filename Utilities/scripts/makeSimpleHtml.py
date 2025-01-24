@@ -43,6 +43,7 @@ def writeHTML(path, name):
             )
         if path.split("/")[-1] not in ["eeee", "eemm","mmee","2e2m","mmmm"]:
             index.write('  <div style="text-align: center;">Plots by channel: \n'
+                    '  <a href=".">[all]</a> - '
                     '  <a href="eeee">[eeee]</a> - '
                     '  <a href="eemm">[eemm]</a> - '
                     '  <a href="mmee">[mmee]</a> - '
@@ -53,6 +54,7 @@ def writeHTML(path, name):
             )
         else:
             index.write('  <div style="text-align: center;">Plots by channel: \n'
+                    '  <a href="..">[all]</a> - '
                     '  <a href="../eeee">[eeee]</a> - '
                     '  <a href="../eemm">[eemm]</a> - '
                     '  <a href="../mmee">[mmee]</a> - '
