@@ -23,7 +23,9 @@ for var in $variable; do
       echo "Plotting $ch channel"
       ./makeHistStack.py $opts $moreopts --folder_name ${dir}/$ch -c $ch
     done
-    echo "Plotting 2e2mu channel"
-    ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee
+    if [[ $channels = *eemm* ]] && [[ $channels = *mmee* ]]; then
+      echo "Plotting 2e2mu channel"
+      ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee
+    fi
   fi
 done
