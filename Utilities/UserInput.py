@@ -101,7 +101,7 @@ def getListOfFiles(file_set, selection):
     filelist = []
     for files in [x.strip() for x in file_set.split(",")]:
         fileset_nc = files.lower()
-        if "zz4l2018" in fileset_nc:
+        if "zz4l2018" in fileset_nc and "ul" not in fileset_nc:
             if "nonprompt" in fileset_nc:
                 filelist.append("HZZ-signal")
                 filelist.append("nonprompt")
@@ -168,6 +168,9 @@ def getListOfFiles(file_set, selection):
                 #filelist.append("zzjj4l-ewk") #EWK
                 #filelist.append("EWK-Extra4lg")
                 #filelist.append("EWK-Extra2e2mujjg")
+        elif "zz4l2018ul" in fileset_nc:
+            filelist.append("ggZZ")
+            filelist.append("qqZZ-powheg")
         elif "zzeft" in fileset_nc:
                 draw_all = "all" in fileset_nc
                 #Backgrounds
