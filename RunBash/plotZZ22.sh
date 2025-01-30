@@ -1,8 +1,8 @@
-filename="Hists15Jan2025-ZZ4l2022.root"
+filename="Hists30Jan2025-ZZ4l2022.root"
 analysis="ZZ4l2022"
 selection="ZZSelectionsTightLeps"
 VVAnalysis_path="$CMSSW_BASE/src/Analysis/VVAnalysis"
-variable="Mass ZMass Z1Mass Z2Mass LepPt LepEta Z1PolCos Z2PolCos"
+variable="Mass ZMass Z1Mass Z2Mass LepPt LepEta Z1PolCos Z2PolCos SIP3D LepIso"
 channels="eeee eemm mmee mmmm"
 dochannels=true
 
