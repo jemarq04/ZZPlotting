@@ -77,7 +77,7 @@ def getTableRow(image_file):
         <img src="plots/{image}" class="autoResizeImage" /><br/>
         <a href="logs/{name}_event_info.log">[log]</a> - 
         <a href="logs/{name}_event_info-verbose.log">[verbose log]</a> - 
-        <a href="logs/{name}.png">[png]</a> - 
+        <a href="plots/{name}.png">[png]</a> - 
         <a href="plots/{name}.pdf">[pdf]</a>
     </td>\n'''.format(image=image_file, name=image_file.split(".")[-2])
     
