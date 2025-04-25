@@ -393,8 +393,12 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     if "nJets" in varname:
         #centralRatioHist.GetXaxis().SetNdivisions(505)
         centralRatioHist.GetXaxis().CenterLabels(True)
-        centralRatioHist.GetXaxis().ChangeLabel(4,-1,-1,-1,-1,-1,"#geq 3") #require higher CMSSW than current 8_0_26
-        centralRatioHist.GetXaxis().SetTitle("Number of jets") # Fixed title, remove >30GeV text
+        #centralRatioHist.GetXaxis().ChangeLabel(4,-1,-1,-1,-1,-1,"#geq 3") 
+        for num in range(1,4):
+            centralRatioHist.GetXaxis().SetBinLabel(num, str(num-1))
+        centralRatioHist.GetXaxis().SetBinLabel(4, "#geq 3")
+        centralRatioHist.GetXaxis().SetLabelSize(0.05)
+    '''
         if "_central" in varname:
             centralRatioHist.GetXaxis().SetTitle("Number of central jets")
     if varname == "mjj":
@@ -405,6 +409,7 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
         centralRatioHist.GetXaxis().SetTitle("p_{T}^{j1} [GeV]")
     if varname == "jetPt[1]":
         centralRatioHist.GetXaxis().SetTitle("p_{T}^{j2} [GeV]")
+    '''
     if varname == "absjetEta[0]":
         centralRatioHist.GetXaxis().SetTitle("|#eta_{j1}|")
     if varname == "absjetEta[1]":
