@@ -1,15 +1,15 @@
-filename="Hists30Jan2025-ZZ4l2022.root"
+filename="Hists07May2025-ZZ4l2022.root"
 analysis="ZZ4l2022"
 selection="ZZSelectionsTightLeps"
 VVAnalysis_path="$CMSSW_BASE/src/Analysis/VVAnalysis"
-variable="Mass ZMass Z1Mass Z2Mass LepPt LepEta SIP3D LepIso"
+variable="Mass ZMass Z1Mass Z2Mass LepPt LepEta SIP3D LepIso nJets"
 channels="eeee eemm mmee mmmm"
 dochannels=true
-lumi=37.90 #34.652
+lumi=34.652
 
 opts="-s $analysis/$selection -l $lumi -u stat --latex --hist_file $VVAnalysis_path/HistFiles/$filename --preliminary --scaleymax 1.2 --scalelegx 1.5"
 
-dir="output_$analysis"
+dir="output"
 filelist="$analysis"
 for var in $variable; do
   moreopts="-f $filelist -b ${var}"
