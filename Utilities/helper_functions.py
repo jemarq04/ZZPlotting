@@ -177,10 +177,10 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         
         ROOT.CMSlumi(canvas, 0, 0, "%s (13.6 TeV)" % scale_label," ".join(lumi_text))
                 #"Preliminary Simulation" if args.simulation else "Preliminary")
-    if args.extra_text != "" or glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","mjj","dEtajj"]:
+    if args.extra_text != "" or glb_var in ["jetPt[0]","jetPt[1]","jetEta[0]", "jetEta[1]", "absjetEta[0]","absjetEta[1]","mjj","dEtajj"]:
         if args.extra_text != "":
             lines = [x.strip() for x in args.extra_text.split(";")]
-        elif glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","mjj","dEtajj"]:
+        elif glb_var in ["jetPt[0]","jetPt[1]","jetEta[0]", "jetEta[1]", "absjetEta[0]","absjetEta[1]","mjj","dEtajj"]:
             if "0" in glb_var:
                 lines = ['Events with #geq 1 jet']
             elif "1" in glb_var:
@@ -289,10 +289,10 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
         first_stack.GetYaxis().SetTitleSize(hists[0].GetYaxis().GetTitleSize())    
         first_stack.GetYaxis().SetTitleOffset(hists[0].GetYaxis().GetTitleOffset())    
         first_stack.GetYaxis().SetTitle(
-            hists[0].GetYaxis().GetTitle()+"/bin" if not glb_isFullMass else "<"+hists[0].GetYaxis().GetTitle()+"/GeV>")
+            hists[0].GetYaxis().GetTitle() + ("/bin" if not glb_isFullMass else "/GeV"))
     else:
         hists[0].GetYaxis().SetTitle(
-            hists[0].GetYaxis().GetTitle()+"/bin" if not glb_isFullMass else "<"+hists[0].GetYaxis().GetTitle()+"/GeV>")
+            hists[0].GetYaxis().GetTitle() + ("/bin" if not glb_isFullMass else "/GeV"))
 
     if not args.scatter:
         if not args.no_ratio and float(ROOT.gROOT.GetVersion().split("/")[0]) > 6.07:
