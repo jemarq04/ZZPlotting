@@ -52,6 +52,34 @@
         "responseClassNames": "testJet", 
         "top_size": 0.1
     }, 
+    "jetEta[1]": {
+        "ratio_min": 0.4, 
+        "top_xy": [
+            0.2, 
+            0.87
+        ], 
+        "bottom_size": 0.08, 
+        "ymin_fac": 1.0, 
+        "_binning": [
+            -4.7,
+            -3.0,
+            -1.5,
+            0.0, 
+            1.5, 
+            3.0, 
+            4.7
+        ], 
+        "ymax_fac": 1.0, 
+        "ratio_max": 1.8, 
+        "prettyVars": "#eta_{j2}", 
+        "bottom_xy": [
+            0.2, 
+            0.91
+        ], 
+        "units": "", 
+        "responseClassNames": "testJet", 
+        "top_size": 0.1
+    }, 
     "absjetEta[1]": {
         "ratio_min": 0.4, 
         "top_xy": [
@@ -706,6 +734,36 @@
             0.91
         ], 
         "units": "[GeV]", 
+        "responseClassNames": "testJet", 
+        "top_size": 0.1
+    }, 
+    "jetEta[0]": {
+        "ratio_min": 0.4, 
+        "top_xy": [
+            0.2, 
+            0.87
+        ], 
+        "bottom_size": 0.08, 
+        "ymin_fac": 1.0, 
+        "_binning": [
+            -4.7,
+            -3.2,
+            -2.4,
+            -1.5,
+            0.0, 
+            1.5, 
+            2.4, 
+            3.2, 
+            4.7
+        ], 
+        "ymax_fac": 1.0, 
+        "ratio_max": 1.8, 
+        "prettyVars": "#eta_{j1}", 
+        "bottom_xy": [
+            0.2, 
+            0.91
+        ], 
+        "units": "", 
         "responseClassNames": "testJet", 
         "top_size": 0.1
     }, 
