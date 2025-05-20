@@ -1,8 +1,8 @@
-filename="Hists16May2025-ZZ4l2022.root"
+filename="Hists19May2025-ZZ4l2022.root"
 analysis="ZZ4l2022"
 selection="ZZSelectionsTightLeps"
 VVAnalysis_path="$CMSSW_BASE/src/Analysis/VVAnalysis"
-variables="Mass ZMass Z1Mass Z2Mass LepPt LepEta SIP3D LepIso nJets Mass0jFull Mass1jFull Mass2jFull Mass34jFull absjetEta[0] absjetEta[1] jetPt[0] jetPt[1]"
+variables="Mass ZMass Z1Mass Z2Mass LepPt LepEta SIP3D LepIso nJets nJets_central Mass0jFull Mass1jFull Mass2jFull Mass34jFull absjetEta[0] absjetEta[1] jetPt[0] jetPt[1]"
 channels="eeee eemm mmee mmmm"
 dochannels=true
 lumi=34.652
