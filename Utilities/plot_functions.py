@@ -1,3 +1,4 @@
+import math
 import ROOT
 import glob
 import os
@@ -254,6 +255,14 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     data_list = [p for p in oldcanvas.GetListOfPrimitives() if type(p) is ROOT.TH1D and 'data' in p.GetName().lower()]
     compareData = True
     stack_hists = [i for s in stacks for i in s.GetHists()]
+    '''
+    nums = [0] * stack_hists[0].GetNbinsX()
+    for hist in stack_hists:
+        for i in range(1,hist.GetNbinsX()+1):
+            nums[i-1] += hist.GetBinContent(i)
+    print("NOTE: Bin content =",["%.3f" % num for num in nums])
+    print("NOTE: sqrt(N) =",["%.3f" % math.sqrt(num) for num in nums])
+    '''
     signal_hists = [i for s in signal_stacks for i in s.GetHists()]
     if len(data_list) == 0:
         compareData = False
@@ -394,10 +403,11 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
         #centralRatioHist.GetXaxis().SetNdivisions(505)
         centralRatioHist.GetXaxis().CenterLabels(True)
         #centralRatioHist.GetXaxis().ChangeLabel(4,-1,-1,-1,-1,-1,"#geq 3") 
-        for num in range(1,4):
-            centralRatioHist.GetXaxis().SetBinLabel(num, str(num-1))
-        centralRatioHist.GetXaxis().SetBinLabel(4, "#geq 3")
-        centralRatioHist.GetXaxis().SetLabelSize(0.05)
+        if "central" not in varname:
+            for num in range(1,4):
+                centralRatioHist.GetXaxis().SetBinLabel(num, str(num-1))
+            centralRatioHist.GetXaxis().SetBinLabel(4, "#geq 3")
+            centralRatioHist.GetXaxis().SetLabelSize(0.05)
     
     centralRatioHist.GetYaxis().CenterTitle()
     centralRatioHist.GetYaxis().SetRangeUser(*ratio_range)
