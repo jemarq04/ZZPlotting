@@ -190,6 +190,8 @@ def getListOfFiles(file_set, selection):
                     filelist.append("VVV")
                     filelist.append("ggZZ")
         elif any("zz4l%s" % year in fileset_nc for year in [2022, 2023]):
+                filelist.append("qqZZjj-ewk")
+                filelist.append("HZZ-signal")
                 filelist.append("VVV")
                 filelist.append("ggZZ")
                 filelist.append("qqZZ-powheg")
