@@ -61,7 +61,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     xcoords = [xdist+offset, xdist+width+offset] if args.legend_left \
         else [xdist-width-offset, xdist-offset]
     unique_entries = min(len(hist_stacks[0].GetHists()), 8)
-    ymax = 0.8 if args.legend_left else 0.9
+    ymax = 0.9 #0.8 if args.legend_left else 0.9
     ycoords = [ymax, ymax - 0.08*unique_entries*args.scalelegy]
     coords = [xcoords[0], ycoords[0], xcoords[1], ycoords[1]]
     

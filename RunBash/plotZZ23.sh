@@ -7,16 +7,17 @@ channels="eeee eemm mmee mmmm"
 dochannels=true
 lumi=27.76
 
-opts="-s $analysis/$selection -l $lumi -u stat --latex --hist_file $VVAnalysis_path/HistFiles/$filename --preliminary --scaleymax 1.2 --scalelegx 1.5"
+opts="-s $analysis/$selection -l $lumi -u stat --latex --hist_file $VVAnalysis_path/HistFiles/$filename --preliminary --scaleymax 1.2 --scalelegx 1.2"
 
 dir="output"
 filelist="$analysis"
 for var in $variables; do
-  moreopts="-f $filelist -b ${var}"
   echo ${var}
-  if [ $var = "Mass" ]; then
-    moreopts="$moreopts --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0"
-  fi
+
+  moreopts="-f $filelist -b ${var}"
+  [[ $var = "Mass" ]] && moreopts="$moreopts --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0"
+  [[ $var =~ ^Z[12]?Mass$ ]] && moreopts="$moreopts --legend_left"
+
   echo "All Channels"
   ./makeHistStack.py $opts $moreopts --folder_name ${dir}
   if $dochannels; then

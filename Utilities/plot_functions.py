@@ -287,7 +287,7 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     del oldcanvas
     oldBottomMargin = stackPad.GetBottomMargin()
     stackPad.SetBottomMargin(0.)
-    stackPad.SetTopMargin(stackPad.GetTopMargin()/0.7)
+    #stackPad.SetTopMargin(stackPad.GetTopMargin()/0.7) #disabled as it led to weird legend placements
     canvas.SetName(name)
     ratioPad.cd()
     ratioPad.SetBottomMargin(oldBottomMargin/.3)
