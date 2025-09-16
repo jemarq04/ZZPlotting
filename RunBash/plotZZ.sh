@@ -12,14 +12,13 @@ fi
 
 analysis="ZZ4l$1"
 filename="Hists-ZZ4l$1.root"
-filepath="$VVAnalysis_path/HistFiles/$filename"
+filepath="$CMSSW_BASE/src/Analysis/VVAnalysis/HistFiles/$filename"
 if [[ ! -f $filepath ]]; then
   echo invalid file: $filepath
   exit 1
 fi
 
 selection="ZZSelectionsTightLeps"
-VVAnalysis_path="$CMSSW_BASE/src/Analysis/VVAnalysis"
 variables="Mass ZMass Z1Mass Z2Mass LepPt LepEta SIP3D LepIso nJets nJets_central Mass0jFull Mass1jFull Mass2jFull Mass34jFull absjetEta[0] absjetEta[1] jetPt[0] jetPt[1]"
 channels="eeee eemm mmee mmmm"
 dochannels=true
