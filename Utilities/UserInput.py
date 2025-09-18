@@ -153,19 +153,16 @@ def getListOfFiles(file_set, selection):
         elif "jetplot" in fileset_nc:
                 #print("Data only")
                 filelist.append("nonprompt")
-                filelist.append("VVV")
                 #filelist.append("ggZZSpecg")
                 #filelist.append("ggZZSpecgH")
-                filelist.append("zzjj4l-ewk") #EWK
+                filelist.append("qqZZjj-ewk") #EWK
+                filelist.append("HZZ-signal")
+                filelist.append("VVV")
                 filelist.append("ggZZ")
                 #filelist.append("qqZZSpecg")
-                filelist.append("qqZZ-amcnlo")
-                #filelist.append("qqZZ-powheg")
-                #filelist.append("HZZ-signal")
+                #filelist.append("qqZZ-amcnlo")
+                filelist.append("qqZZ-powheg")
                 #filelist.append("ggHZZ-only")
-                #filelist.append("ggZZ")
-                #filelist.append("GGZZ")
-                #filelist.append("zzjj4l-ewk") #EWK
                 #filelist.append("EWK-Extra4lg")
                 #filelist.append("EWK-Extra2e2mujjg")
         elif "zzeft" in fileset_nc:
@@ -190,8 +187,9 @@ def getListOfFiles(file_set, selection):
                     filelist.append("VVV")
                     filelist.append("ggZZ")
         elif any("zz4l%s" % year in fileset_nc for year in [2022, 2023]):
-                filelist.append("qqZZjj-ewk")
-                filelist.append("HZZ-signal")
+                filelist.append("nonprompt")
+                #filelist.append("qqZZjj-ewk")
+                #filelist.append("HZZ-signal")
                 filelist.append("VVV")
                 filelist.append("ggZZ")
                 filelist.append("qqZZ-powheg")
