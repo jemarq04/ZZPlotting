@@ -25,10 +25,10 @@ jetvariables="nJets nJets_central Mass0jFull Mass1jFull Mass2jFull Mass34jFull a
 channels="eeee eemm mmee mmmm"
 dochannels=true
 dojetplots=true
+dir="output"
 
 opts="-s $analysis/$selection -l $lumi -u stat --latex --hist_file $filepath --preliminary --scaleymax 1.2 --scalelegx 1.2"
 
-dir="output"
 filelist="$analysis"
 for var in $variables; do
   echo ${var}
