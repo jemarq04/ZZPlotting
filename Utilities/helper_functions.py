@@ -1025,6 +1025,8 @@ def getSystValue(hMain):
             lumiUnc = 0.014
         elif year == "2023":
             lumiUnc = 0.013
+        elif year == "2024":
+            lumiUnc = 0.0 #TODO, unavailable at the moment
         elif year == "Run3Combined":
             lumiUnc = 0.0 #TODO
         else:

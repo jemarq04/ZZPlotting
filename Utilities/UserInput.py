@@ -186,7 +186,7 @@ def getListOfFiles(file_set, selection):
                     filelist.append("nonprompt")
                     filelist.append("VVV")
                     filelist.append("ggZZ")
-        elif any("zz4l%s" % year in fileset_nc for year in ["2022", "2023", "run3combined"]):
+        elif any("zz4l%s" % year in fileset_nc for year in ["2022", "2023", "2024", "run3combined"]):
                 filelist.append("nonprompt")
                 #filelist.append("qqZZjj-ewk")
                 #filelist.append("HZZ-signal")
