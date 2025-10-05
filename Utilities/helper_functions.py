@@ -1022,9 +1022,11 @@ def getSystValue(hMain):
         elif year == "2018":
             lumiUnc = 0.025
         elif year == "2022":
-            lumiUnc = 0.0 #TODO
+            lumiUnc = 0.014
         elif year == "2023":
-            lumiUnc = 0.0 #TODO
+            lumiUnc = 0.013
+        else:
+            lumiUnc = 0
             
         lumiScale = {'Up':1.+lumiUnc,'Down':1.-lumiUnc}
         for sys, scale in lumiScale.items():
