@@ -223,7 +223,7 @@ def getListOfFiles(filelist, selection, manager_path="", analysis=""):
         manager_path = getManagerPath()
     data_path = "%s/%s/FileInfo" % (manager_path, getManagerName())
     data_info = UserInput.readAllInfo("/".join([data_path, "data/*"]))
-    mc_info = UserInput.readAllInfo("/".join([data_path, "montecarlo/*"]))
+    mc_info = UserInput.readAllInfo("/".join([data_path, "montecarlo/montecarlo*"]))
     analysis_info = UserInput.readInfo("/".join([data_path, analysis, selection])) \
         if analysis != "" else []
     valid_names = (list(data_info.keys()) + list(mc_info.keys())) if not analysis_info else list(analysis_info.keys())
@@ -276,7 +276,7 @@ def getListOfFilesWithXSec(filelist, manager_path="", selection="LooseLeptons"):
         manager_path = getManagerPath()
     data_path = "%s/%s/FileInfo" % (manager_path, getManagerName())
     files = getListOfFiles(filelist, selection, manager_path)
-    mc_info = UserInput.readAllInfo("/".join([data_path, "montecarlo/*"]))
+    mc_info = UserInput.readAllInfo("/".join([data_path, "montecarlo/montecarlo*"]))
     info = {}
     for file_name in files:
         if "data" in file_name.lower():
