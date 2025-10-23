@@ -82,6 +82,7 @@ if $dofakeplots; then
       echo ${var}_${fakes}
 
       moreopts="-f ${filelist}_nonprompt -b ${var}_${fakes}"
+      [[ $var = Z1Mass ]] && moreopts="$moreopts --legend_left"
 
       echo "All Channels"
       ./makeHistStack.py $opts $moreopts --folder_name ${dir}
