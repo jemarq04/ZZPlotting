@@ -80,20 +80,21 @@ if $dofakeplots; then
   for var in $fakevariables; do
     for fakes in PPPF PPFF; do
       echo ${var}_${fakes}
+      [[ $fakes = PPPF ]] && extratext="3P1F Region" || extratext="2P2F Region"
 
       moreopts="-f ${filelist}_nonprompt -b ${var}_${fakes}"
-      [[ $var = Z1Mass ]] && moreopts="$moreopts --legend_left"
+      [[ $var =~ ^Z[12]?Mass$ ]] && moreopts="$moreopts --legend_left"
 
       echo "All Channels"
-      ./makeHistStack.py $opts $moreopts --folder_name ${dir}
+      ./makeHistStack.py $opts $moreopts --folder_name ${dir} --extra_text "${extratext}"
       if $dochannels; then
         for ch in $channels; do
           echo "Plotting $ch channel"
-          ./makeHistStack.py $opts $moreopts --folder_name ${dir}/$ch -c $ch
+          ./makeHistStack.py $opts $moreopts --folder_name ${dir}/$ch -c $ch --extra_text "${extratext}"
         done
         if [[ $channels = *eemm* ]] && [[ $channels = *mmee* ]]; then
           echo "Plotting 2e2mu channel"
-          ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee
+          ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee --extra_text "${extratext}"
         fi
       fi
     done
