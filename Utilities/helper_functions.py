@@ -189,7 +189,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
                 lines = ["Events with #geq 2 jets"]
             
         ymax = coords[3]-0.02
-        box_size = 0.05*len(lines)*args.scalelegy*5        
+        box_size = 0.05*len(lines)*args.scalelegy*2
         if args.extra_text_above:
             ymax = coords[1] 
             coords[1] -= box_size
