@@ -24,11 +24,9 @@ fi
 selection="ZZSelectionsTightLeps"
 variables="Mass ZMass Z1Mass Z2Mass LepPt LepPt1 LepPt2 LepEta SIP3D LepIso"
 jetvariables="nJets nJets_central MassFull Mass0jFull Mass1jFull Mass2jFull Mass34jFull absjetEta[0] absjetEta[1] jetPt[0] jetPt[1]"
-fakevariables="Mass Z1Mass Z2Mass"
+controlvariables="Mass Z1Mass Z2Mass"
 channels="eeee eemm mmee mmmm"
 dochannels=true
-dojetplots=true
-dofakeplots=true
 dir="output"
 
 opts="-s $analysis/$selection -l $lumi -u stat --latex --hist_file $filepath --preliminary --scaleymax 1.2 --scalelegx 1.2"
@@ -55,48 +53,44 @@ for var in $variables; do
   fi
 done
 
-if $dojetplots; then
-  for var in $jetvariables; do
-    echo ${var}
+for var in $jetvariables; do
+  echo ${var}
 
-    moreopts="-f jetplot -b ${var}"
+  moreopts="-f jetplot -b ${var}"
+
+  echo "All Channels"
+  ./makeHistStack.py $opts $moreopts --folder_name ${dir}
+  if $dochannels; then
+    for ch in $channels; do
+      echo "Plotting $ch channel"
+      ./makeHistStack.py $opts $moreopts --folder_name ${dir}/$ch -c $ch
+    done
+    if [[ $channels = *eemm* ]] && [[ $channels = *mmee* ]]; then
+      echo "Plotting 2e2mu channel"
+      ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee
+    fi
+  fi
+done
+
+for var in $controlvariables; do
+  for fakes in PPPF PPFF; do
+    echo ${var}_${fakes}
+    [[ $fakes = PPPF ]] && extratext="3P1F Region" || extratext="2P2F Region"
+
+    moreopts="-f ${filelist}_nonprompt -b ${var}_${fakes}"
+    [[ $var =~ ^Z[12]?Mass$ ]] && moreopts="$moreopts --legend_left"
 
     echo "All Channels"
-    ./makeHistStack.py $opts $moreopts --folder_name ${dir}
+    ./makeHistStack.py $opts $moreopts --folder_name ${dir} --extra_text "${extratext}"
     if $dochannels; then
       for ch in $channels; do
         echo "Plotting $ch channel"
-        ./makeHistStack.py $opts $moreopts --folder_name ${dir}/$ch -c $ch
+        ./makeHistStack.py $opts $moreopts --folder_name ${dir}/$ch -c $ch --extra_text "${extratext}"
       done
       if [[ $channels = *eemm* ]] && [[ $channels = *mmee* ]]; then
         echo "Plotting 2e2mu channel"
-        ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee
+        ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee --extra_text "${extratext}"
       fi
     fi
   done
-fi
-
-if $dofakeplots; then
-  for var in $fakevariables; do
-    for fakes in PPPF PPFF; do
-      echo ${var}_${fakes}
-      [[ $fakes = PPPF ]] && extratext="3P1F Region" || extratext="2P2F Region"
-
-      moreopts="-f ${filelist}_nonprompt -b ${var}_${fakes}"
-      [[ $var =~ ^Z[12]?Mass$ ]] && moreopts="$moreopts --legend_left"
-
-      echo "All Channels"
-      ./makeHistStack.py $opts $moreopts --folder_name ${dir} --extra_text "${extratext}"
-      if $dochannels; then
-        for ch in $channels; do
-          echo "Plotting $ch channel"
-          ./makeHistStack.py $opts $moreopts --folder_name ${dir}/$ch -c $ch --extra_text "${extratext}"
-        done
-        if [[ $channels = *eemm* ]] && [[ $channels = *mmee* ]]; then
-          echo "Plotting 2e2mu channel"
-          ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee --extra_text "${extratext}"
-        fi
-      fi
-    done
-  done
-fi
+done
