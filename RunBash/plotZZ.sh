@@ -72,6 +72,7 @@ for var in $jetvariables; do
   fi
 done
 
+[[ $1 = 2024 ]] && controlvariables="" #NOTE: Disable 2024 CRs until DY is available
 for var in $controlvariables; do
   for fakes in PPPF PPFF; do
     echo ${var}_${fakes}
