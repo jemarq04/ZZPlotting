@@ -156,6 +156,7 @@ def makePlots(frfile, param, obj, isMC):
         else:
             legend.AddEntry(data_uncorr_graph, "Data", "l")
             legend.AddEntry(data_ewkcorr_graph, "Data - EWK", "l")
+        ROOT.gStyle.SetLegendBorderSize(0)
         legend.Draw()
     elif ("Pt" in param):
         data_uncorr_barrel,data_uncorr_endcap = getTGraphAsymmErrorsPt(frfile, "DYMC" if isMC else "AllData", param, obj)
@@ -178,6 +179,7 @@ def makePlots(frfile, param, obj, isMC):
             legend.AddEntry(data_ewkcorr_barrel, f"barrel {ewkcorr}", "l")
             legend.AddEntry(data_uncorr_endcap, f"endcap {uncorr}", "l")
             legend.AddEntry(data_ewkcorr_endcap, f"endcap {ewkcorr}", "l")
+        ROOT.gStyle.SetLegendBorderSize(0)
         legend.Draw()
 
 def main():
