@@ -8,7 +8,8 @@ fi
 
 if [[ $1 = 2022 ]]; then lumi=34.652;
 elif [[ $1 = 2023 ]]; then lumi=27.76;
-elif [[ $1 = Run3Combined ]]; then lumi=62.412;
+elif [[ $1 = Run3Combined ]]; then lumi=62.412
+#elif [[ $1 = Run3Combined ]]; then lumi=171.342;
 elif [[ $1 = 2024 ]]; then lumi=109.33;
 fi
 
