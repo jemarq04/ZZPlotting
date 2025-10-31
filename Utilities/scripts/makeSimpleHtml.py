@@ -27,20 +27,20 @@ def writeHTML(path, name):
         index.write('  <div style="text-align: center;"><b>{title}</b></div>\n'
                 '  <table>\n'.format(title=name)
         )
-        if "Nonprompt" in path:
-            relative_path = path.split("/")[-1].replace("Nonprompt", "MC") 
-            index.write('  <div style="text-align: center;">Monte Carlo based plots: \n'
-                    '  <a href="../%s">[MC plots]</a>' % relative_path +
-                    '</div>\n'
-                    '  <table>\n'
-            )
-        elif "MC" in path:
-            relative_path = path.split("/")[-1].replace("MC", "Nonprompt") 
-            index.write('  <div style="text-align: center;">Plots with data driven background: \n'
-                    '  <a href="../%s">[Nonprompt plots]</a>' % relative_path +
-                    '</div>\n'
-                    '  <table>\n'
-            )
+#        if "Nonprompt" in path:
+#            relative_path = path.split("/")[-1].replace("Nonprompt", "MC") 
+#            index.write('  <div style="text-align: center;">Monte Carlo based plots: \n'
+#                    '  <a href="../%s">[MC plots]</a>' % relative_path +
+#                    '</div>\n'
+#                    '  <table>\n'
+#            )
+#        elif "MC" in path:
+#            relative_path = path.split("/")[-1].replace("MC", "Nonprompt") 
+#            index.write('  <div style="text-align: center;">Plots with data driven background: \n'
+#                    '  <a href="../%s">[Nonprompt plots]</a>' % relative_path +
+#                    '</div>\n'
+#                    '  <table>\n'
+#            )
         if path.split("/")[-1] not in ["eeee", "eemm","mmee","2e2m","mmmm"]:
             index.write('  <div style="text-align: center;">Plots by channel: \n'
                     '  <a href=".">[all]</a> - '
