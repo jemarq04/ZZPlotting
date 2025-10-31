@@ -150,8 +150,12 @@ def makePlots(frfile, param, obj, isMC):
 
         legend = ROOT.TLegend(0.2,.80,.40,.70)
         ROOT.SetOwnership(legend, False)
-        legend.AddEntry(data_uncorr_graph, "Data", "l")
-        legend.AddEntry(data_ewkcorr_graph, "Data - EWK", "l")
+        if isMC:
+            legend.AddEntry(data_ewkcorr_graph, "Data - EWK", "l")
+            legend.AddEntry(data_uncorr_graph, "DYJets (MC)", "l")
+        else:
+            legend.AddEntry(data_uncorr_graph, "Data", "l")
+            legend.AddEntry(data_ewkcorr_graph, "Data - EWK", "l")
         legend.Draw()
     elif ("Pt" in param):
         data_uncorr_barrel,data_uncorr_endcap = getTGraphAsymmErrorsPt(frfile, "DYMC" if isMC else "AllData", param, obj)
@@ -164,10 +168,16 @@ def makePlots(frfile, param, obj, isMC):
         ROOT.SetOwnership(legend, False)
         uncorr  = "DYJets MC" if isMC else "uncorrected"
         ewkcorr = "Data-EWK"  if isMC else "corrected"
-        legend.AddEntry(data_uncorr_barrel, f"barrel {uncorr}", "l")
-        legend.AddEntry(data_ewkcorr_barrel, f"barrel {ewkcorr}", "l")
-        legend.AddEntry(data_uncorr_endcap, f"endcap {uncorr}", "l")
-        legend.AddEntry(data_ewkcorr_endcap, f"endcap {ewkcorr}", "l")
+        if isMC:
+            legend.AddEntry(data_ewkcorr_barrel, f"barrel {ewkcorr}", "l")
+            legend.AddEntry(data_uncorr_barrel, f"barrel {uncorr}", "l")
+            legend.AddEntry(data_ewkcorr_endcap, f"endcap {ewkcorr}", "l")
+            legend.AddEntry(data_uncorr_endcap, f"endcap {uncorr}", "l")
+        else:
+            legend.AddEntry(data_uncorr_barrel, f"barrel {uncorr}", "l")
+            legend.AddEntry(data_ewkcorr_barrel, f"barrel {ewkcorr}", "l")
+            legend.AddEntry(data_uncorr_endcap, f"endcap {uncorr}", "l")
+            legend.AddEntry(data_ewkcorr_endcap, f"endcap {ewkcorr}", "l")
         legend.Draw()
 
 def main():
