@@ -221,7 +221,7 @@ def main():
 
     with ROOT.TFile.Open(args.infile) as frfile:
         for group in ["Data", "MC"]:
-            plot_path, html_path = helper.getPlotPaths(f"{args.analysis}/FakeRates", group, True)
+            plot_path, html_path = helper.getPlotPaths(f"{args.analysis}/FakeRates", group if group == "Data" else "DataMC", True)
             for param in ["1DPt", "1DEta", "2D"]:
                 for obj in ["E", "Mu"]:
                     plot_name = f"ratio{param}_all{obj}"
