@@ -190,6 +190,7 @@ def main():
                         help="Write 'Preliminary' in CMS style text")
     parser.add_argument("--simulation", action="store_true",
                         help="Write 'Simulation' in CMS style text")
+    parser.add_argument("--folder_name", default="FakeRates", help="Folder name to save plots in (default is 'FakeRates')")
     parser.add_argument("infile", help="input fake rate histogram file")
     args = parser.parse_args()
 
@@ -221,7 +222,7 @@ def main():
 
     with ROOT.TFile.Open(args.infile) as frfile:
         for group in ["Data", "MC"]:
-            plot_path, html_path = helper.getPlotPaths(f"{args.analysis}/FakeRates", group if group == "Data" else "DataMC", True)
+            plot_path, html_path = helper.getPlotPaths(f"{args.analysis}/{args.folder_name}", group if group == "Data" else "DataMC", True)
             for param in ["1DPt", "1DEta", "2D"]:
                 for obj in ["E", "Mu"]:
                     plot_name = f"ratio{param}_all{obj}"
