@@ -295,7 +295,7 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
             hists[0].GetYaxis().GetTitle() + ("/bin" if not glb_isFullMass else "/GeV"))
 
     if not args.scatter:
-        if not args.no_ratio and float(ROOT.gROOT.GetVersion().split("/")[0]) > 6.07:
+        if not args.no_ratio:
             # Remove first bin label to avoid overlap of canvases
             if hists[0].GetMinimum() == 0.0:
                 first_stack.GetYaxis().ChangeLabel(1, -1.0, 0)
