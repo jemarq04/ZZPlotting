@@ -30,6 +30,8 @@ def getComLineArgs():
     parser = UserInput.getDefaultParser()
     parser.add_argument("-s", "--selection", type=str, required=True,
                         help="Specificy selection level to run over")
+    parser.add_argument("-y", "--year", type=str,
+                        help="year for analysis")
     parser.add_argument("--latex", action='store_true', help='table in latex format')
     parser.add_argument("-r", "--object_restrict", type=str, default="",
                         help="Use modified object file")
@@ -245,6 +247,9 @@ def main():
 
     #if args.channels == "eemm" or args.channels == "mmee": #only look at combined 2e2m channel
     #    return
+    
+    if args.luminosity == -1 and args.year is not None:
+        args.luminosity = ConfigureJobs.getLuminosity(args.year)
         
     if args.rebin is None:
         with open('varsFile.json') as var_json_file:

@@ -3,16 +3,13 @@ import UserInput
 import fnmatch
 import glob
 import subprocess
-import os,pdb
+import os
 import json
 import array
 import string
 import socket
 import logging
-try:
-    import configparser
-except:
-    import ConfigParser as configparser
+import configparser
     #from six.moves import configparser
 
 def get2DBinning(xvar="mjj", yvar="etajj", analysis='WZ'):
@@ -85,6 +82,14 @@ def getStorageArea():
                         % config_name)
     return config['Setup']['storage_area'],config['Setup']['html_area']
 
+def getLumiMap(manager_path = ""):
+    if manager_path == "":
+        manager_path = getManagerPath()
+    lumi_path = "%s/%s/luminosityMap.json" % (manager_path, getManagerName())
+    with open(lumi_path) as infile:
+        info = json.load(infile)
+    return info
+
 def getCombinePath():
     config = configparser.ConfigParser()
     config.read_file(open("Templates/config.%s" % os.environ["USER"]))
@@ -92,29 +97,11 @@ def getCombinePath():
         raise ValueError("dataset_manager_path not specified in config file Template/config.%s" 
                             % os.environ["USER"])
     return config['Setup']['combine_path'] + "/"
-def getListOfEWK():
-    with open('listFile.json') as list_json_file:
-        mylist_dict = json.load(list_json_file)
-    return mylist_dict['EWK']
-#    return [
-#        "zz4l-powheg",
-#        "ggZZ4e",
-#        "ggZZ4m",
-#        "ggZZ4t",
-#        "ggZZ2e2mu",
-#        "ggZZ2e2tau",
-        #"ggZZ2mu2tau",
-#    ]
-
-def getListOfzzNLO():
-    return [
-        "zz4l-amcatnlo",
-        ]
-def getListOfaltSig():
-    with open('listFile.json') as list_json_file:
-        mylist_dict = json.load(list_json_file)
-    return mylist_dict['altEWK']
-    
+#def getListOfaltSig(): #TODO: Update
+#    with open('listFile.json') as list_json_file:
+#        mylist_dict = json.load(list_json_file)
+#    return mylist_dict['altEWK']
+#    
 #    return [
 #        "zz4l-amcatnlo",
 #        "ggZZ4e",
@@ -124,46 +111,92 @@ def getListOfaltSig():
 #        "ggZZ2e2tau",
 #    ]
 def getListOfEWKFilenames(analysis=""):
+    lumi_info = getLumiMap()
+
     if "ZZ4l" in analysis:
-        return [
+        outlist = [
+            #"zz4l-amcatnlo",
             "zz4l-powheg",
+            #"ZZJJTo4L-EWK",
             "ggZZ4e",
             "ggZZ4m",
             "ggZZ4t",
             "ggZZ2e2mu",
             "ggZZ2e2tau",
-            #"ggZZ2mu2tau",
+            "ggZZ2mu2tau",
         ]
-    return [
-    #    "wz3lnu-powheg",
-    # Use jet binned WZ samples for subtraction by default
-        "wz3lnu-mgmlm-0j",
-        "wz3lnu-mgmlm-1j",
-        "wz3lnu-mgmlm-2j",
-        "wz3lnu-mgmlm-3j",
-        "wlljj-ewk",
-        "zz4l-powheg",
-        "zz4ljj-ewk",
-        "zz2l2vjj-ewk",
-        "tzq",
-        "ttz",
-        "ttw",
-        "zzz",
-        "wwz",
-        "www",
-        "ww",
-        "zg",
-        "ggZZ4e",
-        "ggZZ4m",
-        "ggZZ2e2mu",
+        for year in lumi_info.keys():
+            if f"ZZ4l{year}" in analysis:
+                eras = ["_%s" % x for x in getLuminosityEras(year)]
+                if not eras:
+                    eras = [""]
+                outlist = ["%s%s" % (name, era) for name in outlist for era in eras]
+        return outlist
+    elif "ZplusL" in analysis:
+        outlist = [
+            "wz3lnu-powheg",
+            #"wz3lnu-mgmlm-0j",
+            #"wz3lnu-mgmlm-1j",
+            #"wz3lnu-mgmlm-2j",
+            #"wz3lnu-mgmlm-3j",
+            #"wlljj-ewk",
+            "zz4l-powheg",
+            "zzjj4l-ewk",
+            #"zz2l2vjj-ewk",
+            #"tzq",
+            "ttZ",
+            #"ttw",
+            "ZZZ",
+            "WWZ",
+            "WZZ",
+            #"ww",
+            #"zg",
+            "ggZZ4e",
+            "ggZZ4m",
+            "ggZZ4t",
+            "ggZZ2e2mu",
+            "ggZZ2e2tau",
+            "ggZZ2mu2tau",
+        ]
+        for year in lumi_info.keys():
+            if f"ZplusL{year}" in analysis:
+                eras = ["_%s" % x for x in getLuminosityEras(year)]
+                if not eras:
+                    eras = [""]
+                outlist = ["%s%s" % (name, era) for name in outlist for era in eras]
+        return outlist
+
+    return []
+def getListOfDYFilenames(analysis=""):
+    lumi_info = getLumiMap()
+    outlist = [
+        "DYm10to50-2j",
+        "DYm50-2j",
     ]
-def getListOfVVV():
-    return [
+
+    for year in lumi_info.keys():
+        if year in analysis:
+            eras = ["_%s" % x for x in getLuminosityEras(year)]
+            if not eras:
+                eras = [""]
+            outlist = ["%s%s" % (name, era) for name in outlist for era in eras]
+    return outlist
+
+def getListOfVVV(analysis=""):
+    lumi_info = getLumiMap()
+    outlist = [
        "WZZ",
        "ZZZ",
        "WWZ",
-       "ttZ-jets", 
+       "ttZ", 
     ]
+    for year in lumi_info.keys():
+        if year in analysis:
+            eras = ["_%s" % x for x in getLuminosityEras(year)]
+            if not eras:
+                eras = [""]
+            outlist = ["%s%s" % (name, era) for name in outlist for era in eras]
+    return outlist
 def getListOfNonpromptFilenames():
     return ["tt-lep",
         "st-schan",
@@ -226,20 +259,20 @@ def getListOfFiles(filelist, selection, manager_path="", analysis=""):
     mc_info = UserInput.readAllInfo("/".join([data_path, "montecarlo/montecarlo*"]))
     analysis_info = UserInput.readInfo("/".join([data_path, analysis, selection])) \
         if analysis != "" else []
+    lumi_info = getLumiMap(manager_path)
     valid_names = (list(data_info.keys()) + list(mc_info.keys())) if not analysis_info else list(analysis_info.keys())
     names = []
     for name in filelist:
         if ".root" in name:
             names.append(name)
-        elif any("ZZ4l%s" % year in name for year in ["2022","2023","2024","Run3Combined"]):
-            key = ["ZZ4l%s" % year for year in ["2022","2023","2024","Run3Combined"] if "ZZ4l%s" % year in name][0]
+        elif any("ZZ4l%s" % year in name for year in lumi_info.keys()):
+            key = ["ZZ4l%s" % year for year in lumi_info.keys() if "ZZ4l%s" % year in name][0]
             dataset_file = manager_path + \
                 "%s/FileInfo/%s/%s.json" % (getManagerName(), key, selection)
             allnames = list(json.load(open(dataset_file)).keys())
             print(allnames)
             if "nodata" in name:
-                nodata = [x for x in allnames if "data" not in x]
-                names += nodata
+                names += [x for x in allnames if "data" not in x]
             elif "data" in name:
                 names += [x for x in allnames if "data" in x]
             else:
@@ -271,7 +304,6 @@ def fillTemplatedFile(template_file_name, out_file_name, template_dict):
         outFile.write(result)
 
 def getListOfFilesWithXSec(filelist, manager_path="", selection="LooseLeptons"): #"ntuples"):
-    #pdb.set_trace()
     if manager_path == "":
         manager_path = getManagerPath()
     data_path = "%s/%s/FileInfo" % (manager_path, getManagerName())
@@ -309,7 +341,6 @@ def getConfigFileName(config_file_name):
             config_file_name)
 
 def getInputFilesPath(sample_name, selection, analysis, manager_path=""):
-    #pdb.set_trace()
     if manager_path == "":
         manager_path = getManagerPath()
     if ".root" in sample_name:
@@ -317,10 +348,7 @@ def getInputFilesPath(sample_name, selection, analysis, manager_path=""):
         return sample_name
     data_path = "%s/%s/FileInfo" % (manager_path, getManagerName())
     input_file_base_name = "/".join([data_path, analysis, selection])
-    #print "analysis:", analysis
-    #print "path:", input_file_base_name
     input_file_name = getConfigFileName(input_file_base_name)
-    #print "file_name: ",input_file_name
     input_files = UserInput.readInfo(input_file_name)
     if sample_name not in list(input_files.keys()):
         raise ValueError("Invalid input file %s. Input file must correspond"
@@ -359,3 +387,47 @@ def getLHEWeightIDs(sample_name, analysis, precision=3):
             wids = [precstr % wid for wid in event.scaleWeightIDs]
             break
     return wids
+def getLuminosityEras(year, manager_path=""):
+    lumi_info = getLumiMap(manager_path)
+
+    if year not in lumi_info:
+        raise ValueError("Invalid year: %s. Must be present in lumi map" % year)
+
+    if "eras" not in lumi_info[year]:
+        if "years" in lumi_info[year]:
+            outlist = []
+            for yr in lumi_info[year]["years"]:
+                if "eras" in lumi_info[yr]:
+                    outlist += [f"{yr}_{era}" for era in lumi_info[yr]["eras"].keys()]
+                else:
+                    outlist += [yr]
+            return outlist
+        else:
+            return []
+    else:
+        return list(lumi_info[year]["eras"].keys())
+
+def getLuminosity(year, era="", manager_path=""):
+    if manager_path == "":
+        manager_path = getManagerPath()
+    lumi_info = getLumiMap(manager_path)
+
+    if year not in lumi_info:
+        raise ValueError("Invalid year: %s. Must be present in lumi map" % year)
+    if "years" in lumi_info[year]:
+        return sum(getLuminosity(yr, "", manager_path) for yr in lumi_info[year]["years"])
+    elif "lumi" not in lumi_info[year]:
+        if era != "" and era not in lumi_info[year]["eras"]:
+            raise ValueError("Invalid era (%s) for year: %s" % (era, year))
+    elif era != "":
+        raise ValueError("No eras present for year: %s. Must be present in lumi map" % year)
+
+    if era == "":
+        if "lumi" in lumi_info[year]:
+            lumi = lumi_info[year]["lumi"]
+        else:
+            lumi = sum(lumi_info[year]["eras"].values())
+    else:
+        lumi = lumi_info[year]["eras"][era]
+
+    return lumi

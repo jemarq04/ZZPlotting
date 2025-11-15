@@ -817,7 +817,7 @@ def getSystValue(hMain):
     for key in list(myvar_dict.keys()): #key is the variable
         _binning[key] = myvar_dict[key]["_binning"]
         
-    sigSampleDic=ConfigureJobs.getListOfFilesWithXSec(ConfigureJobs.getListOfEWK())
+    sigSampleDic=ConfigureJobs.getListOfFilesWithXSec(ConfigureJobs.getListOfEWKFilenames(analysis))
     sigSampleList=[str(i) for i in list(sigSampleDic.keys())]
     
     AltsigSampleDic=ConfigureJobs.getListOfFilesWithXSec([myaltname,])
@@ -846,36 +846,36 @@ def getSystValue(hMain):
     #all ewkmc/this is also allSignal histos, scaled properly, kind of a repeat of above but with ggZZ added
     
     ewkmc,ewkSumW = HistTools.makeCompositeHists(fOut,"AllEWK", ConfigureJobs.getListOfFilesWithXSec(
-        ConfigureJobs.getListOfEWK(), manager_path), func_lumi,
+        ConfigureJobs.getListOfEWKFilenames(analysis), manager_path), func_lumi,
         underflow=False, overflow=False)
 
     ewkmc_qqZZonly,ewkSumW_qqZZonly = HistTools.makeCompositeHists(fOut,"AllEWKqqZZonly", ConfigureJobs.getListOfFilesWithXSec(
-        ConfigureJobs.getListOfEWK()[:1], manager_path), func_lumi,
+        ConfigureJobs.getListOfEWKFilenames(analysis)[:1], manager_path), func_lumi,
         underflow=False, overflow=False)
 
     ewkmc_ggZZonly,ewkSumW_ggZZonly = HistTools.makeCompositeHists(fOut,"AllEWKggZZonly", ConfigureJobs.getListOfFilesWithXSec(
-        ConfigureJobs.getListOfEWK()[1:], manager_path), func_lumi,
+        ConfigureJobs.getListOfEWKFilenames(analysis)[1:], manager_path), func_lumi,
         underflow=False, overflow=False)
 
 
     ewkmc_ggZZup,ewkSumW_ggZZup = HistTools.makeCompositeHists_scaling(fOut,"AllEWKggZZup", ConfigureJobs.getListOfFilesWithXSec(
-        ConfigureJobs.getListOfEWK(), manager_path), func_lumi,
+        ConfigureJobs.getListOfEWKFilenames(analysis), manager_path), func_lumi,
         underflow=False, overflow=False,scale_fac=1.+0.18)
 
     ewkmc_ggZZdn,ewkSumW_ggZZdn = HistTools.makeCompositeHists_scaling(fOut,"AllEWKggZZdn", ConfigureJobs.getListOfFilesWithXSec(
-        ConfigureJobs.getListOfEWK(), manager_path), func_lumi,
+        ConfigureJobs.getListOfEWKFilenames(analysis), manager_path), func_lumi,
         underflow=False, overflow=False,scale_fac=1.-0.14)
 
-    altSigmc,altSigSumW = HistTools.makeCompositeHists(fOut,"AltSig", ConfigureJobs.getListOfFilesWithXSec(
-        ConfigureJobs.getListOfaltSig(), manager_path), func_lumi,
-        underflow=False, overflow=False)
+    #altSigmc,altSigSumW = HistTools.makeCompositeHists(fOut,"AltSig", ConfigureJobs.getListOfFilesWithXSec(
+    #    ConfigureJobs.getListOfaltSig(), manager_path), func_lumi,
+    #    underflow=False, overflow=False)
 
     #Update ewkSumW dictionary with sumWeights value of zz4l-amcatnlo (now it is POWHEG) from altSigSumW, the common keys should not be duplicated
-    ewkSumW.update(altSigSumW)
+    #ewkSumW.update(altSigSumW)
 
     #all mcbkg that needs to be subtracted
     allVVVmc,VVVSumW = HistTools.makeCompositeHists(fOut,"AllVVV", ConfigureJobs.getListOfFilesWithXSec(
-        ConfigureJobs.getListOfVVV(), manager_path), func_lumi,
+        ConfigureJobs.getListOfVVV(analysis), manager_path), func_lumi,
         underflow=False, overflow=False)
 
     #This is the non-prompt background
@@ -894,7 +894,7 @@ def getSystValue(hMain):
     hSigDic_ggZZdn=OutputTools.getHistsInDic(ewkmc_ggZZdn,varList,channels)
 
     #Alt signals containing zzl4-amcatnlo instead of zz4l-powheg #Now alt is POWHEG
-    hAltSigDic=OutputTools.getHistsInDic(altSigmc,varList,channels)
+    #hAltSigDic=OutputTools.getHistsInDic(altSigmc,varList,channels)
 
     #TrueHists dictionary
     #Not needed for RECO plotting, but used to calculate ratio between channels
@@ -1001,18 +1001,18 @@ def getSystValue(hMain):
                 SysDic[sys]['ggZZXsec'].Add(hErrGX)
 
         #generator choice
-        hAltSigNominal = hAltSigDic[chan][variable].Clone()
-        hAltSigNominal=rebin(hAltSigNominal,variable)
-        for sys in ['Up','Down']:
-            hErrGr = hAltSigNominal.Clone()
-            hErrGr.Add(hSigNominal,-1)
-            hErrGr.SetDirectory(0)
+        #hAltSigNominal = hAltSigDic[chan][variable].Clone()
+        #hAltSigNominal=rebin(hAltSigNominal,variable)
+        #for sys in ['Up','Down']:
+        #    hErrGr = hAltSigNominal.Clone()
+        #    hErrGr.Add(hSigNominal,-1)
+        #    hErrGr.SetDirectory(0)
 
-            if chan == channels[0]:
-                SysDic[sys]['generator'] = hErrGr
-                
-            else:
-                SysDic[sys]['generator'].Add(hErrGr)
+        #    if chan == channels[0]:
+        #        SysDic[sys]['generator'] = hErrGr
+        #        
+        #    else:
+        #        SysDic[sys]['generator'].Add(hErrGr)
         
         #lumi
         if year == "2016":
