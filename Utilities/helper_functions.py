@@ -187,6 +187,10 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
                 lines = ["Events with #geq 2 jets"]
             else:
                 lines = ["Events with #geq 2 jets"]
+            #Fix for 6.32 Latex rendering issue, adds negative spacing to offset buggy spacing
+            rootver = [int(x) for x in ROOT.gROOT.GetVersion().split(".")]
+            if rootver[0] == 6 and rootver[1] < 36:
+                lines[0] = lines[0].replace("#geq", "#kern[-0.5]{#geq}")
             
         ymax = coords[3]-0.02
         box_size = 0.05*len(lines)*args.scalelegy*2

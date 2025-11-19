@@ -56,6 +56,7 @@ class ConfigObject:
 
     def setAttributes(self, tObject, attributes):
         functions = []
+        rootver = [int(x) for x in ROOT.gROOT.GetVersion().split(".")]
         for function_call, params in attributes.items():
             if not isinstance(params, list): 
                 params = [params]
@@ -75,6 +76,11 @@ class ConfigObject:
                     else:
                         root_val = self.deepGetattr(ROOT, expr)
                     param = root_val
+                elif param is str and rootver[0] == 6 and rootver[1] < 36:
+                    #Fix for 6.32 Latex rendering issue, adds negative spacing to offset buggy spacing
+                    for symbol in ["rightarrow", "ge"]:
+                        if " #%s" % symbol in param:
+                            param = param.replace(" #%s" % symbol, " #kern[-0.5]{#%s}" % symbol)
                 parsed_params.append(param)
             # If a list of lists of parameters are given, make multiple
             # Calls to the same function with different arguments

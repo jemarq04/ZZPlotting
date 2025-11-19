@@ -105,6 +105,14 @@ class ConfigHistFactory(object):
         plot_group = self.plot_groups[info[plot_group]['plot_group']] \
                 if plot_group not in list(self.plot_groups.keys()) else self.plot_groups[plot_group]
         hist.SetTitle(plot_group['Name'])
+
+        #Fix for 6.32 Latex rendering issue, adds negative spacing to offset buggy spacing
+        rootver = [int(x) for x in ROOT.gROOT.GetVersion().split(".")]
+        if rootver[0] == 6 and rootver[1] < 36:
+            for symbol in ["rightarrow", "ge"]:
+                if " #%s" % symbol in plot_group['Name']:
+                    hist.SetTitle(plot_group['Name'].replace(" #%s" % symbol, " #kern[-0.5]{#%s}" % symbol))
+
         if 'Scale' in list(plot_group.keys()):
             logging.warning("Scaling plot_group %s by %0.2f" % (plot_group['Name'], plot_group['Scale']))
             hist.Scale(plot_group['Scale'])
