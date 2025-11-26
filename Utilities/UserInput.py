@@ -1,6 +1,14 @@
+import os,sys
 import json
 import glob
 import argparse
+import configparser
+
+with open("Templates/config.%s" % os.getlogin()) as fconfig:
+    config = configparser.ConfigParser()
+    config.read_file(fconfig)
+    sys.path.insert(0,config["Setup"]["scriptPath"])
+import ConfigureJobs
 
 def readAllJson(json_file_path):
     json_info = {}
@@ -101,56 +109,7 @@ def getListOfFiles(file_set, selection):
     filelist = []
     for files in [x.strip() for x in file_set.split(",")]:
         fileset_nc = files.lower()
-        if "zz4l2018" in fileset_nc:
-            if "nonprompt" in fileset_nc:
-                filelist.append("HZZ-signal")
-                filelist.append("nonprompt")
-                filelist.append("VVV")
-                filelist.append("qqZZ-powheg")
-                filelist.append("ggZZ")
-                filelist.append("zzjj4l-ewk")
-            else:
-                if "dyjets-nlo" in fileset_nc:
-                    drellyan = "dyjets_nlo"
-                elif "dylo" in fileset_nc:
-                    drellyan = "dy-lo"
-                else:
-                    drellyan = "dy-jets"
-                filelist.append("ggZZ")
-                filelist.append("qqZZ-powheg")
-                filelist.append("wz3lnu-amcnlo")
-                filelist.append("top")
-                filelist.append(drellyan)
-            #if "nonprompt" in fileset_nc:
-            #    filelist.append("HZZ-signal")
-            #    #filelist.append("nonprompt")
-        elif "zz4l2019" in fileset_nc:
-            if "nonprompt" in fileset_nc:
-                filelist.append("HZZ-signal")
-                filelist.append("VVV")
-                filelist.append("nonprompt")
-                filelist.append("ggZZ")
-                filelist.append("qqZZ-powheg")
-            else:
-                if "dyjets-nlo" in fileset_nc:
-                    drellyan = "dyjets_nlo"
-                elif "dylo" in fileset_nc:
-                    drellyan = "dy-lo"
-                else:
-                    drellyan = "dy-jets"
-                filelist.append("ggZZ")
-                filelist.append("qqZZ-powheg")
-                #filelist.append("wz3lnu-amcnlo")
-                filelist.append("wz3lnu-powheg")#New Ntupples has powheg sample
-                filelist.append("top")
-                filelist.append(drellyan)
-                #filelist.append("wz3lnu-amcnlo")
-                #filelist.append("top")
-                #filelist.append(drellyan)
-            #if "nonprompt" in fileset_nc:
-            #    filelist.append("HZZ-signal")
-            #    #filelist.append("nonprompt")
-        elif "jetplot" in fileset_nc:
+        if "jetplot" in fileset_nc:
                 #print("Data only")
                 filelist.append("nonprompt")
                 #filelist.append("ggZZSpecg")
@@ -186,7 +145,7 @@ def getListOfFiles(file_set, selection):
                     filelist.append("nonprompt")
                     filelist.append("VVV")
                     filelist.append("ggZZ")
-        elif any("zz4l%s" % year in fileset_nc for year in ["2022", "2023", "2024", "run3combined"]):
+        elif any("zz4l%s" % year in fileset_nc for year in ConfigureJobs.getLumiMap().keys()):
                 if "nonprompt" in fileset_nc:
                     filelist.append("top")
                     filelist.append("wz3lnu-powheg")

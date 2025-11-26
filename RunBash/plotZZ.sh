@@ -1,9 +1,6 @@
 if [[ $# -lt 1 ]]; then
   echo "usage: $0 YEAR [INFILE]"
   exit 1
-elif [[ ! $1 =~ ^202[2-4]$ && ! $1 = Run3Combined ]]; then
-  echo invalid year: $1
-  exit 1
 fi
 
 analysis="ZZ4l$1"
@@ -66,7 +63,6 @@ for var in $jetvariables; do
   fi
 done
 
-[[ $1 = 2024 ]] && controlvariables="" #NOTE: Disable 2024 CRs until DY is available
 for var in $controlvariables; do
   for fakes in PPPF PPFF; do
     echo ${var}_${fakes}

@@ -1019,23 +1019,7 @@ def getSystValue(hMain):
         #        SysDic[sys]['generator'].Add(hErrGr)
         
         #lumi
-        if year == "2016":
-            lumiUnc = 0.012
-        elif year == "2017":
-            lumiUnc = 0.023
-        elif year == "2018":
-            lumiUnc = 0.025
-        elif year == "2022":
-            lumiUnc = 0.014
-        elif year == "2023":
-            lumiUnc = 0.013
-        elif year == "2024":
-            lumiUnc = 0.0 #TODO, unavailable at the moment
-        elif year == "Run3Combined":
-            lumiUnc = 0.0 #TODO
-        else:
-            lumiUnc = 0
-            
+        lumiUnc = ConfigureJobs.getLuminosityUncertainty(year)
         lumiScale = {'Up':1.+lumiUnc,'Down':1.-lumiUnc}
         for sys, scale in lumiScale.items():
             hNoFake = hMain.Clone("NoFakeLumi")

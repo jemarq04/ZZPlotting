@@ -431,3 +431,17 @@ def getLuminosity(year, era="", manager_path=""):
         lumi = lumi_info[year]["eras"][era]
 
     return lumi
+
+def getLuminosityUncertainty(year, manager_path=""):
+    if manager_path == "":
+        manager_path = getManagerPath()
+    lumi_info = getLumiMap(manager_path)
+
+    if year not in lumi_info:
+        raise ValueError("Invalid year: %s. Must be present in lumi map" % year)
+    if "years" in lumi_info[year]:
+        return 0.0 #TODO
+    elif "unc" not in lumi_info[year]:
+        raise ValueError("No uncertainty for year: %s. Must be present in lumi map" % year)
+
+    return lumi_info[year]["unc"]
