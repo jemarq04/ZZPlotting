@@ -145,7 +145,7 @@ def getListOfFiles(file_set, selection):
                     filelist.append("nonprompt")
                     filelist.append("VVV")
                     filelist.append("ggZZ")
-        elif any("zz4l%s" % year in fileset_nc for year in ConfigureJobs.getLumiMap().keys()):
+        elif any("zz4l%s" % year.lower() in fileset_nc for year in ConfigureJobs.getLumiMap().keys()):
                 if "nonprompt" in fileset_nc:
                     filelist.append("top")
                     filelist.append("wz3lnu-powheg")
