@@ -110,20 +110,12 @@ def getListOfFiles(file_set, selection):
     for files in [x.strip() for x in file_set.split(",")]:
         fileset_nc = files.lower()
         if "jetplot" in fileset_nc:
-                #print("Data only")
                 filelist.append("nonprompt")
-                #filelist.append("ggZZSpecg")
-                #filelist.append("ggZZSpecgH")
-                filelist.append("qqZZjj-ewk") #EWK
-                filelist.append("HZZ-signal")
+                filelist.append("qqZZjj-ewk")
                 filelist.append("VVV")
                 filelist.append("ggZZ")
-                #filelist.append("qqZZSpecg")
-                #filelist.append("qqZZ-amcnlo")
                 filelist.append("qqZZ-powheg")
-                #filelist.append("ggHZZ-only")
-                #filelist.append("EWK-Extra4lg")
-                #filelist.append("EWK-Extra2e2mujjg")
+                filelist.append("HZZ-signal")
         elif "zzeft" in fileset_nc:
                 draw_all = "all" in fileset_nc
                 if "smfull" in fileset_nc:
