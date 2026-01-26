@@ -1,6 +1,7 @@
 import abc
 import array
 
+
 class HistProducer(object, metaclass=abc.ABCMeta):
     def __init__(self, weight_info):
         self.weight_info = weight_info
@@ -11,25 +12,25 @@ class HistProducer(object, metaclass=abc.ABCMeta):
             return 1
         if self.getSumOfWeights() <= 0:
             raise ValueError("Found non-positive sum of weights")
-        #pdb.set_trace()
-        #if abs(self.weight_info.getCrossSection()-0.00584*1.53)<0.000001:
+        # pdb.set_trace()
+        # if abs(self.weight_info.getCrossSection()-0.00584*1.53)<0.000001:
         #    return self.weight_info.getCrossSection()*self.lumi/(6216.00740357+6798.63211242+6798.8828435)
-        #else:
-        return self.getCrossSection()*self.lumi/self.getSumOfWeights()
+        # else:
+        return self.getCrossSection() * self.lumi / self.getSumOfWeights()
 
-    def getCrossSection(self, units='pb'):
+    def getCrossSection(self, units="pb"):
         xsec = self.weight_info.getCrossSection()
-        if xsec != 1 and units == 'pb':
+        if xsec != 1 and units == "pb":
             xsec *= 1000
         return xsec
 
     def getSumOfWeights(self):
         return self.weight_info.getSumOfWeights()
 
-    def setLumi(self, lumi, units='fb-1'):
-        if units == 'pb-1':
+    def setLumi(self, lumi, units="fb-1"):
+        if units == "pb-1":
             lumi *= 1000
-        elif units != 'fb-1':
+        elif units != "fb-1":
             raise ValueError("Invalid luminosity units! Options are 'pb-1' and 'fb-1'")
         self.lumi = lumi if lumi > 0 else 1
 
@@ -41,8 +42,8 @@ class HistProducer(object, metaclass=abc.ABCMeta):
         elif len(binning) == 1:
             hist.Rebin(int(binning[0]))
         else:
-            bins = array.array('d', binning)
-            hist = hist.Rebin(len(bins)-1, "", bins)
+            bins = array.array("d", binning)
+            hist = hist.Rebin(len(bins) - 1, "", bins)
         return hist
 
     @abc.abstractmethod

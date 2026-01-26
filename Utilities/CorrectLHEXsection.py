@@ -8,11 +8,13 @@ from collections import OrderedDict
 import re
 
 import configparser
+
 with open("Templates/config.%s" % os.getlogin()) as fconfig:
     config = configparser.ConfigParser()
     config.read_file(fconfig)
-    sys.path.insert(0,config["Setup"]["scriptPath"])
+    sys.path.insert(0, config["Setup"]["scriptPath"])
 import ConfigureJobs
+
 
 def main():
     print("Deprecated - no use for this")
@@ -57,60 +59,65 @@ def main():
         if not os.path.isdir(os.path.join(lhe_dir, sample)):
             parser.error("Sample dir not found in LHE storage: %s" % sample)
         xsec = getXsecFromFiles(glob.glob(os.path.join(lhe_dir, sample, "*.lhe")), args.id)[args.id]
-        print("%s: %s -> %s" % (sample, info[sample]["cross_section"] if "cross_section" in info[sample] else "''", xsec))
+        print(
+            "%s: %s -> %s" % (sample, info[sample]["cross_section"] if "cross_section" in info[sample] else "''", xsec)
+        )
         info[sample]["cross_section"] = xsec
 
     with open(filepath, "w") as outfile:
         json.dump(info, outfile, indent=4)
     print("Finish calculating LHE cross sections")
 
+
 def getXsecFromFiles(filelist, wids, verbose=False):
-  if verbose:
-    print("Calculating total cross sections...\n")
-  sums = None
-  for f in filelist:
-    if sums is None:
-      sums = getXsecFromFile(f, wids)
-    else:
-      temp = getXsecFromFile(f, wids)
-      for key in list(sums.keys()):
-        sums[key] += temp[key]
-
-  if verbose:
-    print("WeightID CrossSection")
-  for key in list(sums.keys()):
-    #sums[key] /= len(filelist)
     if verbose:
-      print("%07s %.06f" % (key, sums[key]))
+        print("Calculating total cross sections...\n")
+    sums = None
+    for f in filelist:
+        if sums is None:
+            sums = getXsecFromFile(f, wids)
+        else:
+            temp = getXsecFromFile(f, wids)
+            for key in list(sums.keys()):
+                sums[key] += temp[key]
 
-  return sums
+    if verbose:
+        print("WeightID CrossSection")
+    for key in list(sums.keys()):
+        # sums[key] /= len(filelist)
+        if verbose:
+            print("%07s %.06f" % (key, sums[key]))
+
+    return sums
+
 
 def getXsecFromFile(filepath, wids, verbose=False):
-  # filename = path to input LHE file
-  # wids = comma-separated list of weight IDs (or "all")
-  if verbose:
-    print("Reading cross sections...\n")
+    # filename = path to input LHE file
+    # wids = comma-separated list of weight IDs (or "all")
+    if verbose:
+        print("Reading cross sections...\n")
 
-  if not os.path.exists(filepath) or not filepath.endswith(".lhe"):
-    raise ValueError("Invalid file", filepath)
+    if not os.path.exists(filepath) or not filepath.endswith(".lhe"):
+        raise ValueError("Invalid file", filepath)
 
-  if verbose:
-    print("WeightID CrossSection")
-  sums = {}
-  with open(filepath, "r") as lhe:
-    text = lhe.read()
-    if wids == "all":
-      regex = re.compile(r'<weight id="(.*?)"')
-      wids = ",".join([match.group(1) for match in regex.finditer(text)])
-    for wid in wids.split(","):
-      regex = re.compile(r"<wgt id='%s'> ([\d\.E\+\-]+) </wgt>\s*\n" % wid)
-      results = [float(match.group(1)) for match in regex.finditer(text)]
-      sums[wid] = 0.
-      for wgt in results:
-        sums[wid] += wgt
-      if verbose:
-        print("%07s %.06f" % (wid, sums[wid]))
-  return sums
+    if verbose:
+        print("WeightID CrossSection")
+    sums = {}
+    with open(filepath, "r") as lhe:
+        text = lhe.read()
+        if wids == "all":
+            regex = re.compile(r'<weight id="(.*?)"')
+            wids = ",".join([match.group(1) for match in regex.finditer(text)])
+        for wid in wids.split(","):
+            regex = re.compile(r"<wgt id='%s'> ([\d\.E\+\-]+) </wgt>\s*\n" % wid)
+            results = [float(match.group(1)) for match in regex.finditer(text)]
+            sums[wid] = 0.0
+            for wgt in results:
+                sums[wid] += wgt
+            if verbose:
+                print("%07s %.06f" % (wid, sums[wid]))
+    return sums
+
 
 if __name__ == "__main__":
     main()

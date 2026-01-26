@@ -4,11 +4,11 @@ from .WeightInfo import WeightInfo
 import logging
 import math
 
+
 class WeightedHistProducer(HistProducer):
     def __init__(self, weight_info, weight_branch=""):
         super(WeightedHistProducer, self).__init__(weight_info)
-        self.event_weight = self.getCrossSection()/self.getSumOfWeights() \
-            if self.getSumOfWeights() > 0 else 0
+        self.event_weight = self.getCrossSection() / self.getSumOfWeights() if self.getSumOfWeights() > 0 else 0
         self.cut_string = ""
         self.weight_branch = weight_branch
 
@@ -31,8 +31,9 @@ class WeightedHistProducer(HistProducer):
         if cut_string == "":
             cut_string = self.cut_string
         append_cut = lambda x: "*(%s)" % x if x != "" else x
-        weight_string = "*".join([str(self.event_weight), str(self.lumi)] +
-            ([self.weight_branch] if self.weight_branch != "" else []))
+        weight_string = "*".join(
+            [str(self.event_weight), str(self.lumi)] + ([self.weight_branch] if self.weight_branch != "" else [])
+        )
         draw_cut = weight_string + append_cut(cut_string)
         logging.debug("Draw cut is %s" % draw_cut)
         logging.debug("Draw expression is %s" % draw_expr)
@@ -40,31 +41,41 @@ class WeightedHistProducer(HistProducer):
         proof.DrawSelect(proof_path, draw_expr, draw_cut, "goff", -1)
         hist_name = draw_expr.split(">>")[1].split("(")[0]
         hist = proof.GetOutputList().FindObject(hist_name)
-        ROOT.SetOwnership(hist,False)
-        #embed()
+        ROOT.SetOwnership(hist, False)
+        # embed()
         if not hist:
-            raise ValueError('\n'.join(["Empty histogram produced!",
-                "\tProof path was %s:" % proof_path,
-                "\tDraw expression was: %s" % draw_expr,
-                "\tCut string was: %s" % cut_string,
-                "\tWeight string was: %s" % weight_string]))
+            raise ValueError(
+                "\n".join(
+                    [
+                        "Empty histogram produced!",
+                        "\tProof path was %s:" % proof_path,
+                        "\tDraw expression was: %s" % draw_expr,
+                        "\tCut string was: %s" % cut_string,
+                        "\tWeight string was: %s" % weight_string,
+                    ]
+                )
+            )
         if not hist.GetSumw2():
             hist.Sumw2()
         if overflow:
             # Returns num bins + overflow + underflow
             num_bins = hist.GetSize() - 2
             add_overflow = hist.GetBinContent(num_bins) + hist.GetBinContent(num_bins + 1)
-            add_error = math.sqrt(math.pow(hist.GetBinError(num_bins),2)+math.pow(hist.GetBinError(num_bins+1),2))
+            add_error = math.sqrt(math.pow(hist.GetBinError(num_bins), 2) + math.pow(hist.GetBinError(num_bins + 1), 2))
             hist.SetBinContent(num_bins, add_overflow)
             hist.SetBinError(num_bins, add_error)
         return hist
+
+
 # For testing
 def main():
-    root_file = ROOT.TFile("/afs/cern.ch/user/k/kelong/work/DibosonMCAnalysis/ZZTo4LNu0j_5f_NLO_FXFX/MG5aMCatNLO_ZZTo4LNu0j_muMass_pythia8_TuneCUETP8M1_Ntuple.root")
+    root_file = ROOT.TFile(
+        "/afs/cern.ch/user/k/kelong/work/DibosonMCAnalysis/ZZTo4LNu0j_5f_NLO_FXFX/MG5aMCatNLO_ZZTo4LNu0j_muMass_pythia8_TuneCUETP8M1_Ntuple.root"
+    )
     metaTree = root_file.Get("analyzeZZ/MetaData")
     weight_info = WeightInfo.WeightInfoProducer(metaTree, "inputXSection", "inputSumWeights").produce()
 
-    ntuple =root_file.Get("analyzeZZ/Ntuple")
+    ntuple = root_file.Get("analyzeZZ/Ntuple")
     histProducer = WeightedHistProducer(ntuple, weight_info, "weight")
 
     canvas = ROOT.TCanvas("canvas", "canvas", 600, 800)
@@ -80,5 +91,7 @@ def main():
     histProducer.produce(hist, "Z1mass", "Z1mass < 100")
     hist.Draw("hist")
     canvas.Print("test3.pdf")
+
+
 if __name__ == "__main__":
     main()

@@ -4,11 +4,13 @@ import os
 import sys
 
 import configparser
+
 with open("Templates/config.%s" % os.getlogin()) as fconfig:
     config = configparser.ConfigParser()
     config.read_file(fconfig)
-    sys.path.insert(0,config["Setup"]["scriptPath"])
+    sys.path.insert(0, config["Setup"]["scriptPath"])
 import ConfigureJobs
+
 
 def main():
     DESC = ""
@@ -30,6 +32,7 @@ def main():
         parser.error("invalid precision value. must be >0")
 
     print(" ".join(ConfigureJobs.getLHEWeightIDs(args.sample, args.analysis, args.precision)))
+
 
 if __name__ == "__main__":
     main()

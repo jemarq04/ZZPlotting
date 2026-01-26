@@ -2,6 +2,7 @@ import ROOT
 from .HistProducer import HistProducer
 import math
 
+
 class FromFileHistProducer(HistProducer):
     def __init__(self, weight_info, hist_file=None):
         super(FromFileHistProducer, self).__init__(weight_info)
@@ -18,33 +19,33 @@ class FromFileHistProducer(HistProducer):
         if not hist:
             raise ValueError("Hist %s not found in file %s" % (hist_name, self.hist_file))
 
-        #Calling Sumw2 below just in case, but using the conditional to avoid a Warning on failures
+        # Calling Sumw2 below just in case, but using the conditional to avoid a Warning on failures
         if not (hist.GetSumw2N() == hist.GetNcells() and not ROOT.TH1.GetDefaultSumw2()):
             hist.Sumw2()
-        #pdb.set_trace()
+        # pdb.set_trace()
         hist.Scale(self.getHistScaleFactor())
         # This causes GetEntries() to return 1 greater than the "actual"
         # number of entries in the hist
         hist = self.rebin(hist, binning)
-        #pdb.set_trace()
+        # pdb.set_trace()
         if overflow:
             num_bins = hist.GetSize() - 2
             add_overflow = hist.GetBinContent(num_bins) + hist.GetBinContent(num_bins + 1)
-            add_error = math.sqrt(math.pow(hist.GetBinError(num_bins),2)+math.pow(hist.GetBinError(num_bins+1),2))
+            add_error = math.sqrt(math.pow(hist.GetBinError(num_bins), 2) + math.pow(hist.GetBinError(num_bins + 1), 2))
             hist.SetBinContent(num_bins, add_overflow)
             hist.SetBinError(num_bins, add_error)
 
         if "Mass" in hist_name and "Full" in hist_name:
-            #pdb.set_trace()
-            normBW = True #Set False when printing table and don't want to normalize by BW
+            # pdb.set_trace()
+            normBW = True  # Set False when printing table and don't want to normalize by BW
             if normBW:
-                #hist.Sumw2()
-                for ib in range(1,hist.GetNbinsX()+1):
+                # hist.Sumw2()
+                for ib in range(1, hist.GetNbinsX() + 1):
                     width = hist.GetBinWidth(ib)
-                    hist.SetBinContent(ib, hist.GetBinContent(ib)/width)
-                    hist.SetBinError(ib, hist.GetBinError(ib)/ width)
+                    hist.SetBinContent(ib, hist.GetBinContent(ib) / width)
+                    hist.SetBinError(ib, hist.GetBinError(ib) / width)
                     if hist.GetBinError(ib) > hist.GetBinContent(ib):
                         hist.SetBinError(ib, hist.GetBinContent(ib))
-                #hist.Sumw2() #This doesn't seem to overwrite error? What's its function?
+                # hist.Sumw2() #This doesn't seem to overwrite error? What's its function?
 
         return hist
