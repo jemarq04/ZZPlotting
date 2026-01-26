@@ -1,8 +1,6 @@
 import ROOT
 from .HistProducer import HistProducer
-import logging,pdb
 import math
-from IPython import embed
 import re
 
 class FromFileLHEHistProducer(HistProducer):
@@ -14,9 +12,9 @@ class FromFileLHEHistProducer(HistProducer):
     def setHistFile(self, hist_file):
         self.hist_file = hist_file
         if not self.hist_file:
-            raise ValueError("Invalid file " % file_name)
+            raise ValueError("Invalid file %s" % hist_file)
 
-    def produce(self, hist_name, overflow=False, binning=None): 
+    def produce(self, hist_name, overflow=False, binning=None):
         if "_" in hist_name:
             subnames = re.findall(r"(.*)_(.*)", hist_name)[0]
             whist_name = "_".join([subnames[0], "lheWeights", subnames[1]])
@@ -50,9 +48,10 @@ class FromFileLHEHistProducer(HistProducer):
         ROOT.SetOwnership(hist, False)
         if not hist:
             raise ValueError("Hist %s not found in file %s" % (hist_name, self.hist_file))
-        
+
         #Calling Sumw2 below just in case, but using the conditional to avoid a Warning on failures
-        if not (hist.GetSumw2N() == hist.GetNcells() and not hist.GetDefaultSumw2()): hist.Sumw2()
+        if not (hist.GetSumw2N() == hist.GetNcells() and not hist.GetDefaultSumw2()):
+            hist.Sumw2()
         #pdb.set_trace()
         #print("NOTE: ==> Scale factor = %s" % self.getHistScaleFactor())
         #print("NOTE: ==> Xsec, WgtSum = %s, %s" % (self.getCrossSection('fb'), self.getSumOfWeights()))
@@ -68,7 +67,7 @@ class FromFileLHEHistProducer(HistProducer):
             add_error = math.sqrt(math.pow(hist.GetBinError(num_bins),2)+math.pow(hist.GetBinError(num_bins+1),2))
             hist.SetBinContent(num_bins, add_overflow)
             hist.SetBinError(num_bins, add_error)
-        
+
         if "Mass" in hist_name and "Full" in hist_name:
             #pdb.set_trace()
             normBW = True #Set False when printing table and don't want to normalize by BW
@@ -81,6 +80,5 @@ class FromFileLHEHistProducer(HistProducer):
                     if hist.GetBinError(ib) > hist.GetBinContent(ib):
                         hist.SetBinError(ib, hist.GetBinContent(ib))
                 #hist.Sumw2() #This doesn't seem to overwrite error? What's its function?
-        
-        return hist
 
+        return hist

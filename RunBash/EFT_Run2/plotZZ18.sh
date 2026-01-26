@@ -1,3 +1,5 @@
+#!/bin/bash
+
 #filename="Hists02May2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (2e2mu)
 filename="Hists30Jun2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm - 100K unweighted
 filename="Hists28Jun2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm - 100K
@@ -30,7 +32,7 @@ for restrict in $params; do
     echo $wids
     continue
   fi
-  for wid in $wids; do 
+  for wid in $wids; do
     foundwid=false
     if [[ "$weightID" != "all" ]]; then
       widdiff=$(bc -l <<< "$weightID - $wid")

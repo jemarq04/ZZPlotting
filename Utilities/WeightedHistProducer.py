@@ -1,7 +1,8 @@
 import ROOT
 from .HistProducer import HistProducer
+from .WeightInfo import WeightInfo
 import logging
-from IPython import embed
+import math
 
 class WeightedHistProducer(HistProducer):
     def __init__(self, weight_info, weight_branch=""):
@@ -13,7 +14,7 @@ class WeightedHistProducer(HistProducer):
 
     def setWeightBranch(self, weight_branch):
         self.weight_branch = weight_branch
-    
+
     def setCutString(self, cut_string):
         self.cut_string = cut_string
 
@@ -24,7 +25,7 @@ class WeightedHistProducer(HistProducer):
         else:
             self.weight_branch = weight
 
-    def produce(self, draw_expr, proof_path="", overflow=False, cut_string=""): 
+    def produce(self, draw_expr, proof_path="", overflow=False, cut_string=""):
         proof = ROOT.gProof
         print("PROOF PATH IS", proof_path)
         if cut_string == "":
@@ -47,7 +48,8 @@ class WeightedHistProducer(HistProducer):
                 "\tDraw expression was: %s" % draw_expr,
                 "\tCut string was: %s" % cut_string,
                 "\tWeight string was: %s" % weight_string]))
-        if not hist.GetSumw2(): hist.Sumw2()
+        if not hist.GetSumw2():
+            hist.Sumw2()
         if overflow:
             # Returns num bins + overflow + underflow
             num_bins = hist.GetSize() - 2
@@ -63,14 +65,14 @@ def main():
     weight_info = WeightInfo.WeightInfoProducer(metaTree, "inputXSection", "inputSumWeights").produce()
 
     ntuple =root_file.Get("analyzeZZ/Ntuple")
-    histProducer = WeightedHistProducer(ntuple, weight_info, "weight")  
-    
+    histProducer = WeightedHistProducer(ntuple, weight_info, "weight")
+
     canvas = ROOT.TCanvas("canvas", "canvas", 600, 800)
     hist = ROOT.TH1F("hist", "hist", 60, 60, 120)
     histProducer.produce(hist, "Z1mass", "", 1000)
     hist.Draw("hist")
     canvas.Print("test1.pdf")
-    
+
     histProducer.produce(hist, "Z1mass", "Z1mass < 120 && Z1mass > 60")
     hist.Draw("hist")
     canvas.Print("test2.pdf")

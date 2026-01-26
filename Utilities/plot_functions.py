@@ -1,18 +1,12 @@
-import math
 import ROOT
-import glob
-import os
-import logging
-import re
-from IPython import embed
 
 def getHistFromFile(root_file, name_in_file, rename, path_to_hist):
     if not root_file:
-        print('Failed to open %s' % file)
+        print('Failed to open %s' % root_file)
         exit(0)
-    hist = ROOT.TH1D()   
+    hist = ROOT.TH1D()
     if path_to_hist != "":
-        name_in_file = path_to_hist.join(["/", name_in_file]) 
+        name_in_file = path_to_hist.join(["/", name_in_file])
     hist = root_file.Get(name_in_file)
     if not hist:
         print('Failed to get hist %s from file' % name_in_file)
@@ -27,7 +21,7 @@ def loadHistFromChain(hist, file_list, path_to_tree, branch_name,
     for file_name in file_list:
         tree.Add(file_name)
     loadHist(hist, tree, branch_name, cut_string, max_entries, append)
-def loadHistFromTree(hist, root_file, path_to_tree, branch_name, 
+def loadHistFromTree(hist, root_file, path_to_tree, branch_name,
                      cut_string, max_entries, append=False):
     if not root_file:
         print('Failed to open %s' % root_file)
@@ -38,11 +32,11 @@ def loadHist(hist, tree, branch_name, cut_string, max_entries, append=False):
     if not tree:
         print('Failed to get tree from file')
         exit(0)
-    hist.GetDirectory().cd() 
+    hist.GetDirectory().cd()
     hist_name = "".join(["+ " if append else "", hist.GetName()])
     print("name is %s" % hist_name)
     old_num = hist.GetEntries()
-    num = tree.Draw(branch_name + ">>" + hist_name, 
+    num = tree.Draw(branch_name + ">>" + hist_name,
             cut_string,
             "",
             max_entries if max_entries > 0 else 1000000000)
@@ -113,10 +107,10 @@ def splitCanvas(oldcanvas, dimensions, ratio_text, ratio_range):
         ratioGraph = ROOT.TGraphAsymmErrors(ratioHist)
         ratioHists = [ratioGraph]
         for i in range(1, tmpData.GetNbinsX()+2):
-            if centralRatioHist.GetBinContent(i) == 0: 
+            if centralRatioHist.GetBinContent(i) == 0:
                 continue
             errorUp = (tmpData.GetBinContent(i)+tmpData.GetBinErrorUp(i))/centralRatioHist.GetBinContent(i)
-            errorUp -= ratioHist.GetBinContent(i) 
+            errorUp -= ratioHist.GetBinContent(i)
             errorDown = (tmpData.GetBinContent(i)-tmpData.GetBinErrorLow(i))/centralRatioHist.GetBinContent(i)
             errorDown = ratioHist.GetBinContent(i) - errorDown
             ratioGraph.SetPointEYhigh(i-1, errorUp)
@@ -127,13 +121,15 @@ def splitCanvas(oldcanvas, dimensions, ratio_text, ratio_range):
             ratioHist.Divide(centralHist)
             for i in range(ratioHist.GetNbinsX()+2):
                 denom = tmpRatio.GetBinContent(i)
-                if denom == 0: continue
+                if denom == 0:
+                    continue
                 ratioHist.SetBinError(i, tmpRatio.GetBinError(i)/denom)
             ratioHist.Sumw2()
             del tmpRatio
     for i in range(centralRatioHist.GetNbinsX()+2):
         denom = centralHist.GetBinContent(i)
-        if denom == 0: continue
+        if denom == 0:
+            continue
         centralRatioHist.SetBinError(i, centralHist.GetBinError(i)/denom)
         centralRatioHist.SetBinContent(i, 1.)
     stack_hists[0].GetXaxis().Copy(centralRatioHist.GetXaxis())
@@ -175,8 +171,8 @@ def splitCanvas(oldcanvas, dimensions, ratio_text, ratio_range):
     stackPad.Modified()
     isLong = stackPad.GetWw()/stackPad.GetWh() > 1.1
     recursePrimitives(ratioPad, fixFontSize, 1/0.27, 0.85 if isLong else 1.15)
-    yaxis_ratio = centralRatioHist.GetYaxis()
-    #yaxis_ratio.SetTitleOffset(.3) 
+    #yaxis_ratio = centralRatioHist.GetYaxis()
+    #yaxis_ratio.SetTitleOffset(.3)
     if "unrolled" in name:
         xaxis.SetLabelSize(0.172)
         xaxis.SetLabelOffset(0.027)
@@ -206,12 +202,12 @@ def recursePrimitives(tobject, function, *fargs) :
         if hasattr(tobject, 'Get'+child) :
             childCall = getattr(tobject, 'Get'+child)
             recursePrimitives(childCall(), function, *fargs)
-    checkForZ = not 'TH1' in tobject.ClassName() and not \
+    checkForZ = 'TH1' not in tobject.ClassName() and not \
         (type(tobject) is ROOT.THStack and tobject.GetHistogram().GetDimension()==1)
     if hasattr(tobject, 'GetZaxis') and checkForZ:
-        childCall = getattr(tobject, 'GetZaxis')
+        childCall = tobject.GetZaxis
         recursePrimitives(childCall(), function, *fargs)
-        
+
 def fixFontSize(item, scale, axisOffsetScale=1) :
     if 'TH' in item.ClassName() :
         return
@@ -234,7 +230,8 @@ def getHistErrors(hist):
     histErrors.SetName(hist.GetName() + "_errors")
     histErrors.SetDirectory(0)
     setErrorsStyle(histErrors)
-    if not histErrors.GetSumw2(): histErrors.Sumw2()
+    if not histErrors.GetSumw2():
+        histErrors.Sumw2()
     histErrors.SetFillStyle(3345)
     histErrors.SetFillColor(ROOT.TColor.GetColor("#a8a8a8"))
     histErrors.SetLineColor(ROOT.TColor.GetColor("#a8a8a8"))
@@ -315,7 +312,7 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     centralRatioHist.SetMarkerSize(0)
 
     #=================================
-    #This part set up the main ratio 
+    #This part set up the main ratio
     switch_ratio = False #if True, use prediction/data instead of data/prediciton like default
     pois_ratio = True
     if compareData:
@@ -340,17 +337,17 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
         for i in range(1, tmpData.GetNbinsX()+2): #don't understand the need for +2
 
             if not switch_ratio:
-                if centralRatioHist.GetBinContent(i) == 0: 
+                if centralRatioHist.GetBinContent(i) == 0:
                     continue
             if switch_ratio:
-                if tmpData.GetBinContent(i) == 0: 
+                if tmpData.GetBinContent(i) == 0:
                     continue
 
             #Don't understand why not just extract errorUp/Down from ratio hist => to preserve poisson error in numerator
 
             if not switch_ratio:
                 errorUp = (tmpData.GetBinContent(i)+tmpData.GetBinErrorUp(i))/centralRatioHist.GetBinContent(i)
-                errorUp -= ratioHist.GetBinContent(i) 
+                errorUp -= ratioHist.GetBinContent(i)
                 errorDown = (tmpData.GetBinContent(i)-tmpData.GetBinErrorLow(i))/centralRatioHist.GetBinContent(i)
                 errorDown = ratioHist.GetBinContent(i) - errorDown
 
@@ -369,16 +366,18 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
             ratioHist.Divide(centralHist)
             for i in range(ratioHist.GetNbinsX()+2):
                 denom = tmpRatio.GetBinContent(i)
-                if denom == 0: continue
+                if denom == 0:
+                    continue
                 ratioHist.SetBinError(i, tmpRatio.GetBinError(i)/denom)
             ratioHist.Sumw2()
             del tmpRatio
-    
+
     #================================================
     #Set centralRaitoHist stat error and set value to 1., doesn't matter now since it is not drawn
     for i in range(centralRatioHist.GetNbinsX()+2):
         denom = centralHist.GetBinContent(i)
-        if denom == 0: continue
+        if denom == 0:
+            continue
         centralRatioHist.SetBinError(i, centralHist.GetBinError(i)/denom)
         centralRatioHist.SetBinContent(i, 1.)
     #================================================
@@ -390,7 +389,7 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
         signal_stacks[0].GetXaxis().Copy(centralRatioHist.GetXaxis())
 
     #==================================================
-    #CentralRatioHist originally used to draw stat error band in ratio 
+    #CentralRatioHist originally used to draw stat error band in ratio
     centralRatioHist.GetYaxis().SetTitle(ratio_text)
     #centralRatioHist.GetYaxis().SetTitleOffset(2)
     centralRatioHist.GetXaxis().SetLabelOffset(0.03)
@@ -402,13 +401,13 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     if "nJets" in varname:
         #centralRatioHist.GetXaxis().SetNdivisions(505)
         centralRatioHist.GetXaxis().CenterLabels(True)
-        #centralRatioHist.GetXaxis().ChangeLabel(4,-1,-1,-1,-1,-1,"#geq 3") 
+        #centralRatioHist.GetXaxis().ChangeLabel(4,-1,-1,-1,-1,-1,"#geq 3")
         if "central" not in varname:
             for num in range(1,4):
                 centralRatioHist.GetXaxis().SetBinLabel(num, str(num-1))
             centralRatioHist.GetXaxis().SetBinLabel(4, "#geq 3")
             centralRatioHist.GetXaxis().SetLabelSize(0.05)
-    
+
     centralRatioHist.GetYaxis().CenterTitle()
     centralRatioHist.GetYaxis().SetRangeUser(*ratio_range)
     centralRatioHist.GetYaxis().SetNdivisions(3)
@@ -458,8 +457,8 @@ def splitCanvasWithSyst(ratioband,oldcanvas, dimensions, ratio_text, ratio_range
     stackPad.Modified()
     isLong = stackPad.GetWw()/stackPad.GetWh() > 1.1
     recursePrimitives(ratioPad, fixFontSize, 1/0.27, 0.85 if isLong else 1.15)
-    yaxis_ratio = centralRatioHist.GetYaxis()
-    #yaxis_ratio.SetTitleOffset(.3) 
+    #yaxis_ratio = centralRatioHist.GetYaxis()
+    #yaxis_ratio.SetTitleOffset(.3)
     if "unrolled" in name:
         xaxis.SetLabelSize(0.172)
         xaxis.SetLabelOffset(0.027)

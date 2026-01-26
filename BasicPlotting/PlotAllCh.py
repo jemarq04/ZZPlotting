@@ -64,8 +64,8 @@ def createMCStack(ch,channels):
     mcSamples = {"DYJetsToLL_M10to50":18610,"DYJetsToLLM-50_ext1":6104,"ggHZZ_ext1":0.01218,"GluGluZZTo2e2mu":0.00319,
             "GluGluZZTo2e2tau":0.00319,"GluGluZZTo2mu2tau": 0.00319,"GluGluZZTo4e":0.00159,"GluGluZZTo4mu":0.00159,
             "ttH_HToZZ_4L_ext1":0.000393,"TTJets-amcatnlo":815.96,"TTTo2L2Nu-powheg":87.31,"WminusHToZZ_ext1":0.000147,
-            "WplusHToZZ_ext1":0.000232,"WZTo3LNu":4.430,"ZHToZZ_4L":0.000668,"ZZTo4L-powheg_ext1":1.256} 
-    #channels = ["eeee/ntuple","eemm/ntuple", "eeee/ntuple"]  
+            "WplusHToZZ_ext1":0.000232,"WZTo3LNu":4.430,"ZHToZZ_4L":0.000668,"ZZTo4L-powheg_ext1":1.256}
+    #channels = ["eeee/ntuple","eemm/ntuple", "eeee/ntuple"]
     MCStack = ROOT.THStack("stack", "stack")
     ROOT.SetOwnership(MCStack, False)
     for mc_Sample in list(mcSamples.keys()):
@@ -101,7 +101,7 @@ def createMCStack(ch,channels):
         MCStack.Add(hnew)
         #print "length is", len(MCStack.GetHists())
         #print hist.Integral()
-        
+
     #ROOT.SetOwnership(MCStack, False)
     for i in MCStack.GetHists(): print(i.GetName(), "Integral is", i.Integral())
     return MCStack
@@ -223,7 +223,7 @@ def stackplot(ch,channels):
     h1.SetMarkerStyle(20)
     h1.SetMarkerSize(0.7)
     h1.Draw("pex0same")
-    
+
     leg = ROOT.TLegend(0.20,0.54,0.48,0.84,"")
     leg.AddEntry(h1,"Data")
     leg.AddEntry(h2, "2017 Background MC Samples")
@@ -281,7 +281,7 @@ def stackplot(ch,channels):
     #axis.Draw()
     #pad2.cd()
     #h3.Draw("ep")
-    c.SaveAs("DataMCPlots_Mar15/ZMass_"+ch+"_m4l_"+Date+".pdf") 
+    c.SaveAs("DataMCPlots_Mar15/ZMass_"+ch+"_m4l_"+Date+".pdf")
     #text = raw_input()
     from IPython import embed
     embed()

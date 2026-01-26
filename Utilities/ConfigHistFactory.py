@@ -6,11 +6,7 @@ import logging
 import os
 import glob
 import array
-try:
-    import configparser
-except:
-    import ConfigParser as configparser
-    #from six.moves import configparser
+import configparser
 
 class ConfigHistFactory(object):
     def __init__(self, dataset_manager_path, dataset_name, object_restrict=""):
@@ -20,25 +16,25 @@ class ConfigHistFactory(object):
         self.config = config_object.ConfigObject(self.info)
         self.mc_info = UserInput.readAllJson('/'.join([self.manager_path, "FileInfo", "montecarlo/montecarlo*.json"]))
         self.data_info = UserInput.readAllJson('/'.join([self.manager_path, "FileInfo", "data/*.json"]))
-        self.styles = UserInput.readJson('/'.join([self.manager_path, 
+        self.styles = UserInput.readJson('/'.join([self.manager_path,
             "Styles", "styles.json"]))
         base_name = self.dataset_name.split("/")[0]
         print("base_name: ", base_name)
         self.plot_groups = self.readAllInSet("PlotGroups", base_name)
-        object_file = '/'.join([self.manager_path,  "PlotObjects", 
+        object_file = '/'.join([self.manager_path,  "PlotObjects",
             ("_".join([self.dataset_name, object_restrict])
                 if object_restrict != "" else self.dataset_name) + ".json"])
-        self.aliases = UserInput.readJson('/'.join([self.manager_path, 
+        self.aliases = UserInput.readJson('/'.join([self.manager_path,
             "Aliases", "%s.json" % base_name]))
-        # Objects can be defined by the default dataset-wide file, 
+        # Objects can be defined by the default dataset-wide file,
         # or by specific selection files
-        if not os.path.isfile(object_file): object_file = object_file.replace(
-                 self.dataset_name, base_name)
+        if not os.path.isfile(object_file):
+            object_file = object_file.replace(self.dataset_name, base_name)
         self.plot_objects = UserInput.readJson(object_file)
     def readAllInSet(self, object_type, base_name):
-        info = UserInput.readJson('/'.join([self.manager_path, 
+        info = UserInput.readJson('/'.join([self.manager_path,
                 object_type, "%s.json" % base_name]))
-        for file_name in glob.glob('/'.join([self.manager_path, 
+        for file_name in glob.glob('/'.join([self.manager_path,
                 object_type, "%s_*.json" % base_name])):
             info.update(UserInput.readJson(file_name))
         return info
@@ -48,7 +44,7 @@ class ConfigHistFactory(object):
         draw_expr = draw_expr.replace(object_name, object_name + ":Iteration$", 1)
         return draw_expr
     def getHistDrawExpr(self, object_name, dataset_name, channel):
-        hist_name = '_'.join([x for x in [dataset_name, channel, object_name] 
+        hist_name = '_'.join([x for x in [dataset_name, channel, object_name]
             if x != ""])
         object_entry = object_name if object_name in self.plot_objects else object_name.split("_")[0]
         hist_info = self.plot_objects[object_entry]['Initialize']
@@ -56,7 +52,7 @@ class ConfigHistFactory(object):
         draw_expr += "(%i,%f,%f)" % (hist_info['nbins'], hist_info['xmin'], hist_info['xmax'])
         return draw_expr
     def get2DHistDrawExpr(self, xobject_name, yobject_name, dataset_name, channel):
-        hist_name = '_'.join([x for x in [dataset_name, channel, xobject_name, yobject_name] 
+        hist_name = '_'.join([x for x in [dataset_name, channel, xobject_name, yobject_name]
             if x != ""])
         xobject_name = xobject_name if xobject_name in self.plot_objects else xobject_name.split("_")[0]
         yobject_name = yobject_name if yobject_name in self.plot_objects else yobject_name.split("_")[0]
@@ -161,6 +157,8 @@ def main():
         "ZZAnalysis", "Zselection")
     draw_expr = test.getHistDrawExpr("l1Pt", "zz4l-powheg", "eeee")
     hist_name = draw_expr.split(">>")[1].split("(")[0]
+    print(hist_name)
+    print(draw_expr)
 
 if __name__ == "__main__":
     main()

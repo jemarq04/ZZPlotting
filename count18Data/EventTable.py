@@ -27,7 +27,7 @@ def readDic(fin):
                 nj = "allj"
             isFull = "Full" in var
             nevt = 0.
-        
+
         if start:
             if "Channels: " in line:
                 chans = line.strip().split("Channels: ")[1]
@@ -42,7 +42,7 @@ def readDic(fin):
             for mc in MC:
                 if mc in line:
                     if not isFull: # only 1 line to read per MC
-                        mcstr = ": weighted events" 
+                        mcstr = ": weighted events"
                         nevt = float(line.strip().split(mcstr)[1])
                         #pdb.set_trace()
                         dict[nj][channel][mc].append(nevt)
@@ -51,10 +51,10 @@ def readDic(fin):
                         #this should append in correct order since first process Massxj then MassxjFull
                         if " 80-100 GeV " in line:
                             nevt = float(line.strip().split(" 80-100 GeV ")[1])
-                            dict[nj][channel][mc].append(nevt) 
+                            dict[nj][channel][mc].append(nevt)
                         if " 120-130 GeV " in line:
                             nevt = float(line.strip().split(" 120-130 GeV ")[1])
-                            dict[nj][channel][mc].append(nevt) 
+                            dict[nj][channel][mc].append(nevt)
 
             if "data" in line:
                 if not isFull:
@@ -65,10 +65,10 @@ def readDic(fin):
                 if isFull:
                     if " 80-100 GeV" in line:
                         nevt = int(line.strip().split(" 80-100 GeV: ")[1])
-                        dict[nj][channel]["data"].append(nevt) 
+                        dict[nj][channel]["data"].append(nevt)
                     if " 120-130 GeV" in line:
                         nevt = int(line.strip().split(" 120-130 GeV: ")[1])
-                        dict[nj][channel]["data"].append(nevt) 
+                        dict[nj][channel]["data"].append(nevt)
                         start = False
 
     return dict
@@ -80,7 +80,7 @@ def printTable(fout,fout2,dic,yr):
     else:
         year = "20"+yr
 
-    fout.write("\\begin{table}[htbp]"+"\n") 
+    fout.write("\\begin{table}[htbp]"+"\n")
     fout.write("\\centering"+"\n")
     fout.write("\\topcaption{The observed and expected yields of %s $\cPZ\cPZ$ events in different mass ranges,\
     and estimated yields of background\
@@ -91,11 +91,11 @@ def printTable(fout,fout2,dic,yr):
 
     #Table 1, split by channels and mass range
     fout.write("\\begin{tabular}{ |l|c|c|c| } "+"\n")
-    fout.write("\\hline"+"\n")         
+    fout.write("\\hline"+"\n")
     fout.write("       Process       & $80< m_{4\\ell} < 100 GeV$  & $60<m_{\cPZ_1},m_{\cPZ_2}<120 GeV$  & $120< m_{4l} < 130 GeV$ \\\\"+"\n")
-    fout.write("\\hline"+"\n")  
+    fout.write("\\hline"+"\n")
 
-    
+
     for chan in ["eeee","eemm","mmmm","allchan"]:
         if chan =="allchan":
             chanPrint = "$4\\ell$"
@@ -110,7 +110,7 @@ def printTable(fout,fout2,dic,yr):
 
         for i,mc in enumerate(MC):
             eon,eZ,eH = dic["allj"][chan][mc]
-            
+
             eon_tot += eon
             eZ_tot += eZ
             eH_tot += eH
@@ -121,7 +121,7 @@ def printTable(fout,fout2,dic,yr):
 
             if i ==1 or mc == MC[-1]:
                 fout.write("\\hline"+"\n")
-        
+
         eon_tot,eZ_tot,eH_tot = [round(x,1) for x in [eon_tot,eZ_tot,eH_tot]]
         fout.write("  Total expected       &  %s            &  %s             &  %s            \\\\"%(eZ_tot,eon_tot,eH_tot)+"\n")
 
@@ -144,13 +144,13 @@ def printTable(fout,fout2,dic,yr):
     }"%year+"\n")
 
     fout2.write("\\begin{tabular}{ |l|c|c|c| } "+"\n")
-    fout2.write("\\hline"+"\n")         
+    fout2.write("\\hline"+"\n")
     fout2.write("       Process       & $80< m_{4\\ell} < 100 GeV$  & $60<m_{\cPZ_1},m_{\cPZ_2}<120 GeV$  & $120< m_{4l} < 130 GeV$ \\\\"+"\n")
-    fout2.write("\\hline"+"\n")  
+    fout2.write("\\hline"+"\n")
 
-    
+
     for jm in ["0j","1j","2j","3j","4j"]: #allj included in 4l case
-        
+
         if jm == "allj":
             jmP = "All jets"
         else:
@@ -168,7 +168,7 @@ def printTable(fout,fout2,dic,yr):
 
         for i,mc in enumerate(MC):
             eon,eZ,eH = dic[jm]["allchan"][mc]
-            
+
             eon_tot += eon
             eZ_tot += eZ
             eH_tot += eH
@@ -179,7 +179,7 @@ def printTable(fout,fout2,dic,yr):
 
             if i ==1 or mc == MC[-1]:
                 fout2.write("\\hline"+"\n")
-        
+
         eon_tot,eZ_tot,eH_tot = [round(x,1) for x in [eon_tot,eZ_tot,eH_tot]]
         fout2.write("  Total expected       &  %s            &  %s             &  %s            \\\\"%(eZ_tot,eon_tot,eH_tot)+"\n")
 
@@ -196,11 +196,7 @@ for yr in years:
     with open(yr+"Info.txt") as fin:
         with open(yr+".tex","w") as fout1:
             with open(yr+"_2.tex","w") as fout2:
-                dicyr = readDic(fin) 
+                dicyr = readDic(fin)
                 dicts.append(dicyr)
                 printTable(fout1,fout2,dicyr,yr)
 #print(dicts)
-
-
-
- 

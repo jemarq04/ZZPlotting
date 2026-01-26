@@ -72,7 +72,7 @@ def createDataH1(channels):
 
 def createMCStack(channels,leg):
     mcSamples = {"WZTo3LNu":[4.430,"WZ3LNu"],"TTJets-amcatnlo":[815.96,"top"],"TTTo2L2Nu-powheg":[87.31,"top"],"DYJetsToLL_M10to50":[18610,"dy-jets"],
-            "DYJetsToLLM-50_ext1":[6104,"dy-jets"], 
+            "DYJetsToLLM-50_ext1":[6104,"dy-jets"],
             "GluGluZZTo2e2mu":[0.00319,"ggZZ"],"GluGluZZTo2e2tau":[0.00319,"ggZZ"],"GluGluZZTo2mu2tau":[0.00319,"ggZZ"],
             "GluGluZZTo4e":[0.00159,"ggZZ"],"GluGluZZTo4mu":[0.00159,"ggZZ"],"ZZTo4L-powheg_ext1":[1.256,"qqZZ-powheg"],
             "ttH_HToZZ_4L_ext1":[0.000393,"HZZ-signal"], "WminusHToZZ_ext1":[0.000147,"HZZ-signal"],"ggHZZ_ext1":[0.01218,"HZZ-signal"],
@@ -83,7 +83,7 @@ def createMCStack(channels,leg):
             ("HZZ-signal" , {"Name" : "HZZ","Style" : "fill-lightred","Members" : ["ggHZZ_ext1","ttH_HToZZ_4L_ext1","WminusHToZZ_ext1","WplusHToZZ_ext1","ZHToZZ_4L"]}),
             ("ggZZ", {"Name" : "ggZZ", "Style" : "fill-blue","Members" : ["GluGluZZTo4e","GluGluZZTo4mu","GluGluZZTo2e2mu","GluGluZZTo2e2tau","GluGluZZTo2mu2tau"]}),
             ("dy-jets" , {"Name" : "Drell-Yan","Style" : "fill-green","Members" : ["DYJetsToLL_M10to50","DYJetsToLLM-50_ext1"]}),
-            ("qqZZ-powheg" , {"Name" : "qqZZ","Style" : "fill-lightblue","Members" : ["ZZTo4L-powheg_ext1"]}) 
+            ("qqZZ-powheg" , {"Name" : "qqZZ","Style" : "fill-lightblue","Members" : ["ZZTo4L-powheg_ext1"]})
             ])
 
     styles={"fill-lightpurple" : {"SetFillColor": ROOT.TColor.GetColor("#cab2d6"),"SetLineColor": ROOT.TColor.GetColor("#7E668A")},
@@ -92,7 +92,7 @@ def createMCStack(channels,leg):
             "fill-blue" : {"SetFillColor": ROOT.kBlue,"SetLineColor": ROOT.TColor.GetColor("#00326C")},
             "fill-lightblue" : {"SetFillColor":ROOT.TColor.GetColor("#00bfff") ,"SetLineColor": ROOT.TColor.GetColor("#377eb8")},
             "fill-lightred" : {"SetFillColor":ROOT.TColor.GetColor("#ffa07a") ,"SetLineColor": ROOT.TColor.GetColor("#e41a1c")}}
-    #channels = ["eeee/ntuple","eemm/ntuple", "eeee/ntuple"]  
+    #channels = ["eeee/ntuple","eemm/ntuple", "eeee/ntuple"]
     MCStack = ROOT.THStack("stack", "stack")
     ROOT.SetOwnership(MCStack, False)
     print(list(plotgroups.keys()))
@@ -108,10 +108,10 @@ def createMCStack(channels,leg):
             #print 'mcDir: ',mcDir
             mcFiles=glob(mcDir+"/*.root")
             MetaChain = ROOT.TChain("metaInfo/metaInfo")
-            
+
             for ch in channels:
                 locals()['MCchain_{0}'.format(ch)] = ROOT.TChain(ch+"/ntuple")
-            
+
             for g in mcFiles:
                 for ch in channels:
                     (locals()['MCchain_{0}'.format(ch)]).Add(g)
@@ -130,7 +130,7 @@ def createMCStack(channels,leg):
             #Function to retrieve mZ1 in ch=eemm
                 else:
                     (locals()['MCchain_{0}'.format(ch)]).Draw("(( abs(e1_e2_Mass-91.1876)<abs(m1_m2_Mass-91.1876) ) ? e1_e2_Mass : m1_m2_Mass)>>"+hist_name, "genWeight*(nZZTightIsoElec+nZZTightIsoMu==4)")
-                    #(locals()['MCchain_{0}'.format(ch)]).Draw("(( abs(e1_e2_Mass-91.1876)<abs(m1_m2_Mass-91.1876) ) ? e1_e2_Mass : m1_m2_Mass)>>"+hist_name, "genWeight*(duplicated==0)") 
+                    #(locals()['MCchain_{0}'.format(ch)]).Draw("(( abs(e1_e2_Mass-91.1876)<abs(m1_m2_Mass-91.1876) ) ? e1_e2_Mass : m1_m2_Mass)>>"+hist_name, "genWeight*(duplicated==0)")
                 hist.Sumw2()
                 sumweights_hist = ROOT.TH1D("sumweights", "sumweights", 1,0,100)
                 MetaChain.Draw("1>>sumweights","summedWeights")
@@ -272,7 +272,7 @@ def stackplot(channels):
     leg = ROOT.TLegend(0.20,0.54,0.48,0.84,"")
     leg.AddEntry(h1,"Data")
     hStack = createMCStack(channels,leg)
-    
+
     #Where is this negative stackContent coming from? its possible because of genWeight
     #for i in hStack.GetHists(): print i.GetName(), "BinContent(36) is: ", i.GetBinContent(36)
     h2 = hStack.GetStack().Last()
@@ -294,7 +294,7 @@ def stackplot(channels):
     h1.SetMarkerStyle(20)
     h1.SetMarkerSize(1.0)
     h1.Draw("pex0same")
-    
+
     #leg = ROOT.TLegend(0.20,0.54,0.48,0.84,"")
     #leg.AddEntry(h1,"Data")
     #leg.AddEntry(h2, "2017 Background MC Samples")
@@ -352,7 +352,7 @@ def stackplot(channels):
     #axis.Draw()
     #pad2.cd()
     #h3.Draw("ep")
-    c.SaveAs("DataMCPlots_Mar21/Z1Mass_AllChannels_blinded_4l_Sumw2_"+Date+".pdf") 
+    c.SaveAs("DataMCPlots_Mar21/Z1Mass_AllChannels_blinded_4l_Sumw2_"+Date+".pdf")
     #text = raw_input()
     from IPython import embed
     embed()

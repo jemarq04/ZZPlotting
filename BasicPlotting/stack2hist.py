@@ -12,9 +12,9 @@ variables = ["e1_e2_Mass","m1_m2_Mass"]
 channels = {"eeee":variables[0],"eemm":variables,"mmmm":variables[1]}
 #mcDupCut = ROOT.TCut("duplicated==0")
 Z_MASS = 91.1876
-mcSamples = ["ZZTo4L-powheg"] 
-def createDataH1(ch,channels):    
-    mc2017Files = glob("/data/uhussain/SkimmedZZNtuples_mc_2018-03-06_hadd/2017ZZTo4L/2018-03-06-ZZTo4L-powheg_ext1-ZZ4l2018-preselectionToQCDVeto-v1/*.root") 
+mcSamples = ["ZZTo4L-powheg"]
+def createDataH1(ch,channels):
+    mc2017Files = glob("/data/uhussain/SkimmedZZNtuples_mc_2018-03-06_hadd/2017ZZTo4L/2018-03-06-ZZTo4L-powheg_ext1-ZZ4l2018-preselectionToQCDVeto-v1/*.root")
     tree = ROOT.TChain(ch+"/ntuple")
     meta_tree = ROOT.TChain("metaInfo/metaInfo")
     for f in mc2017Files:
@@ -32,7 +32,7 @@ def createDataH1(ch,channels):
     #Function to retrieve mZ1 in ch=eemm
     else:
         tree.Draw("(( abs(e1_e2_Mass-91.1876)<abs(m1_m2_Mass-91.1876) ) ? e1_e2_Mass : m1_m2_Mass)>>"+data_hist, "genWeight*(nZZTightIsoElec+nZZTightIsoMu==4)")
-    
+
     sumweights_hist = ROOT.TH1D("sumweights", "sumweights", 1,0,100)
     meta_tree.Draw("1>>sumweights","summedWeights")
     sumweights = sumweights_hist.Integral()
@@ -60,8 +60,8 @@ def createDataH1(ch,channels):
     return h2017
 
 def createMCStack(ch,channels):
-    #channels = ["eeee/ntuple","eemm/ntuple", "eeee/ntuple"]  
-    mc2016Files = glob("/data/uhussain/SkimmedZZNtuples_mc_2018-03-06_hadd/2016ZZTo4L/2018-03-15-ZZTo4L-powheg-ZZ4l2017-preselectionToQCDVeto-v1/*.root") 
+    #channels = ["eeee/ntuple","eemm/ntuple", "eeee/ntuple"]
+    mc2016Files = glob("/data/uhussain/SkimmedZZNtuples_mc_2018-03-06_hadd/2016ZZTo4L/2018-03-15-ZZTo4L-powheg-ZZ4l2017-preselectionToQCDVeto-v1/*.root")
     chain = ROOT.TChain(ch+"/ntuple")
     meta_tree = ROOT.TChain("metaInfo/metaInfo")
     for f in mc2016Files:
@@ -88,7 +88,7 @@ def createMCStack(ch,channels):
     hist.Scale((xsec*lumi)/sumweights)
     hist.SetFillColor(ROOT.kBlue)
     #print hist.Integral()
-        
+
     return hist
 def createRatio(h1, h2):
     Nbins = h1.GetNbinsX()
@@ -206,7 +206,7 @@ def stackplot(ch,channels):
     h1.SetMarkerStyle(20)
     h1.SetMarkerSize(0.7)
     h1.Draw("HISTSAME")
-   
+
     leg = ROOT.TLegend(0.20,0.54,0.48,0.84,"")
     leg.AddEntry(h1,"2017 ZZTo4L Bkg")
     leg.AddEntry(h2, "2016 ZZTo4L Bkg")
@@ -242,7 +242,7 @@ def stackplot(ch,channels):
     yaxis.Draw("SAME")
 
     c.Update()
-    c.SaveAs("2016vs2017/ZMass_"+ch+"_ZZTo4L.pdf") 
+    c.SaveAs("2016vs2017/ZMass_"+ch+"_ZZTo4L.pdf")
     #text = raw_input()
     from IPython import embed
     embed()

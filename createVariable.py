@@ -39,7 +39,7 @@ for var in varlist:
         dict[var]["_binning"] = [100.] + [200.+50.*i for i in range(5)] + [500.,600.,800.,1000.]
     else:
         dict[var]["_binning"] = [100.] + [200.+50.*i for i in range(5)] + [500.,600.,800.,1000.]
-        #dict[var]["_binning"] = [100.,200.,400.,600.,1000.] 
+        #dict[var]["_binning"] = [100.,200.,400.,600.,1000.]
     dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%s jets)"%nj
     dict[var]["responseClassNames"] = 'testJet'
 
@@ -59,7 +59,7 @@ for var in varlistFull:
         dict[var]["_binning"] = [80.,100.,120.,130.,180.,230.,300.,450.,600.,800.,1300.]
     dict[var]["prettyVars"] = 'm_{4\\ell}' + "(%s jets)"%nj
     dict[var]["responseClassNames"] = 'testJet'
-#====================================================================================    
+#====================================================================================
 
 #jet variables=======================================================================
 var2="nJets"
@@ -101,8 +101,8 @@ for i,var in enumerate(["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]"]):
     if i==3:
         dict[var]["_binning"] = [0.,1.5,3.,4.7]
         dict[var]["prettyVars"] = '|#eta_{j2}|'
-    
-    dict[var]["responseClassNames"] = 'testJet'    
+
+    dict[var]["responseClassNames"] = 'testJet'
 
 for i,var in enumerate(["jetPtN1","absjetEtaN1","absjetEtaN1_100"]):
     dict[var] = {}
@@ -119,8 +119,8 @@ for i,var in enumerate(["jetPtN1","absjetEtaN1","absjetEtaN1_100"]):
     if i==2:
         dict[var]["_binning"] = [0.,1.5,2.4,3.2,4.7]
         dict[var]["prettyVars"] = '|#eta_{j1}| with p_{T}<100'
-    
-    dict[var]["responseClassNames"] = 'testJet'    
+
+    dict[var]["responseClassNames"] = 'testJet'
 
 for i,var in enumerate(["absjetEtaAllj","jetEtaAllj"]):
     dict[var] = {}
@@ -134,8 +134,8 @@ for i,var in enumerate(["absjetEtaAllj","jetEtaAllj"]):
     if i==1:
         dict[var]["_binning"] = [-4.7,-4.0,-3.5,-3.0,-2.5,-2.0,-1.5,0.,1.5,2.0,2.5,3.0,3.5,4.0,4.7]
         dict[var]["prettyVars"] = '#eta_{j}'
-    
-    dict[var]["responseClassNames"] = 'testJet'    
+
+    dict[var]["responseClassNames"] = 'testJet'
 
 #Other variables:
 for i,var in enumerate(["LepPt","ZMass","Mass"]):
@@ -154,8 +154,8 @@ for i,var in enumerate(["LepPt","ZMass","Mass"]):
         dict[var]["_binning"] = [100.] + [200.+50.*i for i in range(5)] + [500.,600.,800.,1000.]
         dict[var]["prettyVars"] = 'm_{4\\ell}'
 
-    
-    dict[var]["responseClassNames"] = 'testJet'    
+
+    dict[var]["responseClassNames"] = 'testJet'
 
 #change axis range and MC symbol location
 for key in list(dict.keys()):

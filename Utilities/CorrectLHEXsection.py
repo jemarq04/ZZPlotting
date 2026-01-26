@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
-import os,sys
+import os
+import sys
 import glob
 import json
 from collections import OrderedDict
@@ -89,10 +90,10 @@ def getXsecFromFile(filepath, wids, verbose=False):
   # wids = comma-separated list of weight IDs (or "all")
   if verbose:
     print("Reading cross sections...\n")
-  
+
   if not os.path.exists(filepath) or not filepath.endswith(".lhe"):
     raise ValueError("Invalid file", filepath)
-  
+
   if verbose:
     print("WeightID CrossSection")
   sums = {}

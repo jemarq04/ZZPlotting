@@ -1,3 +1,5 @@
+#!/bin/bash
+
 filename="TightHZZSelections_fourChan.root"
 dir="AllLeptonsTight"
 var="Mass"

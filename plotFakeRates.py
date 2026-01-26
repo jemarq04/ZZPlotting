@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 import ROOT
 import argparse
-import datetime
 import os
 from Utilities.scripts import makeSimpleHtml
 import Utilities.helper_functions as helper
@@ -74,7 +73,7 @@ def getLumiTextBox():
     texS1.SetTextFont(42)
     texS1.SetTextSize(0.040)
     texS1.Draw()
-    
+
     ROOT.SetOwnership(texS, False)
     ROOT.SetOwnership(texS1, False)
     return texS,texS1
@@ -82,7 +81,7 @@ def getLumiTextBox():
 def invert2DHist(hist,obj,isMC):
     name = hist.GetName() + ("MC" if isMC else "")
     if (obj=="E"):
-        new_hist = ROOT.TH2D(name, hist.GetTitle(), 
+        new_hist = ROOT.TH2D(name, hist.GetTitle(),
                 4, array.array('d',[0.,0.7395,1.479,2.0,2.5]),
                 6, array.array('d', [5,10,20,30,40,50,80]))
         ROOT.SetOwnership(new_hist, False)
@@ -93,7 +92,7 @@ def invert2DHist(hist,obj,isMC):
         new_hist.GetXaxis().SetTitle(hist.GetXaxis().GetTitle())
         new_hist.GetYaxis().SetTitle(hist.GetYaxis().GetTitle())
     elif (obj=="Mu"):
-        new_hist = ROOT.TH2D(name, hist.GetTitle(), 
+        new_hist = ROOT.TH2D(name, hist.GetTitle(),
                 2, array.array('d',[0.,1.2,2.4]),
                 6, array.array('d', [5,10,20,30,40,50,80]))
         ROOT.SetOwnership(new_hist, False)
@@ -106,11 +105,11 @@ def invert2DHist(hist,obj,isMC):
     return new_hist
 
 def makePlots(frfile, param, obj, isMC):
-    if "Pt" in param: 
-        data_ewkcorr_barrel,data_ewkcorr_endcap = getTGraphAsymmErrorsPt(frfile, "DataEWKCorrected", param, obj) 
+    if "Pt" in param:
+        data_ewkcorr_barrel,data_ewkcorr_endcap = getTGraphAsymmErrorsPt(frfile, "DataEWKCorrected", param, obj)
     elif "2D" in param:
         data_ewkcorr_graph = frfile.Get("DataEWKCorrected/ratio%s%s_all%s" % (obj,param, obj))
-    else: 
+    else:
         data_ewkcorr_graph = getTGraphAsymmErrors(frfile, "DataEWKCorrected", param, obj)
         data_ewkcorr_graph.SetLineColor(ROOT.kRed)
     draw_opt = "PA" if "2D" not in param else "colz text"
@@ -132,7 +131,7 @@ def makePlots(frfile, param, obj, isMC):
         data_ewkcorr_barrel.SetTitle("")
         data_ewkcorr_barrel.SetLineStyle(2)
         data_ewkcorr_barrel.GetYaxis().SetTitle("Passing Tight / Passing Loose")
-        xlabel = "p_{T} [GeV]" 
+        xlabel = "p_{T} [GeV]"
         data_ewkcorr_barrel.GetXaxis().SetTitle(xlabel)
         data_ewkcorr_barrel.Draw("PA")
         data_ewkcorr_endcap.SetLineStyle(2)
@@ -143,7 +142,7 @@ def makePlots(frfile, param, obj, isMC):
     text_box.Draw()
     #texS,texS1=getLumiTextBox()
 
-    if (not "2D" in param) and ("Eta" in param):
+    if ("2D" not in param) and ("Eta" in param):
         data_uncorr_graph = getTGraphAsymmErrors(frfile, "DYMC" if isMC else "AllData", param, obj)
         data_uncorr_graph.SetTitle("")
         data_uncorr_graph.Draw("P")
@@ -205,7 +204,7 @@ def main():
     # For compatibility with helper.savePlot
     args.output_file = ""
     args.no_html = False
-    
+
     config_name = "Templates/config.%s" % os.getlogin()
     if not os.path.isfile(config_name):
         parser.error("Failed to find valid config file. Looking for %s" % config_name)

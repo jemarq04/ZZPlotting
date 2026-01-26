@@ -32,13 +32,13 @@ for var in varlist:
     hname = var+"_jetPUSFtest"
     ha = fa.Get(hname)
     hb = fb.Get(hname)
-    
+
     area_a = ha.Integral(1,ha.GetNbinsX())
     area_b = hb.Integral(1,hb.GetNbinsX())
     normfac = area_b/area_a #normalize events to before SF applied
     if var == "mjj":
         bincona = [ha.GetBinContent(i) for i in range(1,ha.GetNbinsX()+1)]
-        
+
         binconb = [hb.GetBinContent(i) for i in range(1,hb.GetNbinsX()+1)]
         print(sum(binconb))
         print(sum(bincona))
@@ -59,9 +59,9 @@ for var in varlist:
 
     c1=r.TCanvas("canvas")
     c1.cd()
-    
+
     r.gStyle.SetOptDate(0)
-    
+
     hists = [ha,hb]
     labels = ["with SF","without SF"]
     colors = [2,4]
@@ -75,14 +75,14 @@ for var in varlist:
         hists[i].GetXaxis().SetTitleSize(0.04)
         hists[i].GetXaxis().SetTitleOffset(1.3)
         hists[i].SetStats(0)
-    
+
     nostat = False
     ymax = max(maxs)
     for i in range(len(hists)):
         hists[i].SetMaximum(1.2*ymax)
         #hists[i].SetMinimum(0.)
         hists[i].SetMarkerStyle(1)
-        if i == 0:   
+        if i == 0:
             #hists[i].Draw("HIST P")
             if nostat:
                 hists[i].Draw("HIST")
@@ -90,7 +90,7 @@ for var in varlist:
                 hists[i].Draw()
             r.gStyle.SetLegendFont(42)
             r.gStyle.SetLegendTextSize(0.03)
-            
+
             legend = r.TLegend (0.7 ,0.7 ,0.85 ,0.8)
             legend.SetFillStyle(0)
         else:

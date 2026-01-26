@@ -4,19 +4,16 @@ import Utilities.WeightInfo as WeightInfo
 from Utilities.WeightedHistProducer import WeightedHistProducer
 from Utilities.FromFileHistProducer import FromFileHistProducer
 from Utilities.FromFileLHEHistProducer import FromFileLHEHistProducer
-from Utilities.ConfigHistFactory import ConfigHistFactory 
 from collections import OrderedDict
-import os,sys
+import os
+import sys
 import subprocess
-import glob
 import logging
 import datetime
 import shutil
 import errno
 import math
 import array
-from IPython import embed
-import pdb
 import json
 import configparser
 
@@ -25,36 +22,39 @@ with open("Templates/config.%s" % os.getlogin()) as fconfig:
     config = configparser.ConfigParser()
     config.read_file(fconfig)
     sys.path.insert(0,config["Setup"]["scriptPath"])
-from . import UserInput
 import OutputTools
 import ConfigureJobs
 import HistTools
 
 #logging.basicConfig(level=logging.DEBUG)
 def truncateTH1(hist):
-    
+
     for i in range(1,hist.GetNbinsX()+1):
         if hist.GetBinContent(i)<0.:
             tmperror = abs(hist.GetBinError(i)) #should be positive error, just in case
             hist.SetBinContent(i,0.)
             hist.SetBinError(i,tmperror)
 
-def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[]):
+def makePlots(hist_stacks, data_hists, name, args, signal_stacks=None, errors=None):
+    if signal_stacks is None:
+        signal_stacks = [0]
+    if errors is None:
+        errors = []
     canvas_dimensions = [800, 800] if "unrolled" not in name else [1200, 800]
-    canvas = ROOT.TCanvas("%s_canvas" % name, name, *canvas_dimensions) 
+    canvas = ROOT.TCanvas("%s_canvas" % name, name, *canvas_dimensions)
     #canvas.SetFrameLineWidth(3)
     ROOT.gStyle.SetLineWidth(3) #For hists created before this command, line width not affected, if created after then affected
     first = True
     for hist_stack, data_hist, signal_stack in zip(hist_stacks, data_hists, signal_stacks):
         print("makePlot called")
-        makePlot(hist_stack, data_hist, name, args, signal_stack, 
+        makePlot(hist_stack, data_hist, name, args, signal_stack,
             same=(" same" if not first else ""))
         first = False
     offset = ROOT.gPad.GetLeftMargin() - 0.04 if args.legend_left else \
-        ROOT.gPad.GetRightMargin() - 0.04 
+        ROOT.gPad.GetRightMargin() - 0.04
     if hasattr(args, "selection"):
         width = .2 if "ZZ4l" in args.selection else 0.33
-    else: 
+    else:
         width = .33
     width *= args.scalelegx
     xdist = 0.1 if args.legend_left else 0.91
@@ -64,7 +64,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
     ymax = 0.9 #0.8 if args.legend_left else 0.9
     ycoords = [ymax, ymax - 0.08*unique_entries*args.scalelegy]
     coords = [xcoords[0], ycoords[0], xcoords[1], ycoords[1]]
-    
+
     doSyst_diagnostic = False
     dosyst = glb_doSyst and doSyst_diagnostic
     if dosyst:
@@ -77,15 +77,15 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         ROOT.SetOwnership(mainband, False)
         #pdb.set_trace()
 
-        #By design, if input channel is eemm, mainband should return 2e2m result 
-        
+        #By design, if input channel is eemm, mainband should return 2e2m result
+
         #hmb = mainband.GetHistogram() #hist used to draw xaxis
         totup = 0.
         totdn = 0.
         for bini in range(0,mainband.GetN()):
             totup+=mainband.GetErrorYhigh(bini)
             totdn+=mainband.GetErrorYlow(bini)
-        
+
         #mainband bin centers (at least in the case of full mass range plots)
         mb_bc = [ int(mainband.GetX()[bini]) for bini in range(0,mainband.GetN())]
         if "Mass" in glb_var:
@@ -95,7 +95,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
                 fsys.write("\nChannels: %s" % (",".join(glb_chan)))
                 fsys.write("\nTotal sys up: %s"%totup)
                 fsys.write("\nTotal sys dn: %s\n"%totdn)
-            
+
             if "Full" in glb_var:
                 #bin_Z = hmb.FindBin(90)-1
                 #bin_H = hmb.FindBin(125)-1
@@ -110,10 +110,10 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
                     fsys.write("\n sys dn: 80-100 GeV %s"%Z_dn)
                     fsys.write("\n sys up: 120-130 GeV %s"%H_up)
                     fsys.write("\n sys dn: 120-130 GeV %s\n"%H_dn)
-            
-    
+
+
     if "none" not in args.uncertainties:
-        
+
         histErrors = getHistErrors(hist_stacks[0], args.nostack) if not errors else errors
         for error_hist,signal_stack,data_hist in zip(histErrors, signal_stacks, data_hists):
             ROOT.SetOwnership(error_hist, False)
@@ -165,7 +165,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         ROOT.dotrootImport('%s/CMSPlotDecorations' % config["Setup"]["gituser"])
         scale_label = "Normalized to Unity" if args.luminosity < 0 else \
             "%s fb^{-1}" % int(round(float(args.luminosity)))
-        
+
         lumi_text = []
         force_notPre = False
         if args.thesis:
@@ -174,7 +174,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
             lumi_text.append("Preliminary")
         if args.simulation:
             lumi_text.append("Simulation")
-        
+
         ROOT.CMSlumi(canvas, 0, 0, "%s (13.6 TeV)" % scale_label," ".join(lumi_text))
                 #"Preliminary Simulation" if args.simulation else "Preliminary")
     if args.extra_text != "" or glb_var in ["jetPt[0]","jetPt[1]","jetEta[0]", "jetEta[1]", "absjetEta[0]","absjetEta[1]","mjj","dEtajj"]:
@@ -191,11 +191,11 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
             rootver = [int(x) for x in ROOT.gROOT.GetVersion().split(".")]
             if rootver[0] == 6 and rootver[1] < 36:
                 lines[0] = lines[0].replace("#geq", "#kern[-0.5]{#geq}")
-            
+
         ymax = coords[3]-0.02
         box_size = 0.05*len(lines)*args.scalelegy*2
         if args.extra_text_above:
-            ymax = coords[1] 
+            ymax = coords[1]
             coords[1] -= box_size
             coords[3] -= box_size
         ymin = ymax - box_size
@@ -208,12 +208,12 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
         else:
             text_box = ROOT.TPaveText(coords[0], ymin, coords[2], ymax, "NDCnb")
         #text_box.SetFillColor(0)
-        text_box.SetFillColorAlpha(0,0.0)        
+        text_box.SetFillColorAlpha(0,0.0)
         text_box.SetFillStyle(0)
         #text_box.SetLineColor(0)
         text_box.SetLineColorAlpha(0, 0.0)
         #text_box.SetTextFont(70)
-        for i, line in enumerate(lines):
+        for line in lines:
             text_box.AddText(line)
             #text_box.AddText("#geq 4")
         if glb_var in ["jetPt[0]","jetPt[1]","absjetEta[0]","absjetEta[1]","mjj","dEtajj"]:
@@ -241,7 +241,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=[0], errors=[])
                 "#scale[0.85]{Data / Pred.}" if data_hists[0] else args.ratio_text,
                 [float(i) for i in args.ratio_range],glb_isFullMass,glb_var
         )
-    
+
     #canvas.SetLogx()
 
     return canvas
@@ -249,7 +249,7 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
     canvas = ROOT.gROOT.FindObject("%s_canvas" % name)
     ROOT.SetOwnership(canvas, False)
     stack_signal = signal_stack != 0 and args.stack_signal
-    stack_drawexpr = " ".join(["hist"] + 
+    stack_drawexpr = " ".join(["hist"] +
         ["nostack" if args.nostack else ""]
     )
     hists = hist_stack.GetHists()
@@ -258,7 +258,7 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
     if not args.scatter:
         hist_stack.Draw(stack_drawexpr + (same if "same" not in stack_drawexpr else ""))
     else:
-        ROOT.gStyle.SetOptStat(0);
+        ROOT.gStyle.SetOptStat(0)
         #ROOT.gStyle.SetPalette(ROOT.kGreenRedViolet)
         hist_drawexpr = "PLC PFC"
         for hist in hists:
@@ -276,7 +276,7 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
                             skip = True
                 if not skip:
                     sum_stack.Add(hist)
-            for i,hist in enumerate(signal_stack.GetHists()):
+            for hist in signal_stack.GetHists():
                 hist.Add(sum_stack)
         signal_stack.Draw("hist nostack same")
         signal_stack.GetHistogram().GetXaxis().SetTitle(
@@ -284,14 +284,14 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
     #first_stack = signal_stack if stack_signal else hist_stack
     #pdb.set_trace()
     if data_hist:
-        if not "yield" in name.lower() and not glb_isFullMass:
+        if "yield" not in name.lower() and not glb_isFullMass:
             data_hist.Sumw2(False)
             data_hist.SetBinErrorOption(ROOT.TH1.kPoisson)
         data_hist.SetLineColor(ROOT.kBlack)
         data_hist.Draw("e0 same") #Two places of data_hist.Draw
     if not args.scatter:
-        first_stack.GetYaxis().SetTitleSize(hists[0].GetYaxis().GetTitleSize())    
-        first_stack.GetYaxis().SetTitleOffset(hists[0].GetYaxis().GetTitleOffset())    
+        first_stack.GetYaxis().SetTitleSize(hists[0].GetYaxis().GetTitleSize())
+        first_stack.GetYaxis().SetTitleOffset(hists[0].GetYaxis().GetTitleOffset())
         first_stack.GetYaxis().SetTitle(
             hists[0].GetYaxis().GetTitle() + ("/bin" if not glb_isFullMass else "/GeV"))
     else:
@@ -303,7 +303,7 @@ def makePlot(hist_stack, data_hist, name, args, signal_stack=0, same=""):
             # Remove first bin label to avoid overlap of canvases
             if hists[0].GetMinimum() == 0.0:
                 first_stack.GetYaxis().ChangeLabel(1, -1.0, 0)
-            print(hists[0].GetMinimum()) 
+            print(hists[0].GetMinimum())
         first_stack.GetHistogram().GetXaxis().SetTitle(
             hists[0].GetXaxis().GetTitle())
         first_stack.GetHistogram().SetLabelSize(0.04)
@@ -363,7 +363,7 @@ def getPrettyLegend(hist_stack, data_hist, signal_stack, error_hists, coords):
     for error_hist in error_hists:
         legend.AddEntry(error_hist, error_hist.GetTitle(), "f")
     return legend
-def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=None, 
+def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=None,
         unweighted=False, lhe_weight_id=None):
     if "Gen" not in selection:
         metaTree_name = "metaInfo/metaInfo"
@@ -375,11 +375,11 @@ def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=
         weight_branch = "weight"
     mc_info = config_factory.getMonteCarloInfo()
     all_files = config_factory.getFileInfo()
-    hist_factory = OrderedDict() 
+    hist_factory = OrderedDict()
     for name in filelist:
         base_name = name.split("__")[0]
         if name not in list(all_files.keys()):
-            if not hist_file is None and not hist_file.Get(name):
+            if hist_file is not None and not hist_file.Get(name):
                 logging.warning("%s is not a valid file name (must match a definition in FileInfo/%s.json)" % \
                     (name, selection))
                 continue
@@ -392,7 +392,7 @@ def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=
             if not hist_file:
                 metaTree = ROOT.TChain(metaTree_name)
                 metaTree.Add(hist_factory[name]["file_path"])
-                weight_info = WeightInfo.WeightInfoProducer(metaTree, 
+                weight_info = WeightInfo.WeightInfoProducer(metaTree,
                         mc_info[base_name]['cross_section']*kfac if not unweighted else 1,
                         sum_weights_branch).produce()
             else:
@@ -413,10 +413,10 @@ def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=
             weight_info = WeightInfo.WeightInfo(1, 1)
             weight_branch = ""
         if not hist_file:
-            histProducer = WeightedHistProducer(weight_info, weight_branch)  
+            histProducer = WeightedHistProducer(weight_info, weight_branch)
         else:
             if lhe_weight_id is None:
-                histProducer = FromFileHistProducer(weight_info, hist_file)  
+                histProducer = FromFileHistProducer(weight_info, hist_file)
             else:
                 histProducer = FromFileLHEHistProducer(weight_info, lhe_weight_id, hist_file)
         if "data" not in name.lower() and name != "nonprompt":
@@ -425,8 +425,8 @@ def getHistFactory(config_factory, selection, filelist, luminosity=1, hist_file=
         hist_factory[name].update({"configFactory" : config_factory})
         hist_factory[name].update({"fromFile" : hist_file is not None})
     return hist_factory
-def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, states, 
-        uncertainties="none", addOverflow=False, rebin=None, cut_string="", removeNegatives=True):
+def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, states,
+        addOverflow=False, rebin=None, cut_string="", removeNegatives=True):
     hist_name = "_".join([plot_group, selection.replace("/", "_"), branch_name])
     # TODO: Understand why this is broken in newer ROOT versions
     #rootdir = "gProof" if hasattr(ROOT, "gProof") else "gROOT"
@@ -440,8 +440,8 @@ def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, st
             print("FromFile doesn't go here: ",hist)
         else:
             hist = ROOT.TH1D(hist_name, hist_name, bin_info['nbins'], bin_info['xmin'], bin_info['xmax'])
-    log_info = "" 
-    final_counts = {c : 0 for c in states}
+    log_info = ""
+    final_counts = dict.fromkeys(states, 0)
     for name, entry in hist_factory.items():
         log_info += "_"*80 + "\n"
         log_info += "Results for file %s in plot group %s\n" % (name, plot_group)
@@ -464,7 +464,7 @@ def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, st
                 proof_name = "_".join([name, "%s#/%s" % (selection.replace("/", "_"), state)])
                 producer.setCutString(cut_string)
                 args = [draw_expr, proof_name, addOverflow, rebin]
-            
+
             try:
                 #pdb.set_trace()
                 state_hist = producer.produce(*args)
@@ -480,12 +480,12 @@ def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, st
                     hist.SetTitle(hist_name)
             else:
                 hist.Add(state_hist)
-            final_counts[state] += state_hist.Integral() 
+            final_counts[state] += state_hist.Integral()
             log_info += "Number of events in %s channel: %0.2f\n" % (state, state_hist.Integral())
             log_info += "Number of entries is %i\n" % (state_hist.GetEntries() - addOverflow)
         log_info += "Total number of events: %0.2f\n" % (hist.Integral() if hist and hist.InheritsFrom("TH1") else 0)
         log_info += "Cross section is %0.4f\n" % producer.getCrossSection('fb')
-        log_info += "Sum of weights is %0.2f\n" % producer.getSumOfWeights() 
+        log_info += "Sum of weights is %0.2f\n" % producer.getSumOfWeights()
     logging.debug(log_info)
     logging.debug("Hist has %i entries" % (hist.GetEntries() if hist and hist.InheritsFrom("TH1") else 0) )
     log_info += "*"*80 + "\n"
@@ -511,7 +511,7 @@ def getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, st
     return hist
 
 def getConfigHistFromFile(filename, config_factory, plot_group, selection, branch_name, channels,
-        luminosity=1, addOverflow=False, rebin=None, uncertainties="none", removeNegatives=True,
+        luminosity=1, addOverflow=False, rebin=None,
         unweighted=False, lhe_weight_id=None):
     try:
         filelist = config_factory.getPlotGroupMembers(plot_group)
@@ -521,7 +521,7 @@ def getConfigHistFromFile(filename, config_factory, plot_group, selection, branc
         filelist = [plot_group]
     if branch_name not in config_factory.getListOfPlotObjects():
         raise ValueError("Invalid histogram %s for selection %s" % (branch_name, selection))
-    
+
     # If reading from file, the weighted 1D hists need to be precomputed
     # Look for them stored in the file with the plot_group name
     weight = config_factory.getPlotGroupWeight(plot_group)
@@ -531,30 +531,30 @@ def getConfigHistFromFile(filename, config_factory, plot_group, selection, branc
 
     hist_file = ROOT.TFile(filename)
     ROOT.SetOwnership(hist_file, False)
-    
+
     hist_factory = getHistFactory(config_factory, selection, filelist, luminosity, hist_file, unweighted, lhe_weight_id)
 
     bin_info = config_factory.getHistBinInfo(branch_name)
     states = channels.split(",")
     #print "OVERFLOW?", addOverflow
     #pdb.set_trace()
-    hist = getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, states, uncertainties, addOverflow, rebin)
+    hist = getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, states, addOverflow, rebin)
     config_factory.setHistAttributes(hist, branch_name, plot_group)
 
     return hist
 
-def getConfigHistFromTree(config_factory, plot_group, selection, branch_name, channels, blinding=[],
-    luminosity=1, addOverflow=False, rebin=None, cut_string="", uncertainties="none"):
+def getConfigHistFromTree(config_factory, plot_group, selection, branch_name, channels,
+    luminosity=1, addOverflow=False, rebin=None, cut_string=""):
     if "Gen" not in selection:
         states = [x.strip() for x in channels.split(",")]
-        scale_weight_expr = "scaleWeights/scaleWeights[0]"
-        trees = ["%s/ntuple" % state for state in states]
+        #trees = ["%s/ntuple" % state for state in states]
+        #scale_weight_expr = "scaleWeights/scaleWeights[0]"
     else:
-        trees = ["analyze%s/Ntuple" % ("ZZ" if "ZZ" in selection else "WZ")]
-        scale_weight_expr = "LHEweights/LHEweights[0]"
+        #trees = ["analyze%s/Ntuple" % ("ZZ" if "ZZ" in selection else "WZ")]
+        #scale_weight_expr = "LHEweights/LHEweights[0]"
         if channels != "eee,mmm,eem,emm":
             chan_cuts = []
-            for chan in channels.split(","): 
+            for chan in channels.split(","):
                 chan_cuts.append(getGenChannelCut(chan))
             cut_string = appendCut(cut_string, " || ".join(chan_cuts))
     try:
@@ -565,12 +565,19 @@ def getConfigHistFromTree(config_factory, plot_group, selection, branch_name, ch
         filelist = [plot_group]
     hist_factory = getHistFactory(config_factory, selection, filelist, luminosity)
     bin_info = config_factory.getHistBinInfo(branch_name)
-    
+    states = channels.split(",")
+    #print "OVERFLOW?", addOverflow
+    #pdb.set_trace()
+    hist = getConfigHist(hist_factory, branch_name, bin_info, plot_group, selection, states, addOverflow, rebin)
+    config_factory.setHistAttributes(hist, branch_name, plot_group)
+
+    return hist
+
 def histWithScaleUnc(scale_hist2D, entries, name):
     if not isinstance(scale_hist2D, ROOT.TH2):
         raise ValueError("Scale uncertainties require 2D histogram")
     scale_hist = scale_hist2D.ProjectionY("temp", 1, 1, "e")
-    mmee,scale_hist.SetName(name)
+    scale_hist.SetName(name)
     ROOT.SetOwnership(scale_hist, False)
     hists = []
     for i in range(2, entries+1):
@@ -587,12 +594,12 @@ def histWithScaleUnc(scale_hist2D, entries, name):
             scaleUp_diff = maxScale - scale_hist.GetBinContent(i)
             scaleDown_diff = scale_hist.GetBinContent(i) - minScale
             maxScaleErr = max(scaleUp_diff, scaleDown_diff)
-        except:
+        except Exception:
             maxScaleErr = 0
         # Just symmetric errors for now
         err = math.sqrt(scale_hist.GetBinError(i)**2 + maxScaleErr**2)
         scale_hist.SetBinError(i, err)
-    return scale_hist 
+    return scale_hist
 
 def appendCut(cut_string, add_cut):
     if cut_string != "" and add_cut not in cut_string:
@@ -666,7 +673,7 @@ def getScaleFactorExpressionAllTight(state):
 def getPlotPaths(selection, folder_name, write_log_file=False):
 
     storage_area,html_area  = ConfigureJobs.getStorageArea()
-        
+
     base_dir = "%s/ZZAnalysisData/PlottingResults" % storage_area
     plot_path = "/".join([base_dir, selection] +
        (['{:%Y-%m-%d}'.format(datetime.datetime.today()),
@@ -701,10 +708,10 @@ def savePlot(canvas, plot_path, html_path, branch_name, write_log_file, args):
     if write_log_file:
         log_file = "/".join([plot_path, "logs", "%s_event_info.log" % branch_name])
         verbose_log = log_file.replace("event_info", "event_info-verbose")
-        shutil.move("temp.txt", log_file) 
+        shutil.move("temp.txt", log_file)
         if os.path.isfile("temp-verbose.txt"):
-            shutil.move("temp-verbose.txt", verbose_log) 
-    output_name ="/".join([plot_path, "plots", branch_name]) 
+            shutil.move("temp-verbose.txt", verbose_log)
+    output_name ="/".join([plot_path, "plots", branch_name])
     canvas.Print(output_name + ".root")
     canvas.Print(output_name + ".C")
     if not args.no_html:
@@ -731,7 +738,7 @@ def removeZeros(hist):
                 hist.SetBinContent(i, 0.0001)
             elif "Down" in hist.GetName():
                 hist.SetBinContent(i, 0.00001)
-            else: 
+            else:
                 hist.SetBinContent(i, 0.001)
             hist.SetBinError(i, err)
 
@@ -744,13 +751,13 @@ def makeDirectory(path):
     except OSError as e:
         if e.errno == errno.EEXIST and os.path.isdir(path):
             pass
-        else: 
+        else:
             raise
 
 #===========================================Systematic Uncertainties implementation
 #for main script to set global channel
 def setGlobalChannel(channels,selection,lumi,branches,hist_file,doSyst):
-    global glb_chan 
+    global glb_chan
     global which_analysis
     global glb_lumi
     global glb_var
@@ -774,7 +781,7 @@ def rebin(hist,variable):
     #No need to rebin certain variables but still might need overflow check
     if variable not in ['eta']:
         bins=array.array('d',_binning[variable])
-        Nbins=len(bins)-1 
+        Nbins=len(bins)-1
         hist=hist.Rebin(Nbins,"",bins)
     else:
         Nbins = hist.GetSize() - 2
@@ -809,7 +816,7 @@ def getSystValue(hMain):
         raise ValueError("Single entering of mmee channel not allowed for systematic calculation")
         #channels = ["eeee","eemm","mmmm"]
 
-    mynominalName=mylist_dict['nomname']
+    #mynominalName=mylist_dict['nomname']
     myaltname= mylist_dict['altname']
     varList=[variable]
 
@@ -820,35 +827,35 @@ def getSystValue(hMain):
     _binning = {}
     for key in list(myvar_dict.keys()): #key is the variable
         _binning[key] = myvar_dict[key]["_binning"]
-        
+
     sigSampleDic=ConfigureJobs.getListOfFilesWithXSec(ConfigureJobs.getListOfEWKFilenames(analysis))
     sigSampleList=[str(i) for i in list(sigSampleDic.keys())]
-    
+
     AltsigSampleDic=ConfigureJobs.getListOfFilesWithXSec([myaltname,])
     AltsigSampleList=[str(i) for i in list(AltsigSampleDic.keys())]
-    
+
     #Combine sigSamples
     TotSigSampleList = list(set(sigSampleList) | set(AltsigSampleList))
     sigSampleDic.update(AltsigSampleDic)
 
     sigSamplesPath={}
-    
-    fUse = ROOT.TFile(glb_file)#,"update") 
+
+    fUse = ROOT.TFile(glb_file)#,"update")
     fOut=fUse
-    ROOT.SetOwnership(fOut, False)    
-    # file_path is not used for plotting    
+    ROOT.SetOwnership(fOut, False)
+    # file_path is not used for plotting
     for dataset in TotSigSampleList:
         file_path = '' #ConfigureJobs.getInputFilesPath(dataset,selection, analysis)
         sigSamplesPath[dataset]=file_path
 
     #Sum all data and return a TList of all histograms that are booked. And an empty datSumW dictionary as there are no sumWeights
-    alldata,dataSumW = HistTools.makeCompositeHists(fOut,"AllData", 
+    alldata,dataSumW = HistTools.makeCompositeHists(fOut,"AllData",
         ConfigureJobs.getListOfFilesWithXSec([analysis+"data"],manager_path), func_lumi,
         underflow=False, overflow=False)
 
 
     #all ewkmc/this is also allSignal histos, scaled properly, kind of a repeat of above but with ggZZ added
-    
+
     ewkmc,ewkSumW = HistTools.makeCompositeHists(fOut,"AllEWK", ConfigureJobs.getListOfFilesWithXSec(
         ConfigureJobs.getListOfEWKFilenames(analysis), manager_path), func_lumi,
         underflow=False, overflow=False)
@@ -885,15 +892,15 @@ def getSystValue(hMain):
     #This is the non-prompt background
     ewkcorr = HistTools.getDifferenceDirect(fOut, "DataEWKCorrected", alldata, ewkmc)
 
-    zzSumWeights = ewkSumW[mynominalName]  
-    
+    #zzSumWeights = ewkSumW[mynominalName]
+
 
     #getHistInDic function also takes care of adding the histograms in eemm+mmee, hence the input here is channels=[eeee,eemm,mmmm]
     #dataHists dictionary
-    hDataDic=OutputTools.getHistsInDic(alldata,varList,channels)
+    #hDataDic=OutputTools.getHistsInDic(alldata,varList,channels)
 
     hSigDic=OutputTools.getHistsInDic(ewkmc,varList,channels)
-    hSigDic_ggZZonly=OutputTools.getHistsInDic(ewkmc_ggZZonly,varList,channels)
+    #hSigDic_ggZZonly=OutputTools.getHistsInDic(ewkmc_ggZZonly,varList,channels)
     hSigDic_ggZZup=OutputTools.getHistsInDic(ewkmc_ggZZup,varList,channels)
     hSigDic_ggZZdn=OutputTools.getHistsInDic(ewkmc_ggZZdn,varList,channels)
 
@@ -902,7 +909,7 @@ def getSystValue(hMain):
 
     #TrueHists dictionary
     #Not needed for RECO plotting, but used to calculate ratio between channels
-    
+
     hTrueDic=OutputTools.getHistsInDic(ewkmc,["Gen"+s for s in varList],channels)
     hTrueDic_qqZZonly=OutputTools.getHistsInDic(ewkmc_qqZZonly,["Gen"+s for s in varList],channels)
     #hTrueDic_ggZZonly=OutputTools.getHistsInDic(ewkmc_ggZZonly,["Gen"+s for s in varList],channels)
@@ -915,39 +922,39 @@ def getSystValue(hMain):
     #Non-prompt background dictionary
     hbkgDic=OutputTools.getHistsInDic(ewkcorr,[s+"_Fakes" for s in varList],channels)
 
-    
-    
+
+
     #VVV background dictionary
     hbkgMCDic=OutputTools.getHistsInDic(allVVVmc,varList,channels)
-    
+
 
     runVariables=[]
     runVariables.append(variable)
-    
+
 
     ##Systematic histos
     systList=[]
     #gensystList=[]
     for chan in channels:
-        for s in runVariables:
+        for _ in runVariables:
             systList.append(variable+"_lheWeights")
             #gensystList.append("Gen"+variable+"_lheWeights")
             systList.append(variable+"_jetsysts")
-        for sys in ["Up","Down"]: 
-            for s in runVariables:
-                systList.append(variable+"_CMS_pileup"+sys)
-                for lep in set(chan):         
-                    systList.append(variable+"_CMS_eff_"+lep+sys)
+        for syst in ["Up","Down"]:
+            for _ in runVariables:
+                systList.append(variable+"_CMS_pileup"+syst)
+                for lep in set(chan):
+                    systList.append(variable+"_CMS_eff_"+lep+syst)
 
     #systList has repeated variables, but shouldn't matter as it will just reassigin same value in the dictionary
     systList = list(set(systList)) # remove duplicate just in case
     hSigSystDic=OutputTools.getHistsInDic(ewkmc,systList,channels)
-    hSigSystDic_qqZZonly=OutputTools.getHistsInDic(ewkmc_qqZZonly,systList,channels)
+    #hSigSystDic_qqZZonly=OutputTools.getHistsInDic(ewkmc_qqZZonly,systList,channels)
     #hTrueSystDic_qqZZonly=OutputTools.getHistsInDic(ewkmc_qqZZonly,gensystList,channels)
     hbkgMCSystDic=OutputTools.getHistsInDic(allVVVmc,systList,channels)
 
     SysDic = {"Up":{},"Down":{}}
-    errkeys = ['ggZZXsec','generator','lumi','PU','jes','jer','e_eff','m_eff',"trigger","fake"] #not used, for information
+    #errkeys = ['ggZZXsec','generator','lumi','PU','jes','jer','e_eff','m_eff',"trigger","fake"] #not used, for information
 
     with open("ChannelRatio.txt","a") as fchan:
         fchan.write("Variable:%s\n"%variable)
@@ -986,23 +993,23 @@ def getSystValue(hMain):
         hBkgTotal.Add(hBkgMCNominal)
 
         #ggZZ xsec
-        for sys in ['Up','Down']:
-            if "Up" in sys: #no need to clone, only used once
+        for syst in ['Up','Down']:
+            if "Up" in syst: #no need to clone, only used once
                 hSigGX = hSigDic_ggZZup[chan][variable].Clone()
-                    
+
             else:
                 hSigGX = hSigDic_ggZZdn[chan][variable].Clone()
 
             hSigGX.SetDirectory(0)
-            hSigGX=rebin(hSigGX,variable)        
+            hSigGX=rebin(hSigGX,variable)
             hErrGX = hSigGX.Clone()
             hErrGX.Add(hSigNominal,-1)
 
             if chan == channels[0]:
-                SysDic[sys]['ggZZXsec'] = hErrGX
-           
+                SysDic[syst]['ggZZXsec'] = hErrGX
+
             else:
-                SysDic[sys]['ggZZXsec'].Add(hErrGX)
+                SysDic[syst]['ggZZXsec'].Add(hErrGX)
 
         #generator choice
         #hAltSigNominal = hAltSigDic[chan][variable].Clone()
@@ -1014,14 +1021,14 @@ def getSystValue(hMain):
 
         #    if chan == channels[0]:
         #        SysDic[sys]['generator'] = hErrGr
-        #        
+        #
         #    else:
         #        SysDic[sys]['generator'].Add(hErrGr)
-        
+
         #lumi
         lumiUnc = ConfigureJobs.getLuminosityUncertainty(year)
         lumiScale = {'Up':1.+lumiUnc,'Down':1.-lumiUnc}
-        for sys, scale in lumiScale.items():
+        for syst, scale in lumiScale.items():
             hNoFake = hMain.Clone("NoFakeLumi")
             #hNoFake.SetDirectory(0)
 
@@ -1035,34 +1042,34 @@ def getSystValue(hMain):
             #hChangeLumi.SetDirectory(0)
 
             if chan == channels[0]:
-                SysDic[sys]['lumi'] = hChangeLumi
-                
+                SysDic[syst]['lumi'] = hChangeLumi
+
             else:
-                SysDic[sys]['lumi'].Add(hChangeLumi)
-        
+                SysDic[syst]['lumi'].Add(hChangeLumi)
+
         #lepton efficiency
         for lep in set(chan):
-            for sys in ['Up','Down']:
-                hSiglep = hSigSystDic[chan][variable+"_CMS_eff_"+lep+sys].Clone()
+            for syst in ['Up','Down']:
+                hSiglep = hSigSystDic[chan][variable+"_CMS_eff_"+lep+syst].Clone()
                 hSiglep = rebin(hSiglep,variable)
-                hBkgMClep = hbkgMCSystDic[chan][variable+"_CMS_eff_"+lep+sys].Clone()
+                hBkgMClep = hbkgMCSystDic[chan][variable+"_CMS_eff_"+lep+syst].Clone()
                 hBkgMClep = rebin(hBkgMClep,variable)
 
-                hChangelep = hSiglep.Clone("lep change %s %s %s"%(chan,sys,lep))
+                hChangelep = hSiglep.Clone("lep change %s %s %s"%(chan,syst,lep))
                 hChangelep.Add(hBkgMClep)
                 hChangelep.Add(hSigNominal,-1)
                 hChangelep.Add(hBkgMCNominal,-1)
 
-                if lep+'_eff' not in SysDic[sys]:
-                    SysDic[sys][lep+'_eff'] = hChangelep
-                
+                if lep+'_eff' not in SysDic[syst]:
+                    SysDic[syst][lep+'_eff'] = hChangelep
+
                 else:
-                    SysDic[sys][lep+'_eff'].Add(hChangelep)
+                    SysDic[syst][lep+'_eff'].Add(hChangelep)
 
         #Trigger efficiency
         TrigUnc = 0.02
         TrigScale = {'Up':1.+TrigUnc,'Down':1.-TrigUnc}
-        for sys, scale in TrigScale.items():
+        for syst, scale in TrigScale.items():
             hNoFakeTrig = hMain.Clone("NoFakeTrig")
             #hNoFake.SetDirectory(0)
 
@@ -1076,10 +1083,10 @@ def getSystValue(hMain):
             #hChangeLumi.SetDirectory(0)
 
             if chan == channels[0]:
-                SysDic[sys]['trigger'] = hChangeTrig
-                
+                SysDic[syst]['trigger'] = hChangeTrig
+
             else:
-                SysDic[sys]['trigger'].Add(hChangeTrig)
+                SysDic[syst]['trigger'].Add(hChangeTrig)
 
 
         # fake rate
@@ -1087,69 +1094,69 @@ def getSystValue(hMain):
         if not turnoffFake:
             fakeUnc = 0.4
             fakeScale = {'Up':1.+fakeUnc,'Down':1.-fakeUnc}
-            for sys, scale in fakeScale.items():
+            for syst, scale in fakeScale.items():
 
                 hBkgFake = hbkgDic[chan][variable+"_Fakes"].Clone()
                 hBkgFake=rebin(hBkgFake,variable)
                 truncateTH1(hBkgFake)
                 hBkgFake.Scale(scale-1.)
                 #hBkgFake.SetDirectory(0)
-                
+
 
                 if chan == channels[0]:
-                    SysDic[sys]['fake'] = hBkgFake
-                    
+                    SysDic[syst]['fake'] = hBkgFake
+
                 else:
-                    SysDic[sys]['fake'].Add(hBkgFake)
-            
+                    SysDic[syst]['fake'].Add(hBkgFake)
+
 
         #Pileup reweight
-        for sys in ['Up','Down']:
-            
-            #should include RECO ewk as long as it is added in listFile.json 
-            hSigPU = hSigSystDic[chan][variable+"_CMS_pileup"+sys].Clone()
+        for syst in ['Up','Down']:
+
+            #should include RECO ewk as long as it is added in listFile.json
+            hSigPU = hSigSystDic[chan][variable+"_CMS_pileup"+syst].Clone()
             hSigPU=rebin(hSigPU,variable)
             #hSigPU.SetDirectory(0)
-            
+
             hBkgPU = hbkgDic[chan][variable+"_Fakes"].Clone()
             #hBkgPU.SetDirectory(0)
             hBkgPU=rebin(hBkgPU,variable)
             #truncateTH1(hBkgPU)
-            
-            hBkgMCPU = hbkgMCSystDic[chan][variable+"_CMS_pileup"+sys].Clone()
+
+            hBkgMCPU = hbkgMCSystDic[chan][variable+"_CMS_pileup"+syst].Clone()
             #hBkgMCPU.SetDirectory(0)
             hBkgMCPU=rebin(hBkgMCPU,variable)
 
-            hChangePU = hSigPU.Clone("PU change %s"%sys)
+            hChangePU = hSigPU.Clone("PU change %s"%syst)
             hChangePU.Add(hBkgMCPU)
             hChangePU.Add(hSigNominal,-1)
             hChangePU.Add(hBkgMCNominal,-1)
 
             if chan == channels[0]:
-                SysDic[sys]['PU'] = hChangePU
-                
+                SysDic[syst]['PU'] = hChangePU
+
             else:
-                SysDic[sys]['PU'].Add(hChangePU)
+                SysDic[syst]['PU'].Add(hChangePU)
 
         #Add systematics for JES and JER
-        
+
         hSigJET = hSigSystDic[chan][variable+"_jetsysts"].Clone() #TH2
         #hSigJET.SetDirectory(0)
-            
+
         hBkgJET = hbkgDic[chan][variable+"_Fakes"].Clone()
         #hBkgJET.SetDirectory(0)
         hBkgJET=rebin(hBkgJET,variable)
         #truncateTH1(hBkgJET)
-            
+
         hBkgMCJET = hbkgMCSystDic[chan][variable+"_jetsysts"].Clone() #TH2
         #hBkgMCJET.SetDirectory(0)
 
-        for i,sys in enumerate(["jes_up","jes_dn","jer_up","jer_dn"]):
+        for i,syst in enumerate(["jes_up","jes_dn","jer_up","jer_dn"]):
 
             hSigJETsub = hSigJET.ProjectionX("JET_%s"%i,i+1,i+1,"e") #histogram bin count starts with 1
             #hSigJETsub.SetDirectory(0)
             hSigJETsub=rebin(hSigJETsub,variable)
-            
+
             hBkgMCJETsub = hBkgMCJET.ProjectionX("JETBkg_%s"%i,i+1,i+1,"e")
             hBkgMCJETsub=rebin(hBkgMCJETsub,variable)
 
@@ -1158,29 +1165,29 @@ def getSystValue(hMain):
             hChangeJet.Add(hSigNominal,-1)
             hChangeJet.Add(hBkgMCNominal,-1)
 
-            syskey = sys.split('_')[0]
-            if 'up' in sys.split('_')[1]:
+            syskey = syst.split('_')[0]
+            if 'up' in syst.split('_')[1]:
                 ud = 'Up'
-            elif 'dn' in sys.split('_')[1]:
+            elif 'dn' in syst.split('_')[1]:
                 ud = 'Down'
 
             if chan == channels[0]:
 
                 SysDic[ud][syskey] = hChangePU
-                
+
             else:
                 SysDic[ud][syskey].Add(hChangePU)
 
-            
-            
-            
-            
-            
-            
 
-            
 
-    
+
+
+
+
+
+
+
+
     histbins=array.array('d',_binning[variable])
     hUncUp=ROOT.TH1D("hUncUp","Total Up Uncert.",len(histbins)-1,histbins)
     hUncDn=ROOT.TH1D("hUncDn","Total Dn Uncert.",len(histbins)-1,histbins)
@@ -1192,7 +1199,7 @@ def getSystValue(hMain):
     for i in range(1,hUncUp.GetNbinsX()+1):
         totUncUp=totUncDn=0.
         for h1, h2 in zip(UncUpHistos,UncDnHistos):
-            
+
             totUncUp += max(h1.GetBinContent(i),h2.GetBinContent(i))**2
             totUncDn += min(h1.GetBinContent(i),h2.GetBinContent(i))**2
 
@@ -1203,16 +1210,16 @@ def getSystValue(hMain):
         hUncUp.SetBinContent(i,totUncUp)
         hUncDn.SetBinContent(i,totUncDn)
 
-    
+
     MainGraph=ROOT.TGraphAsymmErrors(hMain)
     ROOT.SetOwnership(MainGraph,False) #won't be deleted when the proxy is deleted
-    #MainGraph.SetDirectory(0) #won't be deleted when the file is closed. Global file variable now, shouldn't matter. 
+    #MainGraph.SetDirectory(0) #won't be deleted when the file is closed. Global file variable now, shouldn't matter.
     #Not needed for TGraphAsymmErrors thus SetDirectory method doesn't exist
 
     tmpData = hMain.Clone("tmp")
     nbw_for_table = True #Set False when printing table and don't want to normalize by BW
     normBW = glb_isFullMass and nbw_for_table
-    
+
 
     for i in range(1, tmpData.GetNbinsX()+1):
         if hMain.GetBinContent(i)==0:
@@ -1220,19 +1227,19 @@ def getSystValue(hMain):
         bw = tmpData.GetBinWidth(i) if normBW else 1.
         eUp=hUncUp.GetBinContent(i)/bw
         eDn=hUncDn.GetBinContent(i)/bw
-        
+
         #don't add data stat error in syst
         #errorUp = tmpData.GetBinContent(i) + math.sqrt(math.pow(tmpData.GetBinError(i),2) + math.pow(eUp,2))
         errorUp = tmpData.GetBinContent(i) + math.sqrt(math.pow(eUp,2))
-        errorUp -= hMain.GetBinContent(i) 
+        errorUp -= hMain.GetBinContent(i)
         #errorDn = max(tmpData.GetBinContent(i) - math.sqrt(math.pow(tmpData.GetBinError(i),2) + math.pow(eDn,2)),0)
         errorDn = max(tmpData.GetBinContent(i) - math.sqrt(math.pow(eDn,2)),0)
         errorDn = hMain.GetBinContent(i) - errorDn
-       
+
         MainGraph.SetPointEYhigh(i-1, errorUp)
         MainGraph.SetPointEYlow(i-1, errorDn)
     MainGraph.SetFillColorAlpha(1,0.3)
-    #MainGraph.SetFillColor(14)     
+    #MainGraph.SetFillColor(14)
     MainGraph.SetFillStyle(3001)
     MainGraph.SetLineColor(0)
     #pdb.set_trace()
@@ -1258,7 +1265,7 @@ def getSystValue(hMain):
 
         #don't add data's error
         #errorUp = 1. + math.sqrt(math.pow(tmpData.GetBinError(i)/mc,2) + math.pow((eUp/mc),2))
-        errorUp = 1. + math.sqrt( math.pow((eUp/mc),2)) 
+        errorUp = 1. + math.sqrt( math.pow((eUp/mc),2))
         errorUp -= 1.
         #errorDn = max(1. - math.sqrt(math.pow(tmpData.GetBinError(i)/mc,2) + math.pow((eDn/mc),2)),0)
         errorDn = max(1. - math.sqrt(math.pow((eDn/mc),2)),0)
@@ -1267,16 +1274,10 @@ def getSystValue(hMain):
         ratioGraph.SetPointEYhigh(i-1, errorUp)
         ratioGraph.SetPointEYlow(i-1, errorDn)
     ratioGraph.SetFillColorAlpha(1,0.3)
-    #ratioGraph.SetFillColor(14)   
+    #ratioGraph.SetFillColor(14)
     ratioGraph.SetFillStyle(3001)
-    
+
     #MainGraph.SetDirectory(0)
     #ratioGraph.SetDirectory(0)
 
     return MainGraph,ratioGraph
-    
-
-
-    
-    
-

@@ -14,7 +14,7 @@ class FromFileHistProducer(HistProducer):
         if not self.hist_file:
             raise ValueError("Invalid file " % file_name)
 
-    def produce(self, hist_name, overflow=False, binning=None): 
+    def produce(self, hist_name, overflow=False, binning=None):
         hist = self.hist_file.Get(hist_name)
         ROOT.SetOwnership(hist, False)
         if not hist:
@@ -32,7 +32,7 @@ class FromFileHistProducer(HistProducer):
             add_error = math.sqrt(math.pow(hist.GetBinError(num_bins),2)+math.pow(hist.GetBinError(num_bins+1),2))
             hist.SetBinContent(num_bins, add_overflow)
             hist.SetBinError(num_bins, add_error)
-        
+
         #pdb.set_trace()
         hist.Sumw2()
         for ib in range(1,hist.GetNbinsX()+1):
@@ -44,4 +44,3 @@ class FromFileHistProducer(HistProducer):
         hist.Sumw2() #This doesn't seem to overwrite error? What's its function?
 
         return hist
-

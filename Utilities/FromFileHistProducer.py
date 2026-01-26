@@ -1,8 +1,6 @@
 import ROOT
 from .HistProducer import HistProducer
-import logging,pdb
 import math
-from IPython import embed
 
 class FromFileHistProducer(HistProducer):
     def __init__(self, weight_info, hist_file=None):
@@ -12,16 +10,17 @@ class FromFileHistProducer(HistProducer):
     def setHistFile(self, hist_file):
         self.hist_file = hist_file
         if not self.hist_file:
-            raise ValueError("Invalid file " % file_name)
+            raise ValueError("Invalid file %s" % hist_file)
 
-    def produce(self, hist_name, overflow=False, binning=None): 
+    def produce(self, hist_name, overflow=False, binning=None):
         hist = self.hist_file.Get(hist_name)
         ROOT.SetOwnership(hist, False)
         if not hist:
             raise ValueError("Hist %s not found in file %s" % (hist_name, self.hist_file))
-        
+
         #Calling Sumw2 below just in case, but using the conditional to avoid a Warning on failures
-        if not (hist.GetSumw2N() == hist.GetNcells() and not ROOT.TH1.GetDefaultSumw2()): hist.Sumw2()
+        if not (hist.GetSumw2N() == hist.GetNcells() and not ROOT.TH1.GetDefaultSumw2()):
+            hist.Sumw2()
         #pdb.set_trace()
         hist.Scale(self.getHistScaleFactor())
         # This causes GetEntries() to return 1 greater than the "actual"
@@ -34,7 +33,7 @@ class FromFileHistProducer(HistProducer):
             add_error = math.sqrt(math.pow(hist.GetBinError(num_bins),2)+math.pow(hist.GetBinError(num_bins+1),2))
             hist.SetBinContent(num_bins, add_overflow)
             hist.SetBinError(num_bins, add_error)
-        
+
         if "Mass" in hist_name and "Full" in hist_name:
             #pdb.set_trace()
             normBW = True #Set False when printing table and don't want to normalize by BW
@@ -47,6 +46,5 @@ class FromFileHistProducer(HistProducer):
                     if hist.GetBinError(ib) > hist.GetBinContent(ib):
                         hist.SetBinError(ib, hist.GetBinContent(ib))
                 #hist.Sumw2() #This doesn't seem to overwrite error? What's its function?
-        
-        return hist
 
+        return hist

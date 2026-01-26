@@ -1,13 +1,11 @@
-import ROOT
-from . import WeightInfo
 import abc
-import array,pdb
+import array
 
 class HistProducer(object, metaclass=abc.ABCMeta):
     def __init__(self, weight_info):
-        self.weight_info = weight_info 
+        self.weight_info = weight_info
         self.lumi = 1
-    
+
     def getHistScaleFactor(self):
         if self.getCrossSection() == 1:
             return 1
@@ -18,13 +16,13 @@ class HistProducer(object, metaclass=abc.ABCMeta):
         #    return self.weight_info.getCrossSection()*self.lumi/(6216.00740357+6798.63211242+6798.8828435)
         #else:
         return self.getCrossSection()*self.lumi/self.getSumOfWeights()
-                        
+
     def getCrossSection(self, units='pb'):
         xsec = self.weight_info.getCrossSection()
         if xsec != 1 and units == 'pb':
             xsec *= 1000
         return xsec
-    
+
     def getSumOfWeights(self):
         return self.weight_info.getSumOfWeights()
 
@@ -38,7 +36,7 @@ class HistProducer(object, metaclass=abc.ABCMeta):
     def rebin(self, hist, binning):
         if binning is None or not binning:
             return hist
-        if type(binning) == int:
+        if type(binning) is int:
             hist.Rebin(binning)
         elif len(binning) == 1:
             hist.Rebin(int(binning[0]))
@@ -48,5 +46,5 @@ class HistProducer(object, metaclass=abc.ABCMeta):
         return hist
 
     @abc.abstractmethod
-    def produce(self, input): 
+    def produce(self, input):
         return

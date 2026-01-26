@@ -1,3 +1,5 @@
+#!/bin/bash
+
 filename="Hists28Jun2024-ZZ4l2018_MVA.root" #Signal + Bgk + LHE + IDs (all coeffs + SMlimit + SM) eemm - 100K
 selection="ZZSelectionsTightLeps"
 VVAnalysis_path="/afs/hep.wisc.edu/user/marquez5/public/SMEFTsim/uwvv_analysis/histograms/src/Analysis/VVAnalysis"

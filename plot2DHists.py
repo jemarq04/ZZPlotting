@@ -47,7 +47,7 @@ def getLumiTextBox():
     return texS,texS1
 
 def invert2DHist(hist):
-    new_hist = ROOT.TH2D(hist.GetName(), hist.GetTitle(), 
+    new_hist = ROOT.TH2D(hist.GetName(), hist.GetTitle(),
             4, 0, 2.5,
             8, array.array('d', [5,10,20,30,40,50,60,70,200]))
     ROOT.SetOwnership(new_hist, False)
@@ -85,7 +85,7 @@ def makeDataPlots(param, obj, outdir,chan):
     #text_box.Draw()
     texS,texS1=getLumiTextBox()
 
-    if not "2D" in param:
+    if "2D" not in param:
         data_uncorr_graph = getTGraphAsymmErrors(frfile, "AllData", param, obj)
         data_uncorr_graph.SetTitle("")
         data_uncorr_graph.Draw("P")
@@ -114,9 +114,9 @@ def makeMCPlots(param, obj, outdir):
     text_box = getTextBox(obj, "(MC)")
     text_box.Draw()
 
-    if not "2D" in param:
+    if "2D" not in param:
         #In order to compare data-ewk with DY
-        data_ewkcorr_graph=getTGraphAsymmErrors(frfile, "DataEWKCorrected", param, obj) 
+        data_ewkcorr_graph=getTGraphAsymmErrors(frfile, "DataEWKCorrected", param, obj)
         data_ewkcorr_graph.SetLineColor(ROOT.kBlue)
         data_ewkcorr_graph.SetTitle("")
         data_ewkcorr_graph.Draw("P")
@@ -125,14 +125,14 @@ def makeMCPlots(param, obj, outdir):
         legend.AddEntry(graph, "DYJets MC", "l")
         legend.Draw()
 
-    
+
     canvas.Print("%s/ratio%s_all%s.png" % (outdir, param, obj))
     canvas.Print("%s/ratio%s_all%s.pdf" % (outdir, param, obj))
 
 frfile = ROOT.TFile("/data/uhussain/ZZTo4l/ZZ2018/VVAnalysisTools/CMSSW_9_4_2/src/Analysis/VVAnalysis/HistFiles/Hists29Nov2018-MuonTest.root")
 
 
-data_folder_name = datetime.date.today().strftime("%Y%b%d"+"_2DHists") 
+data_folder_name = datetime.date.today().strftime("%Y%b%d"+"_2DHists")
 data_outdir = "~/www/ZZAnalysisData/PlottingResults/ZZ4l2018/HZZSelectionsTightLeps/" + data_folder_name
 #mc_outdir = "~/www/ZZAnalysisData/PlottingResults/ZZ4l2018/HZZSelectionsTightLeps/" + data_folder_name + "-MC/plots"
 

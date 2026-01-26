@@ -1,13 +1,12 @@
 import ROOT
-from Utilities.ConfigHistFactory import ConfigHistFactory 
+from Utilities.ConfigHistFactory import ConfigHistFactory
 import Utilities.helper_functions as helper
-from collections import OrderedDict
 import array
 
 class CutFlowEntry(object):
     def __init__(self, name, dataset_manager, analysis):
         self.name = name
-        self.analysis = analysis 
+        self.analysis = analysis
         self.config_factory = ConfigHistFactory(
             dataset_manager,
             self.analysis,
@@ -23,28 +22,26 @@ class CutFlowEntry(object):
         self.states = states
     def getName(self):
         return self.name
-    def getValue(self, plot_group, unc, hist_file, scale_facs=False):
+    def getValue(self, plot_group, hist_file, scale_facs=False):
         if hist_file == "":
-            hist = helper.getConfigHistFromTree(self.config_factory, 
-                    plot_group, 
+            hist = helper.getConfigHistFromTree(self.config_factory,
+                    plot_group,
                     self.analysis,
-                    "l1Pt", 
-                    self.states, 
-                    luminosity=self.luminosity, 
+                    "l1Pt",
+                    self.states,
+                    luminosity=self.luminosity,
                     cut_string=self.additional_cut,
                     no_scalefacs=not scale_facs,
-                    uncertainties=unc,
             )
         else:
             hist = helper.getConfigHistFromFile(hist_file,
-                    self.config_factory, 
-                    plot_group, 
+                    self.config_factory,
+                    plot_group,
                     self.analysis,
-                    "yield", 
-                    #"ZMass", 
-                    self.states, 
-                    luminosity=self.luminosity, 
-                    uncertainties=unc,
+                    "yield",
+                    #"ZMass",
+                    self.states,
+                    luminosity=self.luminosity,
             )
         error = array.array('d', [0])
         events = hist.IntegralAndError(0, hist.GetNbinsX(), error)
@@ -53,11 +50,11 @@ class CutFlowEntry(object):
 class ManualCutFlowEntry(object):
     def setEntryValues(self, entry_name, entry_value):
         self.entries[entry_name] = entry_value
-    def getValue(self, entry_name, unc):
+    def getValue(self, entry_name):
         if entry_name not in list(self.entries.keys()):
             return 0
         else:
-            return entries[entry_name]
+            return self.entries[entry_name]
 class CutFlowHistMaker(object):
     def __init__(self, name, dataset_manager, analysis):
         self.name = name
@@ -81,7 +78,7 @@ class CutFlowHistMaker(object):
         if self.states != []:
             entry.setStates(self.states)
         self.entries.append(entry)
-    def setLogFile(log_file):
+    def setLogFile(self, log_file):
         self.log_file = log_file
     def getHist(self, plot_group, unc, hist_file, scale_facs=False):
         nbins = len(self.entries)

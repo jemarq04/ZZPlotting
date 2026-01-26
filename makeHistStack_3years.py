@@ -1,30 +1,24 @@
 #!/usr/bin/env python3
-import Utilities.plot_functions as plotter
 import Utilities.helper_functions as helper
-import argparse
 import ROOT
-import Utilities.config_object as config_object
 import Utilities.UserInput as UserInput
 import os
-from Utilities.ConfigHistFactory import ConfigHistFactory 
+from Utilities.ConfigHistFactory import ConfigHistFactory
 from Utilities.prettytable import PrettyTable
 import math
 import sys
 import array
 import datetime
 from Utilities.scripts import makeSimpleHtml
-from IPython import embed
 import logging
-import pdb,json
+import json
 
 import configparser
 with open("Templates/config.%s" % os.getlogin()) as fconfig:
     config = configparser.ConfigParser()
     config.read_file(fconfig)
     sys.path.insert(0,config["Setup"]["scriptPath"])
-import OutputTools
 import ConfigureJobs
-import HistTools
 
 def getComLineArgs():
     parser = UserInput.getDefaultParser()
@@ -35,7 +29,7 @@ def getComLineArgs():
                         help="Use modified object file")
     parser.add_argument("-b", "--branches", type=str, default="all",
                         help="List (separate by commas) of names of branches "
-                        "in root and config file to plot") 
+                        "in root and config file to plot")
     parser.add_argument("-m", "--make_cut", type=str, default="",
                         help="Enter a valid root cut string to apply")
     parser.add_argument("--blinding", type=list, default=["Mass < 400",
@@ -45,7 +39,7 @@ def getComLineArgs():
 
 log_info = ""
 
-def writeMCLogInfo(hist_info, selection, branch_name, luminosity, cut_string, latex):
+def writeMCLogInfo(hist_info, branch_name, latex):
     mc_info = PrettyTable(["Plot Group", "Weighted Events", "Error", "Stat Error", "Raw Events"])
     weighted_events = 0
     total_background = 0
@@ -54,8 +48,8 @@ def writeMCLogInfo(hist_info, selection, branch_name, luminosity, cut_string, la
     signal = 0
     signal_err = 0
     for plot_set, entry in hist_info.items():
-        wevents = round(entry["weighted_events"], 3 if entry["weighted_events"] < 1 else 2) 
-        mc_info.add_row([plot_set, wevents, 
+        wevents = round(entry["weighted_events"], 3 if entry["weighted_events"] < 1 else 2)
+        mc_info.add_row([plot_set, wevents,
             round(entry["error"],2),
             round(entry["stat error"],2),
             int(round(entry["raw_events"]))]
@@ -81,16 +75,16 @@ def writeMCLogInfo(hist_info, selection, branch_name, luminosity, cut_string, la
         raise RuntimeError("Empty histogram produced for variable " + branch_name)
     with open("temp.txt", "a") as mc_file:
         mc_file.write("\n"+(mc_info.get_string() if not latex else mc_info.get_latex_string())+"\n")
-        mc_file.write("\nTotal sum of Monte Carlo: %0.2f +/- %0.2f" % (round(weighted_events, 2), 
+        mc_file.write("\nTotal sum of Monte Carlo: %0.2f +/- %0.2f" % (round(weighted_events, 2),
             round(math.sqrt(sum([x["error"]*x["error"] for x in list(hist_info.values())])), 2)))
-        mc_file.write("\nTotal sum of background Monte Carlo: %0.2f +/- %0.2f" % (round(total_background, 2), 
+        mc_file.write("\nTotal sum of background Monte Carlo: %0.2f +/- %0.2f" % (round(total_background, 2),
             round(math.sqrt(background_err), 2)))
-        mc_file.write("\nRatio S/(S+B): %0.2f +/- %0.2f" % (round(sigbkgd, 2), 
+        mc_file.write("\nRatio S/(S+B): %0.2f +/- %0.2f" % (round(sigbkgd, 2),
             round(sigbkgd_err, 2)))
-        mc_file.write("\nRatio S/sqrt(S+B): %0.2f +/- %0.2f" % (round(likelihood, 2), 
+        mc_file.write("\nRatio S/sqrt(S+B): %0.2f +/- %0.2f" % (round(likelihood, 2),
             round(likelihood_err, 2)))
-def getStacked(name, config_factory, selection, filelist, branch_name, channels, blinding, addOverflow, latex,
-               cut_string="", luminosity=1, rebin=0, uncertainties="none", hist_file=""):
+def getStacked(name, config_factory, selection, filelist, branch_name, channels, _blinding, addOverflow, latex,
+               cut_string="", luminosity=1, rebin=0, _uncertainties="none", hist_file=""):
     hist_stack = ROOT.THStack(name, "")
     ROOT.SetOwnership(hist_stack, False)
     hist_info = {}
@@ -99,11 +93,10 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
         #pdb.set_trace()
         print(plot_set)
         if hist_file == "":
-            hist = helper.getConfigHistFromTree(config_factory, plot_set, selection,  
-                    branch_name, channels, blinding, luminosity, addOverflow, rebin, cut_string, 
-                    uncertainties)
+            hist = helper.getConfigHistFromTree(config_factory, plot_set, selection,
+                    branch_name, channels, luminosity, addOverflow, rebin, cut_string)
         else:
-            hist = helper.getConfigHistFromFile(hist_file, config_factory, plot_set, 
+            hist = helper.getConfigHistFromFile(hist_file, config_factory, plot_set,
                         selection, branch_name, channels, luminosity, addOverflow=addOverflow, rebin=rebin)
             print("hists",hist)
         if luminosity < 0:
@@ -112,7 +105,7 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
         correctOffHiggs = True
         if correctOffHiggs:
             if "ggZZ" in plot_set and "Mass" in branch_name: #correct for off-shell higgs interference
-                hist.Sumw2() 
+                hist.Sumw2()
                 offshellbin = hist.GetNbinsX()
                 hist.SetBinContent(offshellbin,0.9*hist.GetBinContent(offshellbin))
                 hist.SetBinError(offshellbin,0.9*hist.GetBinError(offshellbin))
@@ -123,14 +116,14 @@ def getStacked(name, config_factory, selection, filelist, branch_name, channels,
         hist.Sumw2()
         #if not hist.GetSumw2(): hist.Sumw2()
         #pdb.set_trace()
-        hist_info[plot_set] = {'raw_events' : raw_events, 
+        hist_info[plot_set] = {'raw_events' : raw_events,
                                'weighted_events' : weighted_events,
                                'error' : 0 if int(raw_events) <= 0 else error[0],
                                 'stat error' : 0 if raw_events <= 0 else \
-                                    weighted_events/math.sqrt(raw_events) 
+                                    weighted_events/math.sqrt(raw_events)
         }
-    writeMCLogInfo(hist_info, selection, branch_name, luminosity, cut_string, latex)
- 
+    writeMCLogInfo(hist_info, branch_name, latex)
+
     return hist_stack
 def main():
     #pdb.set_trace()
@@ -143,7 +136,7 @@ def main():
     for key in list(myvar_dict.keys()):
         if args.branches==str(key):
             args.rebin = myvar_dict[key]['_binning']
-            
+
     ROOT.gROOT.SetBatch(True)
     ROOT.gStyle.SetOptDate(0)
     if args.hist_file == "":
@@ -179,7 +172,7 @@ def main():
         fname3y = ["16jetEtaHorn_all.root","17jetEtaHorn_NewDatacombined.root","18jetEtaHorn_all.root"]
         selections3y = ["ZZ4l2016","ZZ4l2017","ZZ4l2018"]
         for ind,lumi3yi in enumerate(lumi3y):
-            args.selection = selections3y[ind]+selectionsuffix 
+            args.selection = selections3y[ind]+selectionsuffix
             args.luminosity = lumi3yi
             args.hist_file = fnameprefix+fname3y[ind]
 
@@ -192,7 +185,7 @@ def main():
                     mc_file.write("\nPlotting branch: %s\n" % branch_name)
                 try:
                     #pdb.set_trace()
-                    hist_stack = getStacked(selections3y[ind]+"stack_"+branch_name, config_factory, args.selection, filelist, 
+                    hist_stack = getStacked(selections3y[ind]+"stack_"+branch_name, config_factory, args.selection, filelist,
                             branch_name, args.channels, args.blinding, not args.no_overflow, args.latex, cut_string,
                             args.luminosity, args.rebin, args.uncertainties, args.hist_file)
                 except ValueError as e:
@@ -201,13 +194,12 @@ def main():
                 if not args.no_data:
                     #pdb.set_trace()
                     if args.hist_file == "":
-                        #data_hist = helper.getConfigHistFromTree(config_factory, "data_all", args.selection, 
-                        data_hist = helper.getConfigHistFromTree(config_factory, "data_all", args.selection, 
-                                branch_name, args.channels, args.blinding, 1, not args.no_overflow, args.rebin, 
-                                cut_string)
+                        #data_hist = helper.getConfigHistFromTree(config_factory, "data_all", args.selection,
+                        data_hist = helper.getConfigHistFromTree(config_factory, "data_all", args.selection,
+                                branch_name, args.channels, 1, not args.no_overflow, args.rebin, cut_string)
                     else:
                         #data_hist = helper.getConfigHistFromFile(args.hist_file, config_factory, "data_all",
-                        data_hist = helper.getConfigHistFromFile(args.hist_file, config_factory, "data_all", 
+                        data_hist = helper.getConfigHistFromFile(args.hist_file, config_factory, "data_all",
                                 args.selection, branch_name, args.channels,addOverflow=(not args.no_overflow), rebin=args.rebin)
                     with open("temp.txt", "a") as events_log_file:
                         events_log_file.write("\nNumber of events in data: %i\n" % data_hist.Integral())
@@ -216,10 +208,10 @@ def main():
                 signal_stack = 0
                 if len(args.signal_files) > 0:
                     signal_filelist = UserInput.getListOfFiles(args.signal_files, args.selection)
-                    signal_stack = getStacked("signal_stack_"+branch_name, config_factory, args.selection, signal_filelist, 
+                    signal_stack = getStacked("signal_stack_"+branch_name, config_factory, args.selection, signal_filelist,
                             branch_name, args.channels, args.blinding, not args.no_overflow, args.latex, cut_string,
                             args.luminosity, args.rebin, args.uncertainties, args.hist_file)
-                
+
                 if ind ==0:
                     hist_stacks.append(hist_stack)
                     signal_stacks.append(signal_stack)
@@ -251,7 +243,7 @@ def main():
             #pdb.set_trace()
             myoutputFile=ROOT.TFile("writeFile.root","UPDATE")
             myoutputFile.cd()
-            completeHist2 = completeHist.Clone(args.branches+"_jetPUSFtest")
+            #completeHist2 = completeHist.Clone(args.branches+"_jetPUSFtest")
             tmpCmpHist.Write()
             #completeHist2.Write()
             myoutputFile.Close()
@@ -259,11 +251,11 @@ def main():
             sys.exit()
 
         args.luminosity = sum(lumi3y)
-        helper.setGlobalChannel(args.channels,args.selection,args.luminosity,args.branches,args.hist_file) 
+        helper.setGlobalChannel(args.channels,args.selection,args.luminosity,args.branches,args.hist_file)
         canvas = helper.makePlots(hist_stacks, data_hists, name, args, signal_stacks)
         helper.savePlot(canvas, plot_path, html_path, plot_name, True, args)
         makeSimpleHtml.writeHTML(html_path.replace("/plots",""), args.selection)
 
 if __name__ == "__main__":
-    
+
     main()

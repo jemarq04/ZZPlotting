@@ -1,8 +1,7 @@
 #!/usr/bin/env python3
 import argparse
-import os,sys
-import json
-import ROOT
+import os
+import sys
 
 import configparser
 with open("Templates/config.%s" % os.getlogin()) as fconfig:
@@ -18,7 +17,7 @@ def main():
     parser.add_argument("-a", "--analysis", type=str, required=True, help="Specific analysis directory to read")
     parser.add_argument("sample", type=str, help="sample to find weight IDs")
     args = parser.parse_args()
-    
+
     manager_path = os.path.join(ConfigureJobs.getManagerPath(), ConfigureJobs.getManagerName())
     data_path = os.path.join(manager_path, "FileInfo", args.analysis)
     if not os.path.isdir(manager_path):

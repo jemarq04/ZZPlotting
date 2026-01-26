@@ -40,7 +40,7 @@ def createDataH1(ch,channels):
             dataFiles+=glob(dataDir+"/*.root")
             #print 'dataFiles added'
     print('Length of dataFiles: ',len(dataFiles))
-    
+
     chain= ROOT.TChain(ch+"/ntuple")
     for f in dataFiles:
         chain.Add(f)
@@ -67,7 +67,7 @@ def createDataH1(ch,channels):
             #print "chain Draw Successful"
         #Function to retrieve mZ1 in ch=eemm
         else:
-            chain.Draw("(( abs(e1_e2_Mass-91.1876)<abs(m1_m2_Mass-91.1876) ) ? m1_m2_Mass : e1_e2_Mass)>>"+data_hist, "(nZZTightIsoElec+nZZTightIsoMu==4) && (Mass<115 || Mass>150)") 
+            chain.Draw("(( abs(e1_e2_Mass-91.1876)<abs(m1_m2_Mass-91.1876) ) ? m1_m2_Mass : e1_e2_Mass)>>"+data_hist, "(nZZTightIsoElec+nZZTightIsoMu==4) && (Mass<115 || Mass>150)")
     print("DataIntegral_",ch,": ",h1.Integral())
     h1.SetLineColor(ROOT.kWhite)
     h1.SetLineWidth(2)
@@ -83,7 +83,7 @@ def createDataH1(ch,channels):
 
 def createMCStack(ch,channels,leg):
     mcSamples = {"WZTo3LNu":[4.430,"WZ3LNu"],"TTJets-amcatnlo":[815.96,"top"],"TTTo2L2Nu-powheg":[87.31,"top"],"DYJetsToLL_M10to50":[18610,"dy-jets"],
-            "DYJetsToLLM-50_ext1":[6104,"dy-jets"], 
+            "DYJetsToLLM-50_ext1":[6104,"dy-jets"],
             "GluGluZZTo2e2mu":[0.00319,"ggZZ"],"GluGluZZTo2e2tau":[0.00319,"ggZZ"],"GluGluZZTo2mu2tau":[0.00319,"ggZZ"],
             "GluGluZZTo4e":[0.00159,"ggZZ"],"GluGluZZTo4mu":[0.00159,"ggZZ"],"ZZTo4L-powheg_ext1":[1.256,"qqZZ-powheg"],
             "ttH_HToZZ_4L_ext1":[0.000393,"HZZ-signal"], "WminusHToZZ_ext1":[0.000147,"HZZ-signal"],"ggHZZ_ext1":[0.01218,"HZZ-signal"],
@@ -91,10 +91,10 @@ def createMCStack(ch,channels,leg):
     plotgroups=OrderedDict([
             ("WZ3LNu",{"Name": "WZ","Style": "fill-lightpurple","Members": ["WZTo3LNu"]}),
             ("top" , {"Name" : "ttbar","Style" : "fill-yellow","Members" : ["TTJets-amcatnlo","TTTo2L2Nu-powheg"]}),
-            ("HZZ-signal" , {"Name" : "HZZ","Style" : "fill-lightred","Members" : ["ggHZZ_ext1","ttH_HToZZ_4L_ext1","WminusHToZZ_ext1","WplusHToZZ_ext1","ZHToZZ_4L"]}), 
+            ("HZZ-signal" , {"Name" : "HZZ","Style" : "fill-lightred","Members" : ["ggHZZ_ext1","ttH_HToZZ_4L_ext1","WminusHToZZ_ext1","WplusHToZZ_ext1","ZHToZZ_4L"]}),
             ("dy-jets" , {"Name" : "Drell-Yan","Style" : "fill-green","Members" : ["DYJetsToLL_M10to50","DYJetsToLLM-50_ext1"]}),
             ("ggZZ", {"Name" : "ggZZ", "Style" : "fill-blue","Members" : ["GluGluZZTo4e","GluGluZZTo4mu","GluGluZZTo2e2mu","GluGluZZTo2e2tau","GluGluZZTo2mu2tau"]}),
-            ("qqZZ-powheg" , {"Name" : "qqZZ","Style" : "fill-lightblue","Members" : ["ZZTo4L-powheg_ext1"]}) 
+            ("qqZZ-powheg" , {"Name" : "qqZZ","Style" : "fill-lightblue","Members" : ["ZZTo4L-powheg_ext1"]})
             ])
 
     styles={"fill-lightpurple" : {"SetFillColor": ROOT.TColor.GetColor("#cab2d6"),"SetLineColor": ROOT.TColor.GetColor("#7E668A")},
@@ -103,7 +103,7 @@ def createMCStack(ch,channels,leg):
             "fill-blue" : {"SetFillColor": ROOT.kBlue,"SetLineColor": ROOT.TColor.GetColor("#00326C")},
             "fill-lightblue" : {"SetFillColor":ROOT.TColor.GetColor("#00bfff") ,"SetLineColor": ROOT.TColor.GetColor("#377eb8")},
             "fill-lightred" : {"SetFillColor":ROOT.TColor.GetColor("#ffa07a") ,"SetLineColor": ROOT.TColor.GetColor("#e41a1c")}}
-    #channels = ["eeee/ntuple","eemm/ntuple", "eeee/ntuple"]  
+    #channels = ["eeee/ntuple","eemm/ntuple", "eeee/ntuple"]
     MCStack = ROOT.THStack("stack", "stack")
     ROOT.SetOwnership(MCStack, False)
     print(list(plotgroups.keys()))
@@ -118,7 +118,7 @@ def createMCStack(ch,channels,leg):
             #print 'mcDir: ',mcDir
             mcFiles=glob(mcDir+"/*.root")
             MetaChain = ROOT.TChain("metaInfo/metaInfo")
-             
+
             MCchain = ROOT.TChain(ch+"/ntuple")
             for g in mcFiles:
                 MCchain.Add(g)
@@ -126,7 +126,7 @@ def createMCStack(ch,channels,leg):
 
             hist_name = "Z2Mass_"+mc_Sample+"_"+ch
             hist = ROOT.TH1F(hist_name, hist_name, nbins, low,high)
-            
+
             selvar = ["e1_e2_Mass","e3_e4_Mass","m1_m2_Mass","m3_m4_Mass"]
             if (ZZ4lSelection):
                 if (ch=="eeee"):
@@ -143,7 +143,7 @@ def createMCStack(ch,channels,leg):
                     MCchain.Draw(channels[ch]+">>"+hist_name,"genWeight*((nZZTightIsoElec+nZZTightIsoMu==4) && (Mass<115 || Mass>150))")
                 #Function to retrieve mZ1 in ch=eemm
                 else:
-                    MCchain.Draw("(( abs(e1_e2_Mass-91.1876)<abs(m1_m2_Mass-91.1876) ) ? m1_m2_Mass : e1_e2_Mass)>>"+hist_name, "genWeight*((nZZTightIsoElec+nZZTightIsoMu==4) && (Mass<115 || Mass>150))") 
+                    MCchain.Draw("(( abs(e1_e2_Mass-91.1876)<abs(m1_m2_Mass-91.1876) ) ? m1_m2_Mass : e1_e2_Mass)>>"+hist_name, "genWeight*((nZZTightIsoElec+nZZTightIsoMu==4) && (Mass<115 || Mass>150))")
             sumweights_hist = ROOT.TH1D("sumweights", "sumweights", 1,0,100)
             MetaChain.Draw("1>>sumweights","summedWeights")
             sumweights = sumweights_hist.Integral()
@@ -176,7 +176,7 @@ def createMCStack(ch,channels,leg):
         hnew.SetDirectory(0)
         #print "length is", len(MCStack.GetHists())
         #print hist.Integral()
-        
+
     #ROOT.SetOwnership(MCStack, False)
     for i in MCStack.GetHists(): print(i.GetName(), "Integral is", i.Integral())
     return MCStack
@@ -305,7 +305,7 @@ def stackplot(ch,channels):
     h1.SetMarkerStyle(20)
     h1.SetMarkerSize(1.0)
     h1.Draw("pex0same")
-    
+
     #leg = ROOT.TLegend(0.20,0.54,0.48,0.84,"")
     #leg.AddEntry(h1,"Data")
     #leg.AddEntry(h2, "2017 Background MC Samples")
@@ -345,10 +345,10 @@ def stackplot(ch,channels):
     yaxis.Draw("SAME")
 
     c.Update()
-    if (ZZ4lSelection): 
-        c.SaveAs("DataMCPlots_Mar29/Z2Mass_ZZ4lSelection_"+ch+"_blinded_m4l_"+Date+".pdf")  
+    if (ZZ4lSelection):
+        c.SaveAs("DataMCPlots_Mar29/Z2Mass_ZZ4lSelection_"+ch+"_blinded_m4l_"+Date+".pdf")
     else:
-        c.SaveAs("DataMCPlots_Mar29/Z2Mass_FullSpectrum_"+ch+"_blinded_m4l_"+Date+".pdf") 
+        c.SaveAs("DataMCPlots_Mar29/Z2Mass_FullSpectrum_"+ch+"_blinded_m4l_"+Date+".pdf")
     #text = raw_input()
     from IPython import embed
     embed()

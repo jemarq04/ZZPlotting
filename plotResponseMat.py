@@ -2,7 +2,6 @@
 import ROOT
 import datetime
 import os
-import array
 from Utilities.scripts import makeSimpleHtml
 
 ROOT.gROOT.SetBatch(True)
@@ -41,7 +40,7 @@ def makeResponseMatrix(hfile,sample,var, outdir,chan):
     print("%s/Gen%s_%s"%(sample,var,chan))
     GenHist = histfile.Get("%s/Gen%s_%s"%(sample,var,chan))
     RecoHist = histfile.Get("%s/Gen%s_%s"%(sample,var,chan))
-    print ("GenHist: ", GenHist) 
+    print ("GenHist: ", GenHist)
     nbins={"Mass":11,"ZZPt":12}
     low={"Mass":100,"ZZPt":0}
     high={"Mass":1200,"ZZPt":1200}
@@ -56,27 +55,27 @@ def makeResponseMatrix(hfile,sample,var, outdir,chan):
                 RespMat.SetBinContent(i,j,(-1)*RecoHist.GetBinContent(j))
 
     draw_opt = "colz text45"
-    ROOT.gStyle.SetPaintTextFormat("3.2f"); 
+    ROOT.gStyle.SetPaintTextFormat("3.2f")
     ROOT.gStyle.SetOptStat(0)
     labels={"ZZPt":"Pt_{4l} [GeV]","Mass":"m_{4l} [GeV]"}
     print(labels[var])
     RespMat.SetTitle("")
     RespMat.GetXaxis().SetTitle("Reco%s"% (labels[var]))
     RespMat.GetYaxis().SetTitle("True%s"% (labels[var]))
-    
+
     RespMat.Draw(draw_opt)
 
     #text_box = getTextBox(obj, "(MC)")
     #text_box.Draw()
 
-    
+
     canvas.Print("%s/matrix%s_%s.png" % (outdir, var, chan))
     canvas.Print("%s/matrix%s_%s.pdf" % (outdir, var, chan))
 
 #histfile = ROOT.TFile.Open("/data/uhussain/ZZTo4l/ZZ2018/VVAnalysisTools/CMSSW_9_4_2/src/Analysis/VVAnalysis/HistFiles/Hists05Apr2019-zzPowhegWGen.root")
 
 
-data_folder_name = datetime.date.today().strftime("ResponseMatrces_"+"%Y%b%d") 
+data_folder_name = datetime.date.today().strftime("ResponseMatrces_"+"%Y%b%d")
 mc_outdir = "~/www/ZZAnalysisData/PlottingResults/ZZ4l2018/Unfolding/" + data_folder_name
 
 def mkdir(mc_outdir):

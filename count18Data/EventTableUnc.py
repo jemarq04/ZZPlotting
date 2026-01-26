@@ -31,7 +31,7 @@ def sigRound(cent,stat,up,dn=None): #central, stat. unc., syst up and dn
     up_r = round(up,num)
     cent_r = round(cent,num)
 
-    
+
     stat_r1 = round(stat,num)
     stat_r2 = round(stat)
 
@@ -45,7 +45,7 @@ def sigRound(cent,stat,up,dn=None): #central, stat. unc., syst up and dn
     if dn:
         dn_r = round(dn,num)
         list.append(dn_r)
-    
+
     for i in list:
         if cand >=10 and math.floor(i) == i: #turn 123.0 into 123
             listf.append(int(i))
@@ -54,7 +54,7 @@ def sigRound(cent,stat,up,dn=None): #central, stat. unc., syst up and dn
 
     return listf
 
-    
+
 
 
 
@@ -67,9 +67,9 @@ def readSysDic(fin): # run this function for two files, one with fake rate syst,
         for chan in ["allchan","eeee","eemm","mmmm"]:
             dict[jm][chan] = {}
 
-            
+
             dict[jm][chan]["signal"] = [] #list of syst unc. in order [on-shell u/d Z u/d, H u/d]
-            
+
 
     for line in fin:
         if "Plotting branch: " in line:
@@ -82,7 +82,7 @@ def readSysDic(fin): # run this function for two files, one with fake rate syst,
             isFull = "Full" in var
             nevt = 0.
             nerr = 0.
-        
+
         if start:
             if "Channels: " in line:
                 chans = line.strip().split("Channels: ")[1]
@@ -94,14 +94,14 @@ def readSysDic(fin): # run this function for two files, one with fake rate syst,
 
             #nevt and nerr are just from previous naming for convenience, not the same meaning
             if "sys" in line:
-                if not isFull: 
+                if not isFull:
                     if "sys up" in line:
-                        mcstr = "sys up: " 
+                        mcstr = "sys up: "
                         nevt = float(line.strip().split(mcstr)[1])
                     #pdb.set_trace()
                         dict[nj][channel]["signal"].append(nevt)
                     else:
-                        mcestr = "sys dn: " 
+                        mcestr = "sys dn: "
                         nerr= float(line.strip().split(mcestr)[1])
                         dict[nj][channel]["signal"].append(nerr)
 
@@ -110,17 +110,17 @@ def readSysDic(fin): # run this function for two files, one with fake rate syst,
                     if " 80-100 GeV " in line:
                         if "sys up" in line:
                             nevt = float(line.strip().split(" 80-100 GeV ")[1])
-                            dict[nj][channel]["signal"].append(nevt) 
+                            dict[nj][channel]["signal"].append(nevt)
                         else:
                             nerr= float(line.strip().split(" 80-100 GeV ")[1])
-                            dict[nj][channel]["signal"].append(nerr) 
+                            dict[nj][channel]["signal"].append(nerr)
                     if " 120-130 GeV " in line:
                         if "sys up" in line:
                             nevt = float(line.strip().split(" 120-130 GeV ")[1])
-                            dict[nj][channel]["signal"].append(nevt) 
+                            dict[nj][channel]["signal"].append(nevt)
                         else:
                             nerr = float(line.strip().split(" 120-130 GeV ")[1])
-                            dict[nj][channel]["signal"].append(nerr) 
+                            dict[nj][channel]["signal"].append(nerr)
 
 
     return dict
@@ -151,7 +151,7 @@ def readDic(fin):
             isFull = "Full" in var
             nevt = 0.
             nerr = 0.
-        
+
         if start:
             if "Channels: " in line:
                 chans = line.strip().split("Channels: ")[1]
@@ -167,12 +167,12 @@ def readDic(fin):
                 if mc in line:
                     if not isFull: # only 1 line to read per MC
                         if not "Error" in line:
-                            mcstr = ": weighted events " 
+                            mcstr = ": weighted events "
                             nevt = float(line.strip().split(mcstr)[1])
                         #pdb.set_trace()
                             dict[nj][channel][mc].append(nevt)
                         else:
-                            mcestr = ": weighted events Error " 
+                            mcestr = ": weighted events Error "
                             nerr= float(line.strip().split(mcestr)[1])
                             dict[nj][channel][mc].append(nerr)
 
@@ -181,17 +181,17 @@ def readDic(fin):
                         if " 80-100 GeV " in line:
                             if not "Error" in line:
                                 nevt = float(line.strip().split(" 80-100 GeV ")[1])
-                                dict[nj][channel][mc].append(nevt) 
+                                dict[nj][channel][mc].append(nevt)
                             else:
                                 nerr= float(line.strip().split(" 80-100 GeV Error ")[1])
-                                dict[nj][channel][mc].append(nerr) 
+                                dict[nj][channel][mc].append(nerr)
                         if " 120-130 GeV " in line:
                             if not "Error" in line:
                                 nevt = float(line.strip().split(" 120-130 GeV ")[1])
-                                dict[nj][channel][mc].append(nevt) 
+                                dict[nj][channel][mc].append(nevt)
                             else:
                                 nerr = float(line.strip().split(" 120-130 GeV Error ")[1])
-                                dict[nj][channel][mc].append(nerr) 
+                                dict[nj][channel][mc].append(nerr)
 
             if "data" in line:
                 if not isFull:
@@ -202,10 +202,10 @@ def readDic(fin):
                 if isFull:
                     if " 80-100 GeV" in line:
                         nevt = int(line.strip().split(" 80-100 GeV: ")[1])
-                        dict[nj][channel]["data"].append(nevt) 
+                        dict[nj][channel]["data"].append(nevt)
                     if " 120-130 GeV" in line:
                         nevt = int(line.strip().split(" 120-130 GeV: ")[1])
-                        dict[nj][channel]["data"].append(nevt) 
+                        dict[nj][channel]["data"].append(nevt)
                         start = False
 
     return dict
@@ -217,7 +217,7 @@ def printTable(fout,fout2,dic,yr):
     else:
         year = "20"+yr
 
-    fout.write("\\begin{table}[htbp]"+"\n") 
+    fout.write("\\begin{table}[htbp]"+"\n")
     fout.write("\\centering"+"\n")
     fout.write("\\topcaption{The observed and expected yields of %s $\cPZ\cPZ$ events in different mass ranges,\
     and estimated yields of background\
@@ -228,11 +228,11 @@ def printTable(fout,fout2,dic,yr):
 
     #Table 1, split by channels and mass range
     fout.write("\\begin{tabular}{ |l|c|c|c| } "+"\n")
-    fout.write("\\hline"+"\n")         
+    fout.write("\\hline"+"\n")
     fout.write("       Process       & $80< m_{4\\ell} < 100 GeV$  & $60<m_{\cPZ_1},m_{\cPZ_2}<120 GeV$  & $120< m_{4l} < 130 GeV$ \\\\"+"\n")
-    fout.write("\\hline"+"\n")  
+    fout.write("\\hline"+"\n")
 
-    
+
     for chan in ["eeee","eemm","mmmm","allchan"]:
         if chan =="allchan":
             chanPrint = "$4\\ell$"
@@ -248,7 +248,7 @@ def printTable(fout,fout2,dic,yr):
         for i,mc in enumerate(MC2):
             eon,eZ,eH = dic["allj"][chan][mc][0:6:2]
             erron,errZ,errH = dic["allj"][chan][mc][1:6:2]
-            
+
             #eon_tot += eon
             #eZ_tot += eZ
             #eH_tot += eH
@@ -260,7 +260,7 @@ def printTable(fout,fout2,dic,yr):
 
             if i ==1 or mc == MC2[-1]:
                 fout.write("\\hline"+"\n")
-        
+
         #Adjust order to Z,on-shell,H, slicing last index not included
         totexplist = dic["allj"][chan]['totexp'][2:4] + dic["allj"][chan]['totexp'][0:2] + dic["allj"][chan]['totexp'][4:]
         totexplist = [round(x,1) for x in totexplist]
@@ -285,18 +285,18 @@ def printTable(fout,fout2,dic,yr):
     }"%year+"\n")
 
     fout2.write("\\begin{tabular}{ |l|c|c|c| } "+"\n")
-    fout2.write("\\hline"+"\n")         
+    fout2.write("\\hline"+"\n")
     fout2.write("       Process       & $80< m_{4\\ell} < 100 GeV$  & $60<m_{\cPZ_1},m_{\cPZ_2}<120 GeV$  & $120< m_{4l} < 130 GeV$ \\\\"+"\n")
-    fout2.write("\\hline"+"\n")  
+    fout2.write("\\hline"+"\n")
 
-    
+
     for jm in ["0j","1j","2j","3j","4j"]: #allj included in 4l case
-        
+
         if jm == "allj":
             jmP = "All jets"
         else:
             nj = int(jm.replace("j",""))
-            
+
             if nj==4:
                 jmP = "$\\geq$%s jet"%nj
             elif nj>1:
@@ -323,7 +323,7 @@ def printTable(fout,fout2,dic,yr):
 
             if i ==1 or mc == MC2[-1]:
                 fout2.write("\\hline"+"\n")
-        
+
         totexplist= dic[jm]["allchan"]["totexp"][2:4] + dic[jm]["allchan"]["totexp"][0:2] + dic[jm]["allchan"]["totexp"][4:]
         totexplist = [round(x,1) for x in totexplist]
         #eon_tot,eZ_tot,eH_tot = [round(x,1) for x in [eon_tot,eZ_tot,eH_tot]]
@@ -339,7 +339,7 @@ def printTable(fout,fout2,dic,yr):
 
 def printTableRun2(fout,fout2,dic,dicWF,dicWOF,dicts):
 
-    fout.write("\\begin{table}[htbp]"+"\n") 
+    fout.write("\\begin{table}[htbp]"+"\n")
     fout.write("\\centering"+"\n")
     fout.write("\\topcaption{The observed and expected yields of %s $\cPZ\cPZ$ events in different mass ranges,\
     and estimated yields of background\
@@ -350,9 +350,9 @@ def printTableRun2(fout,fout2,dic,dicWF,dicWOF,dicts):
 
     #Table 1, split by channels and mass range
     fout.write("\\begin{tabular}{ |l|c|c|c|c| } "+"\n")
-    fout.write("\\hline"+"\n")         
+    fout.write("\\hline"+"\n")
     fout.write("       Process       & $\Pe\Pe\Pe\Pe$  & $\Pe\Pe\Pgm\Pgm$  & $\Pgm\Pgm\Pgm\Pgm$ & $2\ell2\ell'$  \\\\"+"\n")
-    fout.write("\\hline"+"\n")  
+    fout.write("\\hline"+"\n")
 
     for zin in [2,0]: #Z range index, currently look at Z [index 2,3] and on-shell region [index 0,1], provided each list has 6 numbers version
         if zin == 0:
@@ -368,7 +368,7 @@ def printTableRun2(fout,fout2,dic,dicWF,dicWOF,dicts):
         expPstr = "         Total expected       "
         dataPstr = "         Data       "
         for chan in ["eeee","eemm","mmmm","allchan"]:
-            
+
             #Background
             for din,d in enumerate(dicts): #Sum the event numbers for 3 years
                 #if zin == 0:
@@ -412,7 +412,7 @@ def printTableRun2(fout,fout2,dic,dicWF,dicWOF,dicts):
             ph1,ph2,ph3,ph4 = sigRound(explist,experr,expsys[0],expsys[1])
             expstr = "&  %s $\\pm$ %s $^{+%s}_{-%s}$"%(ph1,ph2,ph3,ph4)
             expPstr +=expstr
-        
+
 
             datalist = dic["allj"][chan]["data"][int(zin/2.)]
             datastr = "&  %s"%datalist
@@ -420,7 +420,7 @@ def printTableRun2(fout,fout2,dic,dicWF,dicWOF,dicts):
 
         for x in [bkgPstr,signalPstr,expPstr,dataPstr]:
             fout.write(x+"\\\\"+"\n")
-        fout.write("\\hline"+"\n") 
+        fout.write("\\hline"+"\n")
         #if zin == 0:
         #    fout.write(""+"\n")
     fout.write("\\end{tabular}"+"\n")
@@ -439,9 +439,9 @@ def printTableRun2(fout,fout2,dic,dicWF,dicWOF,dicts):
 
     fout2.write("\\resizebox{\\columnwidth}{!}{"+"\n")
     fout2.write("\\begin{tabular}{ |l|c|c|c|c|c| } "+"\n")
-    fout2.write("\\hline"+"\n")         
+    fout2.write("\\hline"+"\n")
     fout2.write("       Process       & 0 jet  & 1 jet & 2 jets & 3 jets & $\\geq$4 jets \\\\"+"\n")
-    fout2.write("\\hline"+"\n")  
+    fout2.write("\\hline"+"\n")
 
     for zin in [2,0]: #Z range index, currently look at Z [index 2,3] and on-shell region [index 0,1], provided each list has 6 numbers version
         if zin == 0:
@@ -456,7 +456,7 @@ def printTableRun2(fout,fout2,dic,dicWF,dicWOF,dicts):
         signalPstr = "         Signal       "
         expPstr = "         Total expected       "
         dataPstr = "         Data       "
-        
+
         for jm in ["0j","1j","2j","3j","4j"]: #allj included in 4l case
             for din,d in enumerate(dicts): #Sum the event numbers for 3 years
                 tmpZXlist = d[jm]["allchan"]["nonprompt"][zin]
@@ -496,16 +496,16 @@ def printTableRun2(fout,fout2,dic,dicWF,dicWOF,dicts):
             ph1,ph2,ph3,ph4 = sigRound(explist,experr,expsys[0],expsys[1])
             expstr = "&  %s $\\pm$ %s $^{+%s}_{-%s}$"%(ph1,ph2,ph3,ph4)
             expPstr +=expstr
-        
+
 
             datalist = dic[jm]["allchan"]["data"][int(zin/2.)]
             datastr = "&  %s"%datalist
-            dataPstr += datastr     
+            dataPstr += datastr
         for x in [bkgPstr,signalPstr,expPstr,dataPstr]:
             fout2.write(x+"\\\\"+"\n")
         #if zin == 0:
-        #    fout2.write(""+"\n")  
-        fout2.write("\\hline"+"\n") 
+        #    fout2.write(""+"\n")
+        fout2.write("\\hline"+"\n")
     fout2.write("\\end{tabular}}"+"\n")
     fout2.write("\\label{table:resultsByJetMul_%s}"%"Run2"+"\n")
     fout2.write("\\end{table}"+"\n")
@@ -524,7 +524,7 @@ for yr in years:
     with open(yr+"Info2.txt") as fin:
         with open(yr+".tex","w") as fout1:
             with open(yr+"_2.tex","w") as fout2:
-                dicyr = readDic(fin) 
+                dicyr = readDic(fin)
                 dicts.append(dicyr)
                 printTable(fout1,fout2,dicyr,yr)
 
@@ -533,13 +533,9 @@ with open("Run2Info.txt") as fin:
         with open("Run2SysWithoutFake.txt") as fin3:
             with open("Run2.tex","w") as fout1:
                 with open("Run2_2.tex","w") as fout2:
-                    dicyr = readDic(fin) 
+                    dicyr = readDic(fin)
                     dicWF = readSysDic(fin2)
                     dicWOF = readSysDic(fin3)
-                    
+
                     printTableRun2(fout1,fout2,dicyr,dicWF,dicWOF,dicts)
 #print(dicts)
-
-
-
- 

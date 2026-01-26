@@ -1,7 +1,6 @@
 import ROOT as r
-import pdb,subprocess,math,array
-import sys,json,os
-from optparse import OptionParser
+import math
+import sys
 
 def getLumiTextBox():
     texS = r.TLatex(0.68,0.955, lumitext+" fb^{-1} (13 TeV)")
@@ -25,9 +24,9 @@ def getLumiTextBox():
     texS2.Draw()
     return texS,texS1,texS2
 
-def rebin2D(hist, nxg,nyg):        
+def rebin2D(hist, _nxg, _nyg):
     #Don't use rebin right now
-    #hist = hist.Rebin2D(nxg,nyg) 
+    #hist = hist.Rebin2D(nxg,nyg)
     #add overflow
     nx= hist.GetNbinsX()
     ny= hist.GetNbinsY()
@@ -48,7 +47,7 @@ def rebin2D(hist, nxg,nyg):
         hist.SetBinError(x,ny+1, 0.)
     return hist
 
-hname = sys.argv[2] #"jetPtN1_vsJetEta_"    
+hname = sys.argv[2] #"jetPtN1_vsJetEta_"
 nj = hname.replace("jetPtN",'').replace('_vsJetEta_','')
 fullsamples = ['zz4l-amcatnlo','ggZZ4e','ggZZ4m','ggZZ4t','ggZZ2e2mu','ggZZ2e2tau']
 fullkfac = [1.0835,1.7,1.7,1.7,1.7,1.7]
@@ -69,20 +68,20 @@ r.SetOwnership(fa,False)
 
 # MC samples
 for s,sample in enumerate(fullsamples):
-    swgt_hist = fa.Get(str("/".join([fullsamples[s], "sumweights"])))
+    swgt_hist = fa.Get(str("/".join([sample, "sumweights"])))
     r.SetOwnership(swgt_hist, False)
     swgt = swgt_hist.Integral(0,swgt_hist.GetNbinsX()+1)
     sfac = fullxsec[s]*fullkfac[s]* lumi/swgt
     fullfac.append(sfac)
 
 fullhistsa = []
-            
-for s,sample in enumerate(fullsamples):
-    hunfat = fa.Get(fullsamples[s]+"/"+hname+'eeee').Clone()
+
+for sample in fullsamples:
+    hunfat = fa.Get(sample+"/"+hname+'eeee').Clone()
     for channel in ['eemm','mmee','mmmm']:
-        htmpat = fa.Get(fullsamples[s]+"/"+hname+channel).Clone()
+        htmpat = fa.Get(sample+"/"+hname+channel).Clone()
         hunfat.Add(htmpat)
-    
+
     fullhistsa.append(hunfat)
 
 hqqZZ = fullhistsa[0]
@@ -93,7 +92,7 @@ for s in range(2,len(fullsamples)):
     h_tmpa = fullhistsa[s]
     h_tmpa.Scale(fullfac[s])
     hggZZ.Add(h_tmpa)
-   
+
 
 hqqZZ = rebin2D(hqqZZ,10,10)
 hqqZZ.SetFillColor(4)

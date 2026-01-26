@@ -1,4 +1,5 @@
-import os,sys
+import os
+import sys
 import json
 import glob
 import argparse
@@ -21,7 +22,7 @@ def readJson(json_file_name):
         try:
             json_info = json.load(json_file)
         except ValueError as err:
-            print("Error reading JSON file %s. The error message was:" % json_file_name) 
+            print("Error reading JSON file %s. The error message was:" % json_file_name)
             print(err)
     return json_info
 
@@ -40,7 +41,7 @@ def getDefaultParser():
                         help="Put legend left or right")
     parser.add_argument("--folder_name", type=str, default="",
                         help="Folder name to save plots in (default is current time)")
-    parser.add_argument("--ratio_text", default="",type=str, 
+    parser.add_argument("--ratio_text", default="",type=str,
                         help="Ratio text")
     parser.add_argument("--scaleymax", type=float, default=1.0,
                         help="Scale default ymax by this amount")
@@ -92,7 +93,7 @@ def getDefaultParser():
     parser.add_argument("--logx", action='store_true',
                         help="Use logaritmic scale on X-axis")
     parser.add_argument("-c", "--channels", type=str, default="eeee,eemm,mmee,mmmm",
-                        help="List (separate by commas) of channels to plot") 
+                        help="List (separate by commas) of channels to plot")
     parser.add_argument("--no_scalefactors", action='store_true',
                         help="No scale factors")
     parser.add_argument("-f", "--files_to_plot", type=str, required=False,
@@ -104,8 +105,8 @@ def getDefaultParser():
                         default="", help="Files to make plots "
                         "signal plots from i.e. on top, not stacked. List "
                         "separated by a comma (match name in file_info.json)")
-    return parser 
-def getListOfFiles(file_set, selection):
+    return parser
+def getListOfFiles(file_set):
     filelist = []
     for files in [x.strip() for x in file_set.split(",")]:
         fileset_nc = files.lower()
@@ -129,9 +130,9 @@ def getListOfFiles(file_set, selection):
                 if draw_all or "cll1" in fileset_nc:
                     filelist.append("ZZEFT_cll1")
                 if "qqz0z0" in fileset_nc:
-                    filelist.append("qqZ0Z0");
+                    filelist.append("qqZ0Z0")
                 if "qqztzt" in fileset_nc:
-                    filelist.append("qqZTZT");
+                    filelist.append("qqZTZT")
                 #Backgrounds
                 if "nobkg" not in fileset_nc:
                     filelist.append("nonprompt")

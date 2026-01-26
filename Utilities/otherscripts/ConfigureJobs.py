@@ -12,7 +12,7 @@ import logging
 import configparser
     #from six.moves import configparser
 
-def get2DBinning(xvar="mjj", yvar="etajj", analysis='WZ'):
+def get2DBinning(xvar="mjj", yvar="etajj"):
     #return (array.array('d', [500, 1000,1500, 2000, 2500]),
     # [0, 150, 300, 450] # for MT(WZ)
 #    return (array.array('d', [500, 1000, 1350, 1750, 2000, 2500]),
@@ -22,9 +22,9 @@ def get2DBinning(xvar="mjj", yvar="etajj", analysis='WZ'):
         xbinning = array.array('d', [500, 1000,1500, 2000, 2500])
         #xbinning = array.array('d', [500, 1000, 1350, 1750, 2500])
 
-    if yvar == 'etajj':    
+    if yvar == 'etajj':
         ybinning = [2.5, 4, 5, 20]
-    #if yvar == 'etajj':    
+    #if yvar == 'etajj':
     #    ybinning = [2.5, 4, 5.5, 20]
     elif yvar == 'dRjj':
         ybinning = [0, 5, 6, 20]
@@ -64,7 +64,7 @@ def getManagerPath():
         if os.path.isdir(getManagerName()):
             return '.'
         else:
-            raise IOError("Failed to find valid config file. Looking for %s" 
+            raise IOError("Failed to find valid config file. Looking for %s"
                     % config_name)
     config = configparser.ConfigParser()
     config.read_file(open(config_name))
@@ -94,14 +94,14 @@ def getCombinePath():
     config = configparser.ConfigParser()
     config.read_file(open("Templates/config.%s" % os.environ["USER"]))
     if "combine_path" not in config['Setup']:
-        raise ValueError("dataset_manager_path not specified in config file Template/config.%s" 
+        raise ValueError("dataset_manager_path not specified in config file Template/config.%s"
                             % os.environ["USER"])
     return config['Setup']['combine_path'] + "/"
 #def getListOfaltSig(): #TODO: Update
 #    with open('listFile.json') as list_json_file:
 #        mylist_dict = json.load(list_json_file)
 #    return mylist_dict['altEWK']
-#    
+#
 #    return [
 #        "zz4l-amcatnlo",
 #        "ggZZ4e",
@@ -188,7 +188,7 @@ def getListOfVVV(analysis=""):
        "WZZ",
        "ZZZ",
        "WWZ",
-       "ttZ", 
+       "ttZ",
     ]
     for year in lumi_info.keys():
         if year in analysis:
@@ -216,7 +216,7 @@ def getJobName(sample_name, analysis, selection, version):
     selections = selection.split(",")
     selection_name = "To".join([selections[0],selections[-1]]) \
         if len(selections) > 1 else selections[0]
-    return '-'.join([date, sample_name, analysis, selection_name, 
+    return '-'.join([date, sample_name, analysis, selection_name,
         ("v%s" % version) if version.isdigit() else version])
 def getNumberAndSizeOfLocalFiles(path_to_files):
     file_list = glob.glob(path_to_files)
@@ -372,8 +372,8 @@ def getLHEWeightIDs(sample_name, analysis, precision=3):
     with open(filename) as infile:
         try:
             info = json.load(infile)
-        except:
-            raise ValueError("error loading JSON file")
+        except (ValueError,UnicodeError) as err:
+            raise ValueError("error loading JSON file") from err
         chain = ROOT.TChain("eemm/ntuple")
         if sample_name not in info:
             raise ValueError("sample '%s' not in JSON file" % sample_name)

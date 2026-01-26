@@ -50,7 +50,7 @@ def getWZCutFlow(dataset_manager, cutflow_type):
                                 "&& Zlep1IsTight && Zlep2IsTight && WlepIsTight"
                                 "&& ZMass > 76.1876 && ZMass < 106.1876"
                                 "&& Mass > 100"
-                                "&& l1Pt > 25 && l2Pt > 15" 
+                                "&& l1Pt > 25 && l2Pt > 15"
                                 "&& MET > 30"
         }
     })
@@ -60,7 +60,7 @@ def getWZCutFlow(dataset_manager, cutflow_type):
                                 "&& Zlep1IsTight && Zlep2IsTight && WlepIsTight"
                                 "&& ZMass > 76.1876 && ZMass < 106.1876"
                                 "&& Mass > 100"
-                                "&& l1Pt > 25 && l2Pt > 15" 
+                                "&& l1Pt > 25 && l2Pt > 15"
                                 "&& MET > 30"
                                 "&& nJetCSVv2T < 0.5"
         }
@@ -106,7 +106,7 @@ def getWZCutFlow(dataset_manager, cutflow_type):
             "additional_cut" : ""
         }
     })
-    
+
     cutflow_maker = CutFlowTools.CutFlowHistMaker("CutFlow",
         dataset_manager,
         "WZxsec2016/Wselection"
@@ -116,7 +116,7 @@ def getWZCutFlow(dataset_manager, cutflow_type):
     else:
         cutflow_values = wz_full_cutflow
     for name, info in cutflow_values.items():
-        cutflow_entry = CutFlowTools.CutFlowEntry(name, 
+        cutflow_entry = CutFlowTools.CutFlowEntry(name,
             dataset_manager,
             "WZxsec2016/" + info["datatier"],
         )

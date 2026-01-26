@@ -3,13 +3,11 @@ import ROOT
 from Utilities import CutFlowTools
 import Utilities.UserInput as UserInput
 import Utilities.helper_functions as helper
-from Utilities import CutFlowDefinitions
-from Utilities.scripts import makeSimpleHtml
 from Utilities.prettytable import PrettyTable
 from collections import OrderedDict
 import datetime
 import os
-import array
+import sys
 
 def getMonteCarloStack(name, cutflow_maker, filelist, unc, scale_facs, hist_file):
     hist_stack = ROOT.THStack(name, "")
@@ -50,10 +48,10 @@ def makeLogFile(channels, hist_stack, data_hist, signal_stack):
     columns = ["Process"] + ["\\"+c for c in channels] + ["Total Yield"]
     yield_table = PrettyTable(columns)
     yield_info = OrderedDict()
-    hists = hist_stack.GetHists() 
+    hists = hist_stack.GetHists()
     hists.sort(key=lambda x: x.Integral(), reverse=True)
 
-    formatted_names = { "wz-powheg" : "WZ (POWHEG)",
+    formatted_names = {
         "wz-mgmlm" : "WZ (MG MLM)",
         "wz3lnu-mgmlm-0j" : "WZ+0j (MG MLM)",
         "wz3lnu-mgmlm-1j" : "WZ+1j (MG MLM)",
@@ -87,14 +85,14 @@ def makeLogFile(channels, hist_stack, data_hist, signal_stack):
     if signal_stack:
         hists += signal_stack.GetHists()
         signal_names = [h.GetName() for h in signal_stack.GetHists()]
-    signal_names.append("predyield") 
-    hist_allbackground = ROOT.TH1D("predyield", "all background", 
+    signal_names.append("predyield")
+    hist_allbackground = ROOT.TH1D("predyield", "all background",
                             1+len(channels), 0, 1+len(channels))
     hists.append(hist_allbackground)
 
     if data_hist:
         hists.Add(data_hist)
-    
+
     sigfigs = 0 if not data_hist else 1
     for hist in hists:
         if hist.GetName() not in signal_names and "data" not in hist.GetName():
@@ -135,28 +133,28 @@ cutflow_entry = CutFlowTools.CutFlowEntry("Total",
 cutflow_entry.addAdditionalCut(args.make_cut)
 cutflow_entry.setStates(args.channels)
 cutflow_maker.addEntry(cutflow_entry)
-channels = list(reversed(sorted(args.channels.split(","))))
+channels = sorted(args.channels.split(","), reverse=True)
 
 channel_names = {"eee" : "eee", "eem" : "ee#mu", "emm" : "#mu#mue", "mmm" : "#mu#mu#mu"}
 for chan in channels:
-    cutflow_entry = CutFlowTools.CutFlowEntry(channel_names[chan], 
+    cutflow_entry = CutFlowTools.CutFlowEntry(channel_names[chan],
         dataset_manager,
         args.selection.split("_")[0],
     )
     cutflow_entry.addAdditionalCut(args.make_cut)
     cutflow_entry.setStates(chan)
     cutflow_maker.addEntry(cutflow_entry)
-filelist = UserInput.getListOfFiles(args.files_to_plot, args.selection)
+filelist = UserInput.getListOfFiles(args.files_to_plot)
 if not args.no_data:
     data_hist = cutflow_maker.getHist("data_2016", "stat", args.hist_file)
 else:
     data_hist = 0
-hist_stack = getMonteCarloStack("stack", cutflow_maker, filelist, 
+hist_stack = getMonteCarloStack("stack", cutflow_maker, filelist,
         args.uncertainties, not args.no_scalefactors, args.hist_file)
 signal_stack = 0
 if len(args.signal_files) > 0:
-    signal_filelist = UserInput.getListOfFiles(args.signal_files, args.selection)
-    signal_stack = getMonteCarloStack("signal_stack", cutflow_maker, signal_filelist, 
+    signal_filelist = UserInput.getListOfFiles(args.signal_files)
+    signal_stack = getMonteCarloStack("signal_stack", cutflow_maker, signal_filelist,
         args.uncertainties, not args.no_scalefactors, args.hist_file)
 hist_stack.Draw()
 canvas = helper.makePlots([hist_stack], [data_hist], "YieldByChan", args, [signal_stack])
