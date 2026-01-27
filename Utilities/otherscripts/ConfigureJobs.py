@@ -176,18 +176,18 @@ def getListOfEWKFilenames(analysis=""):
 
 
 def getListOfDYFilenames(analysis=""):
-    lumi_info = getLumiMap()
-    outlist = [
-        "DYm10to50-2j",
-        "DYm50-2j",
-    ]
+    outlist = []
+    plotgroup_path = "%s/%s/PlotGroups/%s.json" % (
+        getManagerPath(),
+        getManagerName(),
+        analysis.replace("ZplusL", "ZZ4l"),
+    )
+    if os.path.isfile(plotgroup_path):
+        with open(plotgroup_path) as infile:
+            groups = json.load(infile)
+            if "dy-jets" in groups:
+                outlist = groups["dy-jets"]["Members"]
 
-    for year in lumi_info.keys():
-        if year in analysis:
-            eras = ["_%s" % x for x in getLuminosityEras(year)]
-            if not eras:
-                eras = [""]
-            outlist = ["%s%s" % (name, era) for name in outlist for era in eras]
     return outlist
 
 
