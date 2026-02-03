@@ -22,9 +22,10 @@ channels="eeee eemm mmee mmmm"
 dochannels=true
 dir="output"
 
+filelist="$analysis"
 opts="-s $analysis/$selection -y $1 -u stat --latex --hist_file $filepath --preliminary --scaleymax 1.2 --scalelegx 1.2"
 
-filelist="$analysis"
+echo "Output directory: $analysis/$selection/$dir"
 for var in $variables; do
   echo ${var}
 
