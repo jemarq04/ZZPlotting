@@ -308,7 +308,7 @@ def main():
     ROOT.gStyle.SetOptDate(0)
     if args.hist_file == "":
         ROOT.TProof.Open("workers=12")
-    filelist = UserInput.getListOfFiles(args.files_to_plot, args.selection)
+    filelist = UserInput.getListOfFiles(args.files_to_plot)
     print(filelist)
     path = ConfigureJobs.getManagerPath()[:-1]
     manager_name = ConfigureJobs.getManagerName()
@@ -414,7 +414,7 @@ def main():
                 data_hist = 0
             signal_stack = 0
             if len(args.signal_files) > 0:
-                signal_filelist = UserInput.getListOfFiles(args.signal_files, args.selection)
+                signal_filelist = UserInput.getListOfFiles(args.signal_files)
                 signal_stack = getStacked(
                     "signal_stack_" + branch_name,
                     config_factory,
