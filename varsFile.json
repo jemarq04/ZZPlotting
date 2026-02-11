@@ -475,6 +475,58 @@
         "responseClassNames": "testJet",
         "top_size": 0.1
     },
+    "Z1LepPt": {
+        "ratio_min": 0.4,
+        "top_xy": [
+            0.2,
+            0.87
+        ],
+        "bottom_size": 0.08,
+        "ymin_fac": 1.0,
+        "_binning": [
+            0.0,
+            30.0,
+            50.0,
+            100.0,
+            200.0
+        ],
+        "ymax_fac": 1.0,
+        "ratio_max": 1.8,
+        "prettyVars": "Lep p_{T}",
+        "bottom_xy": [
+            0.2,
+            0.91
+        ],
+        "units": "[GeV]",
+        "responseClassNames": "testJet",
+        "top_size": 0.1
+    },
+    "Z2LepPt": {
+        "ratio_min": 0.4,
+        "top_xy": [
+            0.2,
+            0.87
+        ],
+        "bottom_size": 0.08,
+        "ymin_fac": 1.0,
+        "_binning": [
+            0.0,
+            30.0,
+            50.0,
+            100.0,
+            200.0
+        ],
+        "ymax_fac": 1.0,
+        "ratio_max": 1.8,
+        "prettyVars": "Lep p_{T}",
+        "bottom_xy": [
+            0.2,
+            0.91
+        ],
+        "units": "[GeV]",
+        "responseClassNames": "testJet",
+        "top_size": 0.1
+    },
     "LepPt": {
         "ratio_min": 0.4,
         "top_xy": [
