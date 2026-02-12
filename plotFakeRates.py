@@ -18,10 +18,10 @@ def getTGraphAsymmErrors(frfile, folder, param, obj):
     graph.SetMarkerStyle(6)
     if obj == "E":
         graph.SetMinimum(0.01)
-        graph.SetMaximum(0.1)
+        graph.SetMaximum(0.08)
     else:
-        graph.SetMinimum(0.04)
-        graph.SetMaximum(0.3)
+        graph.SetMinimum(0.01)
+        graph.SetMaximum(0.2)
     return graph
 
 
@@ -44,14 +44,14 @@ def getTGraphAsymmErrorsPt(frfile, folder, param, obj):
     endcap.SetLineColor(ROOT.kRed)
     if obj == "E":
         barrel.SetMinimum(0.01)
-        barrel.SetMaximum(0.35)
+        barrel.SetMaximum(0.08)
         endcap.SetMinimum(0.01)
-        endcap.SetMaximum(0.35)
+        endcap.SetMaximum(0.08)
     else:
-        barrel.SetMinimum(0.04)
-        barrel.SetMaximum(0.35)
-        endcap.SetMinimum(0.04)
-        endcap.SetMaximum(0.35)
+        barrel.SetMinimum(0.01)
+        barrel.SetMaximum(0.2)
+        endcap.SetMinimum(0.01)
+        endcap.SetMaximum(0.2)
     return barrel, endcap
 
 
