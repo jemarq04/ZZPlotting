@@ -162,6 +162,11 @@ def getListOfFiles(file_set):
                 filelist.append("dy-jets")
                 filelist.append("ggZZ")
                 filelist.append("qqZZ-powheg")
+            elif "pol" in fileset_nc:
+                filelist.append("qqZZ-powheg")
+                filelist.append("ggZZ")
+                filelist.append("VVV")
+                filelist.append("nonprompt")
             else:
                 filelist.append("nonprompt")
                 # filelist.append("qqZZjj-ewk")
