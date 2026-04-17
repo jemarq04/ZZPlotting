@@ -822,7 +822,7 @@ def setGlobalChannel(channels, selection, lumi, branches, hist_file, doSyst):
     glb_file = hist_file
     glb_doSyst = doSyst
     glb_isFullMass = False
-    if "Full" in glb_var and "Mass" in glb_var:
+    if "Full" in glb_var and "Mass" in glb_var and not any(name in glb_var for name in ["ZMass", "Z1Mass", "Z2Mass"]):
         glb_isFullMass = True
 
 
