@@ -6,11 +6,30 @@ Changes by K.Long, https://github.com/kdlong/WZConfigPlotting/commit/14d492fe266
 
 import glob
 import imghdr
+import os
 import argparse
 
 
-def writeHTML(path, name):
+def getOrder(path, latest=None):
+    order = []
+    if path.split("/")[-1] not in ["eeee", "eemm", "mmee", "2e2m", "mmmm"]:
+        filepath = os.path.join(path, "order.txt")
+    else:
+        filepath = os.path.join(path, "..", "order.txt")
+    if os.path.isfile(filepath):
+        with open(filepath, "r") as infile:
+            order = [line.strip() for line in infile]
+    if latest is not None and latest not in order:
+        order.append(latest)
+        with open(filepath, "a") as outfile:
+            outfile.write(f"{latest}\n")
+    return order
+
+
+def writeHTML(path, name, latest=None):
     image_files = [x for x in glob.glob(path + "/plots/*.*") if imghdr.what(x)]
+    order = getOrder(path, latest)
+    image_files.sort(key=lambda x: order.index(os.path.basename(x).split(".")[0]))
     with open("%s/index.html" % path, "w") as index:
         index = open("%s/index.html" % path, "w")
         index.write(
