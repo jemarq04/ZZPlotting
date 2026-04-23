@@ -187,7 +187,11 @@ def main():
     config.read_file(open(config_name))
     if "dataset_manager_path" not in config["Setup"]:
         raise ValueError("dataset_manager_path not specified in config file %s" % config_name)
-    test = ConfigHistFactory(config["Setup"]["dataset_manager_path"].replace("$CMSSW_BASE", os.environ["CMSSW_BASE"]), "ZZAnalysis", "Zselection")
+    test = ConfigHistFactory(
+        config["Setup"]["dataset_manager_path"].replace("$CMSSW_BASE", os.environ["CMSSW_BASE"]),
+        "ZZAnalysis",
+        "Zselection",
+    )
     draw_expr = test.getHistDrawExpr("l1Pt", "zz4l-powheg", "eeee")
     hist_name = draw_expr.split(">>")[1].split("(")[0]
     print(hist_name)
