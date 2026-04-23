@@ -251,7 +251,9 @@ def main():
                     ROOT.CMSlumi(canvas, 0, 0, "%.1f fb^{-1} (13.6 TeV)" % args.luminosity, " ".join(lumi_text))
 
                     helper.savePlot(canvas, plot_path, html_path, plot_name, False, args)
-                    makeSimpleHtml.writeHTML(html_path.replace("/plots", ""), f"Fake Rates (from {group})")
+                    makeSimpleHtml.writeHTML(
+                        html_path.replace("/plots", ""), f"Fake Rates (from {group})", latest=plot_name
+                    )
 
 
 if __name__ == "__main__":
