@@ -169,8 +169,8 @@ def getListOfFiles(file_set):
                 filelist.append("nonprompt")
             else:
                 filelist.append("nonprompt")
-                # filelist.append("qqZZjj-ewk")
-                # filelist.append("HZZ-signal")
+                filelist.append("qqZZjj-ewk")
+                filelist.append("HZZ-signal")
                 filelist.append("VVV")
                 filelist.append("ggZZ")
                 filelist.append("qqZZ-powheg")
