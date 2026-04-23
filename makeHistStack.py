@@ -18,7 +18,7 @@ import configparser
 with open("Templates/config.%s" % os.getlogin()) as fconfig:
     config = configparser.ConfigParser()
     config.read_file(fconfig)
-    sys.path.insert(0, config["Setup"]["scriptPath"])
+    sys.path.insert(0, config["Setup"]["scriptPath"].replace("$CMSSW_BASE", os.environ["CMSSW_BASE"]))
 import ConfigureJobs
 
 
