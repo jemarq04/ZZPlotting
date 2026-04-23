@@ -83,7 +83,7 @@ def getStorageArea():
     config.read_file(open(config_name))
     if "storage_area" not in config["Setup"] or "html_area" not in config["Setup"]:
         raise ValueError("storage path not specified in config file %s" % config_name)
-    return config["Setup"]["storage_area"], config["Setup"]["html_area"]
+    return config["Setup"]["storage_area"], os.path.expanduser(config["Setup"]["html_area"])
 
 
 def getLumiMap(manager_path=""):

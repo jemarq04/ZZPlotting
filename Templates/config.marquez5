@@ -11,4 +11,4 @@ hist_output = %(output_path)s/HistFiles
 combine_output = %(output_path)s/CombineData
 storage_area = $CMSSW_BASE/src/plots
 scriptPath = $CMSSW_BASE/src/ZZPlotting/Utilities/otherscripts
-html_area = /mnt/ceph/home/marquez5/public/SMEFTsim/uwvv_analysis/www
+html_area = ~/public/SMEFTsim/uwvv_analysis/www
