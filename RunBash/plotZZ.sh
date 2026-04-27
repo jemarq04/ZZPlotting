@@ -15,7 +15,7 @@ if [[ ! -f $filepath ]]; then
 fi
 
 selection="ZZSelectionsTightLeps"
-variables="Mass ZMass Z1Mass Z2Mass LepPt LepPt1 LepPt2 LepEta SIP3D LepIso"
+variables="Mass ZZPt ZPt ZMass Z1Mass Z2Mass LepPt LepPt1 LepPt2 LepEta"
 jetvariables="nJets nJets_central MassFull Mass0jFull Mass1jFull Mass2jFull Mass34jFull absjetEta[0] absjetEta[1] jetPt[0] jetPt[1]"
 controlvariables="Mass Z1Mass Z2Mass"
 channels="eeee eemm mmee mmmm"
