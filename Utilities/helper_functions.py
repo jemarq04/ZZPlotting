@@ -118,8 +118,9 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=None, errors=No
             # error_hist.SetLineWidth(1)  # Changed from 1 to 3
             # ROOT.gStyle.SetHatchesLineWidth(1)
             # ROOT.gStyle.SetHatchesSpacing(0.75)
-            # error_hist.Draw("same e2")
-            if mainband is not None:
+            if mainband is None:
+                error_hist.Draw("same e2")
+            else:
                 mainband.Draw("2 same")
             # hist_stacks[0].Draw('hist same')
             if signal_stack:
@@ -141,8 +142,8 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=None, errors=No
         histErrors = []
     legend = getPrettyLegend(
         hist_stacks[0], data_hists[0], signal_stacks[0], [mainband] if mainband is not None else [], coords
+        # hist_stacks[0], data_hists[0], signal_stacks[0], [mainband] if mainband is not None else histErrors, coords
     )
-    # legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], histErrors, coords)
     stack_hists_temp = [p for p in canvas.GetListOfPrimitives() if type(p) is ROOT.TH1D and "signal" not in p.GetName()]
     if stack_hists_temp:
         stack_hists_temp[0].SetTitle("")
