@@ -240,9 +240,9 @@ def getHistErrors(hist):
     histErrors = hist.Clone()
     histErrors.SetName(hist.GetName() + "_errors")
     histErrors.SetDirectory(0)
-    setErrorsStyle(histErrors)
     if not histErrors.GetSumw2():
         histErrors.Sumw2()
+    histErrors.SetMarkerSize(0)
     histErrors.SetFillStyle(3345)
     histErrors.SetFillColor(ROOT.TColor.GetColor("#a8a8a8"))
     histErrors.SetLineColor(ROOT.TColor.GetColor("#a8a8a8"))
@@ -250,13 +250,6 @@ def getHistErrors(hist):
     ROOT.gStyle.SetHatchesLineWidth(1)
     ROOT.gStyle.SetHatchesSpacing(0.75)
     return histErrors
-
-
-def setErrorsStyle(histErrors):
-    histErrors.SetMarkerSize(0)
-    histErrors.SetFillStyle(3345)
-    histErrors.SetFillColor(ROOT.TColor.GetColor("#a8a8a8"))
-    histErrors.SetLineColor(ROOT.TColor.GetColor("#a8a8a8"))
 
 
 def splitCanvasWithSyst(ratioband, oldcanvas, dimensions, ratio_text, ratio_range, isMassFull, varname):

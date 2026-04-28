@@ -72,7 +72,7 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=None, errors=No
     else:
         mainband = None
         ratioband = None
-    if mainband and ratioband:
+    if mainband is not None and ratioband is not None:
         ROOT.SetOwnership(ratioband, False)
         ROOT.SetOwnership(mainband, False)
         # pdb.set_trace()
@@ -115,11 +115,11 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=None, errors=No
         histErrors = getHistErrors(hist_stacks[0], args.nostack) if not errors else errors
         for error_hist, signal_stack, data_hist in zip(histErrors, signal_stacks, data_hists):
             ROOT.SetOwnership(error_hist, False)
-            error_hist.SetLineWidth(1)  # Changed from 1 to 3
-            ROOT.gStyle.SetHatchesLineWidth(1)
-            ROOT.gStyle.SetHatchesSpacing(0.75)
+            # error_hist.SetLineWidth(1)  # Changed from 1 to 3
+            # ROOT.gStyle.SetHatchesLineWidth(1)
+            # ROOT.gStyle.SetHatchesSpacing(0.75)
             # error_hist.Draw("same e2")
-            if mainband:
+            if mainband is not None:
                 mainband.Draw("2 same")
             # hist_stacks[0].Draw('hist same')
             if signal_stack:
@@ -135,25 +135,17 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=None, errors=No
             elif "scale" in args.uncertainties:
                 error_title = "Stat.#oplusScale"
             error_hist.SetTitle(error_title)
-            if mainband:
+            if mainband is not None:
                 mainband.SetTitle(error_title)
     else:
         histErrors = []
+    legend = getPrettyLegend(
+        hist_stacks[0], data_hists[0], signal_stacks[0], [mainband] if mainband is not None else [], coords
+    )
     # legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], histErrors, coords)
-    if mainband:
-        legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], [mainband], coords)
-        stack_hists_temp = [
-            p for p in canvas.GetListOfPrimitives() if type(p) is ROOT.TH1D and "signal" not in p.GetName()
-        ]
-        if stack_hists_temp:
-            stack_hists_temp[0].SetTitle("")
-    else:
-        legend = getPrettyLegend(hist_stacks[0], data_hists[0], signal_stacks[0], [], coords)
-        stack_hists_temp = [
-            p for p in canvas.GetListOfPrimitives() if type(p) is ROOT.TH1D and "signal" not in p.GetName()
-        ]
-        if stack_hists_temp:
-            stack_hists_temp[0].SetTitle("")
+    stack_hists_temp = [p for p in canvas.GetListOfPrimitives() if type(p) is ROOT.TH1D and "signal" not in p.GetName()]
+    if stack_hists_temp:
+        stack_hists_temp[0].SetTitle("")
     legend.Draw()
 
     if not args.no_decorations:
