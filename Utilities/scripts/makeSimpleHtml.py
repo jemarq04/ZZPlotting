@@ -31,7 +31,6 @@ def writeHTML(path, name, latest=None):
     order = getOrder(path, latest)
     image_files.sort(key=lambda x: order.index(os.path.basename(x).split(".")[0]))
     with open("%s/index.html" % path, "w") as index:
-        index = open("%s/index.html" % path, "w")
         index.write(
             "<html>\n"
             "<head>\n"
