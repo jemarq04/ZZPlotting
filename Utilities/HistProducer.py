@@ -13,14 +13,11 @@ class HistProducer(object, metaclass=abc.ABCMeta):
         if self.getSumOfWeights() <= 0:
             raise ValueError("Found non-positive sum of weights")
         # pdb.set_trace()
-        # if abs(self.weight_info.getCrossSection()-0.00584*1.53)<0.000001:
-        #    return self.weight_info.getCrossSection()*self.lumi/(6216.00740357+6798.63211242+6798.8828435)
-        # else:
-        return self.getCrossSection() * self.lumi / self.getSumOfWeights()
+        return self.getCrossSection("fb") * self.lumi / self.getSumOfWeights()
 
     def getCrossSection(self, units="pb"):
         xsec = self.weight_info.getCrossSection()
-        if xsec != 1 and units == "pb":
+        if xsec != 1 and units == "fb":
             xsec *= 1000
         return xsec
 
