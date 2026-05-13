@@ -559,6 +559,90 @@
         "responseClassNames": "testJet",
         "top_size": 0.1
     },
+    "ElePt": {
+        "ratio_min": 0.4,
+        "top_xy": [
+            0.2,
+            0.87
+        ],
+        "bottom_size": 0.08,
+        "ymin_fac": 1.0,
+        "_binning": [
+            0.0,
+            10.0,
+            20.0,
+            30.0,
+            40.0,
+            50.0,
+            60.0,
+            70.0,
+            80.0,
+            90.0,
+            100.0,
+            110.0,
+            120.0,
+            130.0,
+            140.0,
+            150.0,
+            160.0,
+            170.0,
+            180.0,
+            190.0,
+            200.0
+        ],
+        "ymax_fac": 1.0,
+        "ratio_max": 1.8,
+        "prettyVars": "Electron p_{T}",
+        "bottom_xy": [
+            0.2,
+            0.91
+        ],
+        "units": "[GeV]",
+        "responseClassNames": "testJet",
+        "top_size": 0.1
+    },
+    "MuPt": {
+        "ratio_min": 0.4,
+        "top_xy": [
+            0.2,
+            0.87
+        ],
+        "bottom_size": 0.08,
+        "ymin_fac": 1.0,
+        "_binning": [
+            0.0,
+            10.0,
+            20.0,
+            30.0,
+            40.0,
+            50.0,
+            60.0,
+            70.0,
+            80.0,
+            90.0,
+            100.0,
+            110.0,
+            120.0,
+            130.0,
+            140.0,
+            150.0,
+            160.0,
+            170.0,
+            180.0,
+            190.0,
+            200.0
+        ],
+        "ymax_fac": 1.0,
+        "ratio_max": 1.8,
+        "prettyVars": "Muon p_{T}",
+        "bottom_xy": [
+            0.2,
+            0.91
+        ],
+        "units": "[GeV]",
+        "responseClassNames": "testJet",
+        "top_size": 0.1
+    },
     "LepPt": {
         "ratio_min": 0.4,
         "top_xy": [
@@ -682,6 +766,78 @@
             0.91
         ],
         "units": "[GeV]",
+        "responseClassNames": "testJet",
+        "top_size": 0.1
+    },
+    "EleEta": {
+        "ratio_min": 0.4,
+        "top_xy": [
+            0.2,
+            0.87
+        ],
+        "bottom_size": 0.08,
+        "ymin_fac": 1.0,
+        "_binning": [
+            -4.7,
+            -4.0,
+            -3.5,
+            -3.0,
+            -2.5,
+            -2.0,
+            -1.5,
+            0.0,
+            1.5,
+            2.0,
+            2.5,
+            3.0,
+            3.5,
+            4.0,
+            4.7
+        ],
+        "ymax_fac": 1.0,
+        "ratio_max": 1.8,
+        "prettyVars": "Electron #eta",
+        "bottom_xy": [
+            0.2,
+            0.91
+        ],
+        "units": "",
+        "responseClassNames": "testJet",
+        "top_size": 0.1
+    },
+    "MuEta": {
+        "ratio_min": 0.4,
+        "top_xy": [
+            0.2,
+            0.87
+        ],
+        "bottom_size": 0.08,
+        "ymin_fac": 1.0,
+        "_binning": [
+            -4.7,
+            -4.0,
+            -3.5,
+            -3.0,
+            -2.5,
+            -2.0,
+            -1.5,
+            0.0,
+            1.5,
+            2.0,
+            2.5,
+            3.0,
+            3.5,
+            4.0,
+            4.7
+        ],
+        "ymax_fac": 1.0,
+        "ratio_max": 1.8,
+        "prettyVars": "Muon #eta",
+        "bottom_xy": [
+            0.2,
+            0.91
+        ],
+        "units": "",
         "responseClassNames": "testJet",
         "top_size": 0.1
     },
@@ -1254,6 +1410,74 @@
         "ymax_fac": 1.0,
         "ratio_max": 1.8,
         "prettyVars": "Z p_{T} [GeV]",
+        "bottom_xy": [
+            0.2,
+            0.91
+        ],
+        "units": "[GeV]",
+        "responseClassNames": "testJet",
+        "top_size": 0.1
+    },
+    "EleZMass": {
+        "ratio_min": 0.4,
+        "top_xy": [
+            0.2,
+            0.87
+        ],
+        "bottom_size": 0.08,
+        "ymin_fac": 1.0,
+        "_binning": [
+            0.0,
+            10.0,
+            20.0,
+            30.0,
+            40.0,
+            50.0,
+            60.0,
+            70.0,
+            80.0,
+            90.0,
+            100.0,
+            110.0,
+            120.0
+        ],
+        "ymax_fac": 1.0,
+        "ratio_max": 1.8,
+        "prettyVars": "Z(ee) Mass",
+        "bottom_xy": [
+            0.2,
+            0.91
+        ],
+        "units": "[GeV]",
+        "responseClassNames": "testJet",
+        "top_size": 0.1
+    },
+    "MuZMass": {
+        "ratio_min": 0.4,
+        "top_xy": [
+            0.2,
+            0.87
+        ],
+        "bottom_size": 0.08,
+        "ymin_fac": 1.0,
+        "_binning": [
+            0.0,
+            10.0,
+            20.0,
+            30.0,
+            40.0,
+            50.0,
+            60.0,
+            70.0,
+            80.0,
+            90.0,
+            100.0,
+            110.0,
+            120.0
+        ],
+        "ymax_fac": 1.0,
+        "ratio_max": 1.8,
+        "prettyVars": "Z(#mu#mu) Mass",
         "bottom_xy": [
             0.2,
             0.91
