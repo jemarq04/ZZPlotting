@@ -15,7 +15,7 @@ if [[ ! -f $filepath ]]; then
 fi
 
 selection="ZZSelectionsTightLeps"
-variables="Mass ZZPt ZPt ZMass Z1Mass Z2Mass LepPt LepPt1 LepPt2 LepEta"
+variables="Mass ZZPt ZPt ZMass Z1Mass Z2Mass LepPt LepPt1 LepPt2 LepEta ElePt EleEta EleZMass MuPt MuEta MuZMass"
 jetvariables="nJets nJets_central MassFull Mass0jFull Mass1jFull Mass2jFull Mass34jFull absjetEta[0] absjetEta[1] jetPt[0] jetPt[1]"
 controlvariables="Mass Z1Mass Z2Mass"
 channels="eeee eemm mmee mmmm"
@@ -31,7 +31,7 @@ for var in $variables; do
 
   moreopts="-f $filelist -b ${var}"
   [[ $var = "Mass" ]] && moreopts="$moreopts --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0"
-  [[ $var =~ ^Z[12]?Mass ]] && moreopts="$moreopts --legend_left"
+  [[ $var =~ Z[12]?Mass ]] && moreopts="$moreopts --legend_left"
 
   echo "All Channels"
   ./makeHistStack.py $opts $moreopts --folder_name ${dir}
@@ -72,7 +72,7 @@ for var in $controlvariables; do
     [[ $fakes = PPPF ]] && extratext="3P1F Region" || extratext="2P2F Region"
 
     moreopts="-f ${filelist}_nonprompt -b ${var}_${fakes}"
-    [[ $var =~ ^Z[12]?Mass ]] && moreopts="$moreopts --legend_left"
+    [[ $var =~ Z[12]?Mass ]] && moreopts="$moreopts --legend_left"
 
     echo "All Channels"
     ./makeHistStack.py $opts $moreopts --folder_name ${dir} --extra_text "${extratext}"
