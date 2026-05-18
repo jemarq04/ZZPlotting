@@ -347,29 +347,19 @@ def makeCompositeHists(hist_file, name, members, lumi, hists=None, underflow=Fal
             logging.warning("Skipping invalid filename %s" % directory)
             continue
         if hists is None:
-            hists = []
-            for hloop in hist_file.Get(directory).GetListOfKeys():
-                # if not "Gen" in hloop.GetName(): #Only process RECO for now in ZZPlotting
-                hists.append(hloop.GetName())
-
-            # hists = [i.GetName() for i in hist_file.Get(directory).GetListOfKeys()]
+            hists = [i.GetName() for i in hist_file.Get(directory).GetListOfKeys()]
         sumweights = 0
-        if "data" not in directory.lower():
-            sumweights_hist = hist_file.Get("/".join([directory.split("__")[0], "sumweights"]))
+        if "data" not in directory.lower() and "nonprompt" not in directory.lower():
+            sumweights_hist = hist_file.Get("/".join([directory, "sumweights"]))
             if not sumweights_hist:
                 raise RuntimeError("Failed to find sumWeights for dataset %s" % directory)
-            # pdb.set_trace()
-            sumweights = sumweights_hist.Integral(
-                1, sumweights_hist.GetNbinsX() + 2
-            )  # +1 instead of +2? For overbin integral doesn't matter how many extra bins.
+            sumweights = sumweights_hist.Integral(1, sumweights_hist.GetNbinsX() + 2)
             sumweights_hist.Delete()
         for histname in hists:
             if histname == "sumweights":
                 continue
             tmphist = hist_file.Get("/".join([directory, histname]))
             if not tmphist:
-                # print(directory)
-                # print(hists)
                 raise RuntimeError("Failed to produce histogram %s" % "/".join([directory, histname]))
             toRebin = rebin and "TH2" not in tmphist.ClassName()
             hist = tmphist.Clone() if not toRebin else tmphist.Rebin(len(rebin) - 1, histname, rebin)
@@ -377,7 +367,8 @@ def makeCompositeHists(hist_file, name, members, lumi, hists=None, underflow=Fal
             if hist:
                 sumhist = composite.FindObject(hist.GetName())
                 if sumweights:
-                    hist.Scale(members[directory.split("__")[0]] * 1000 * lumi / sumweights)
+                    xsec = members[directory if directory in list(members.keys()) else directory.split("__")[0]]
+                    hist.Scale(xsec * 1000 * lumi / sumweights)
                     # Save sumweights in SumW dictionary
                     SumW.update({directory: sumweights})
                 addOverflowAndUnderflow(hist, underflow, overflow)
