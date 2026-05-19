@@ -129,8 +129,8 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=None, errors=No
                 # pdb.set_trace()
                 data_hist.SetLineWidth(3)
                 data_hist.Draw("e0 same")
-            # error_title = "Stat. unc."
-            error_title = "Syst. unc."
+            error_title = "Stat. unc."
+            # error_title = "Syst. unc."
             if "all" in args.uncertainties:
                 error_title = "Stat.#oplusSyst."
             elif "scale" in args.uncertainties:
@@ -144,9 +144,8 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=None, errors=No
         hist_stacks[0],
         data_hists[0],
         signal_stacks[0],
-        [mainband] if mainband is not None else [],
+        [mainband] if mainband is not None else [],  # histErrors,
         coords,
-        # hist_stacks[0], data_hists[0], signal_stacks[0], [mainband] if mainband is not None else histErrors, coords
     )
     stack_hists_temp = [p for p in canvas.GetListOfPrimitives() if type(p) is ROOT.TH1D and "signal" not in p.GetName()]
     if stack_hists_temp:
