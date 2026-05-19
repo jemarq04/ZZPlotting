@@ -16,4 +16,4 @@ fi
 
 systematics="CMS_eff_e,CMS_eff_m,CMS_pileup"
 
-./plotVariations.py --title ";m_{ZZ} [GeV];Events" --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0 -S $systematics -a ZZ4l$1 -y $1 --preliminary $filepath
+./plotVariations.py --title ";m_{4l} [GeV];Events" --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0 -S $systematics -a ZZ4l$1 -y $1 --preliminary $filepath
