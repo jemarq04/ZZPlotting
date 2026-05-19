@@ -7,6 +7,7 @@ import os
 import sys
 import ROOT
 import Utilities.helper_functions as helper
+import Utilities.plot_functions as plotter
 from Utilities.scripts import makeSimpleHtml
 
 with open("Templates/config.%s" % os.getlogin()) as fconfig:
@@ -15,6 +16,109 @@ with open("Templates/config.%s" % os.getlogin()) as fconfig:
     sys.path.insert(0, config["Setup"]["scriptPath"].replace("$CMSSW_BASE", os.environ["CMSSW_BASE"]))
 import ConfigureJobs
 import HistTools
+
+
+def savePlotWithRatio(oldcanvas, dimensions, ratio_text, ratio_range, plot_path, html_path, plot_name, args):
+    stacks = [p for p in oldcanvas.GetListOfPrimitives() if type(p) is ROOT.THStack]
+    stack_hists = [i for s in stacks for i in s.GetHists()]
+
+    do_error = False  # disabled for now, not working
+    if do_error:
+        ROOT.gStyle.SetHatchesLineWidth(1)
+        ROOT.gStyle.SetHatchesSpacing(0.75)
+        for hist in stacks[0].GetHists():
+            error_hist = hist.Clone(f"{hist.GetName()}_errors")
+            if not error_hist.GetSumw2():
+                error_hist.Sumw2()
+            error_hist.SetMarkerSize(0)
+            error_hist.SetFillStyle(3345)
+            error_hist.SetFillColor(hist.GetLineColor())
+            error_hist.SetLineColor(hist.GetLineColor())
+            error_hist.SetLineWidth(1)
+            error_hist.Draw("same e2")
+
+    name = oldcanvas.GetName()
+    canvas = ROOT.TCanvas(f"{name}__new", name, *dimensions)
+
+    ratioPad = ROOT.TPad("ratioPad", "ratioPad", 0.0, 0.0, 1.0, 0.3)
+    ratioPad.Draw()
+
+    stackPad = ROOT.TPad("stackPad", "stackPad", 0.0, 0.3, 1.0, 1.0)
+    stackPad.Draw()
+
+    stackPad.cd()
+    oldcanvas.DrawClonePad()
+    oldcanvas.Close()
+    canvas.SetName(name)
+
+    oldBottomMargin = stackPad.GetBottomMargin()
+    stackPad.SetBottomMargin(0.0)
+    ratioPad.cd()
+    ratioPad.SetBottomMargin(oldBottomMargin / 0.3)
+    ratioPad.SetTopMargin(0.05)
+
+    ratio_hists = [h.Clone(f"{h.GetName()}_ratio_hist") for h in stack_hists[1:]]
+    central_ratio_hist = stack_hists[0].Clone(f"{name}_central_ratio_hist")
+    central_ratio_hist.SetFillColor(ROOT.TColor.GetColor("#828282"))
+    central_ratio_hist.SetFillStyle(3345)
+    central_ratio_hist.SetFillColorAlpha(0, 0.0)
+    central_ratio_hist.SetMarkerSize(0)
+    central_hist = central_ratio_hist.Clone("temp")
+
+    for ratio_hist in ratio_hists:
+        ratio_temp = ratio_hist.Clone("ratio_temp")
+        ratio_hist.Divide(central_hist)
+        for i in range(ratio_hist.GetNbinsX() + 2):
+            denom = ratio_temp.GetBinContent(i)
+            if denom == 0:
+                continue
+            ratio_hist.SetBinError(i, ratio_temp.GetBinError(i) / denom)
+        ratio_hist.Sumw2()
+        del ratio_temp
+    for i in range(central_ratio_hist.GetNbinsX() + 2):
+        denom = central_hist.GetBinContent(i)
+        if denom == 0:
+            continue
+        central_ratio_hist.SetBinError(i, central_hist.GetBinError(i) / denom)
+        central_ratio_hist.SetBinContent(i, 1.0)
+
+    central_ratio_hist.GetYaxis().SetTitle(ratio_text)
+    central_ratio_hist.GetYaxis().SetTitleOffset(1)
+    central_ratio_hist.GetXaxis().SetLabelOffset(0.03)
+    central_ratio_hist.GetYaxis().CenterTitle()
+    central_ratio_hist.GetYaxis().SetRangeUser(*ratio_range)
+    central_ratio_hist.GetYaxis().SetNdivisions(3)
+    central_ratio_hist.GetYaxis().SetTitleSize(central_ratio_hist.GetYaxis().GetTitleSize() * 0.8)
+    central_ratio_hist.GetYaxis().SetLabelSize(central_ratio_hist.GetYaxis().GetLabelSize() * 0.8)
+    central_ratio_hist.Draw("E2")
+
+    for ratio_hist in ratio_hists:
+        ratio_hist.SetMarkerSize(0)
+        ratio_hist.SetMarkerColor(ratio_hist.GetLineColor())
+        ratio_hist.SetFillColor(ratio_hist.GetLineColor())
+        ratio_hist.SetLineStyle(1)
+        ratio_hist.Draw("same")
+
+    xaxis = central_ratio_hist.GetXaxis()
+    line = ROOT.TLine(xaxis.GetBinLowEdge(xaxis.GetFirst()), 1, xaxis.GetBinUpEdge(xaxis.GetLast()), 1)
+    line.SetLineStyle(ROOT.kDotted)
+    line.Draw()
+
+    isLong = stackPad.GetWw() / stackPad.GetWh() > 1.1
+    plotter.recursePrimitives(stackPad, plotter.fixFontSize, 1 / 0.7)
+    stackPad.Modified()
+    plotter.recursePrimitives(ratioPad, plotter.fixFontSize, 1 / 0.27, 0.85 if isLong else 1.15)
+    ratioPad.Modified()
+    canvas.Update()
+
+    ratioPad.RedrawAxis()
+    for p in [p for p in ratioPad.GetListOfPrimitives() if type(p) is ROOT.TPaveText]:
+        p.Clear()
+    canvas.cd()
+    canvas.Update()
+
+    helper.savePlot(canvas, plot_path, html_path, plot_name, False, args)
+    return canvas
 
 
 def main():
@@ -37,7 +141,7 @@ def main():
     )
     parser.add_argument("-a", "--analysis", required=True, help="name of analysis (e.g. ZZ4l2022)")
     parser.add_argument("-y", "--year", required=True, help="year of analysis")
-    parser.add_argument("--title", help="title to set for histogram before plotting")
+    parser.add_argument("--title", default="", help="title to set for histogram before plotting")
     parser.add_argument("--thesis", action="store_true", help="Write 'Thesis' in CMS style text")
     parser.add_argument("--preliminary", action="store_true", help="Write 'Preliminary' in CMS style text")
     parser.add_argument("--simulation", action="store_true", help="Write 'Simulation' in CMS style text")
@@ -85,16 +189,7 @@ def main():
     ROOT.gROOT.SetBatch(True)
     ROOT.gStyle.SetLegendBorderSize(0)
     ROOT.gStyle.SetOptStat(0)
-    canvas = ROOT.TCanvas("canvas", "canvas")
-
-    # legend coordinates
-    offset = ROOT.gPad.GetRightMargin() - 0.04
-    width = 0.2
-    xdist = 0.91
-    xcoords = [xdist - width - offset, xdist - offset]
-    ymax = 0.8
-    ycoords = [ymax, ymax - 0.16]
-    coords = [xcoords[0], ycoords[0], xcoords[1], ycoords[1]]
+    ROOT.gStyle.SetLineWidth(3)
 
     with ROOT.TFile.Open(args.infile) as infile:
         for systematic in args.systematics:
@@ -142,25 +237,64 @@ def main():
 
                 if args.title is not None:
                     hist.SetTitle(args.title)
-                hist.Draw("HIST")
-                histUp.Draw("HIST SAME")
-                histDown.Draw("HIST SAME")
-                ROOT.CMSlumi(canvas, 0, 0, f"{args.luminosity:.1f} fb^{{-1}} (13.6 TeV)", " ".join(lumi_text))
+
+                canvasDimensions = [800, 800]
+                canvas = ROOT.TCanvas(f"canvas_{chan}", "canvas", *canvasDimensions)
+
+                # legend coordinates
+                offset = ROOT.gPad.GetRightMargin() - 0.04
+                width = 0.2
+                xdist = 0.91
+                xcoords = [xdist - width - offset, xdist - offset]
+                ymax = 0.8
+                ycoords = [ymax, ymax - 0.16]
+                coords = [xcoords[0], ycoords[0], xcoords[1], ycoords[1]]
+
+                stack = ROOT.THStack(f"stack_{plot_name}_{chan}", args.title.split(";")[0])
+                stack.Add(hist)
+                stack.Add(histUp)
+                stack.Add(histDown)
+                stack.Draw("nostack hist")
+
+                stack.GetYaxis().SetTitleSize(hist.GetYaxis().GetTitleSize())
+                stack.GetYaxis().SetTitleOffset(hist.GetYaxis().GetTitleOffset())
+                stack.GetYaxis().SetTitle(hist.GetYaxis().GetTitle())
+                if hist.GetMinimum() == 0.0:
+                    stack.GetYaxis().ChangeLabel(1, -1.0, 0)
+                stack.GetHistogram().GetXaxis().SetTitle(hist.GetXaxis().GetTitle())
+                stack.GetHistogram().SetLabelSize(0.04)
+                stack.SetMinimum(hist.GetMinimum())
+                stack.SetMaximum(max([x.GetMaximum() for x in stack.GetHists()]) * 1.2)
+                stack.GetHistogram().GetYaxis().SetTitleOffset(1.05)
 
                 legend = ROOT.TLegend(*coords)
                 legend.AddEntry(hist, args.sample, "l")
                 legend.AddEntry(histUp, systematic, "l")
                 legend.Draw()
+                ROOT.CMSlumi(canvas, 0, 0, f"{args.luminosity:.1f} fb^{{-1}} (13.6 TeV)", " ".join(lumi_text))
 
-                helper.savePlot(canvas, plot_path, html_path, plot_name, False, args)
+                canvas = savePlotWithRatio(
+                    canvas,
+                    canvasDimensions,
+                    "#scale[0.85]{syst. / cent.}",
+                    [0.9, 1.1],
+                    plot_path,
+                    html_path,
+                    plot_name,
+                    args,
+                )
+                # canvas.Update()
+
+                # helper.savePlot(canvas, plot_path, html_path, plot_name, False, args)
 
                 makeSimpleHtml.writeHTML(
                     html_path.replace("/plots", ""), f"Systematic Variations on {args.sample}", latest=plot_name
                 )
 
+                canvas.Close()
+
             del group
 
-    canvas.Close()
     print("Done.")
 
 
