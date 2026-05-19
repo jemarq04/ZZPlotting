@@ -283,9 +283,6 @@ def main():
                     plot_name,
                     args,
                 )
-                # canvas.Update()
-
-                # helper.savePlot(canvas, plot_path, html_path, plot_name, False, args)
 
                 makeSimpleHtml.writeHTML(
                     html_path.replace("/plots", ""), f"Systematic Variations on {args.sample}", latest=plot_name
