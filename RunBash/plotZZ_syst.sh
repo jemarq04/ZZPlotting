@@ -28,5 +28,5 @@ for var in $variables; do
   moreopts="--folder_name ${dir} -b ${var}"
   [[ $var = "Mass" ]] && moreopts="$moreopts --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0"
 
-  ./plotVariations.py $opts $moreopts
+  ./plotSystematics.py $opts $moreopts
 done
