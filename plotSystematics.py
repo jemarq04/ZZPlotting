@@ -29,7 +29,7 @@ def getComLineArgs():
         default=["Mass"],
         help="List (separate by commas) of names of branches in root and config file to plot",
     )
-    parser.add_argument("-g", "--group", default="qqZZ-powheg", help="name of plot group to draw with variations")
+    parser.add_argument("-g", "--group", default="qqZZ-powheg", help="name of plot group or sample to draw with variations")
     parser.add_argument(
         "-S",
         "--systematics",
@@ -168,11 +168,14 @@ def main():
     args.output_file = ""
     args.no_html = False
 
+    groupname = args.group
     samples = [args.group]
     with open(os.path.join(manager_path, manager_name, "PlotGroups", f"{args.selection.split('/')[0]}.json")) as infile:
         info = json.load(infile)
         if args.group in info:
             samples = info[args.group]["Members"]
+        else:
+            groupname = [name for name in info if args.group in info[name]["Members"]][0]
 
     config_name = "Templates/config.%s" % os.getlogin()
     config = configparser.ConfigParser()
@@ -201,7 +204,7 @@ def main():
 
                 group, _ = HistTools.makeCompositeHists(
                     infile,
-                    args.group,
+                    groupname,
                     ConfigureJobs.getListOfFilesWithXSec(samples, manager_path),
                     args.luminosity,
                     hists=plotnames,
@@ -232,9 +235,9 @@ def main():
                     histUp = group.FindObject("_".join([branch, systematic + "Up", chan]))
                     histDown = group.FindObject("_".join([branch, systematic + "Down", chan]))
 
-                    config_factory.setHistAttributes(hist, branch, args.group)
-                    config_factory.setHistAttributes(histUp, branch, args.group)
-                    config_factory.setHistAttributes(histDown, branch, args.group)
+                    config_factory.setHistAttributes(hist, branch, groupname)
+                    config_factory.setHistAttributes(histUp, branch, groupname)
+                    config_factory.setHistAttributes(histDown, branch, groupname)
                     hist.SetFillColor(0)
                     histUp.SetFillColor(0)
                     histDown.SetFillColor(0)
