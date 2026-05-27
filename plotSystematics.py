@@ -29,7 +29,9 @@ def getComLineArgs():
         default=["Mass"],
         help="List (separate by commas) of names of branches in root and config file to plot",
     )
-    parser.add_argument("-g", "--group", default="qqZZ-powheg", help="name of plot group or sample to draw with variations")
+    parser.add_argument(
+        "-g", "--group", default="qqZZ-powheg", help="name of plot group or sample to draw with variations"
+    )
     parser.add_argument(
         "-S",
         "--systematics",
