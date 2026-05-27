@@ -333,36 +333,32 @@ def splitCanvasWithSyst(ratioband, oldcanvas, dimensions, ratio_text, ratio_rang
                 ratioHist.Divide(centralHist)
 
         # data/MC or MC/data, ratioHists will be updated to graph for compareData=True
-        if not pois_ratio:
-            ratioGraph = ROOT.TGraphAsymmErrors(ratioHist)
-        else:
+        if pois_ratio:
             ratioGraph = ROOT.TGraphAsymmErrors()
             ratioGraph.Divide(ratioHist, centralHist, "pois")
+        else:
+            ratioGraph = ROOT.TGraphAsymmErrors(ratioHist)
+            for i in range(1, tmpData.GetNbinsX() + 2):  # don't understand the need for +2
+                # Don't understand why not just extract errorUp/Down from ratio hist => to preserve poisson error in numerator
+                if switch_ratio:
+                    if tmpData.GetBinContent(i) == 0:
+                        continue
+                    errorUp = ratioHist.GetBinErrorUp(i)
+                    errorDown = ratioHist.GetBinErrorLow(i)
+                else:
+                    if centralRatioHist.GetBinContent(i) == 0:
+                        continue
+                    errorUp = (tmpData.GetBinContent(i) + tmpData.GetBinErrorUp(i)) / centralRatioHist.GetBinContent(i)
+                    errorUp -= ratioHist.GetBinContent(i)
+                    errorDown = (tmpData.GetBinContent(i) - tmpData.GetBinErrorLow(i)) / centralRatioHist.GetBinContent(
+                        i
+                    )
+                    errorDown = ratioHist.GetBinContent(i) - errorDown
 
-        ratioHists = [ratioGraph]
-        for i in range(1, tmpData.GetNbinsX() + 2):  # don't understand the need for +2
-            if not switch_ratio:
-                if centralRatioHist.GetBinContent(i) == 0:
-                    continue
-            if switch_ratio:
-                if tmpData.GetBinContent(i) == 0:
-                    continue
-
-            # Don't understand why not just extract errorUp/Down from ratio hist => to preserve poisson error in numerator
-
-            if not switch_ratio:
-                errorUp = (tmpData.GetBinContent(i) + tmpData.GetBinErrorUp(i)) / centralRatioHist.GetBinContent(i)
-                errorUp -= ratioHist.GetBinContent(i)
-                errorDown = (tmpData.GetBinContent(i) - tmpData.GetBinErrorLow(i)) / centralRatioHist.GetBinContent(i)
-                errorDown = ratioHist.GetBinContent(i) - errorDown
-
-            if switch_ratio:
-                errorUp = ratioHist.GetBinErrorUp(i)
-                errorDown = ratioHist.GetBinErrorLow(i)
-
-            if not pois_ratio:
                 ratioGraph.SetPointEYhigh(i - 1, errorUp)
                 ratioGraph.SetPointEYlow(i - 1, errorDown)
+
+        ratioHists = [ratioGraph]
     # =====================================
 
     else:
