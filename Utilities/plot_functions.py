@@ -314,7 +314,7 @@ def splitCanvasWithSyst(ratioband, oldcanvas, dimensions, ratio_text, ratio_rang
     centralRatioHist.SetFillColor(ROOT.TColor.GetColor("#828282"))
     # centralRatioHist.SetFillStyle(1001)
     centralRatioHist.SetFillStyle(3345)
-    centralRatioHist.SetFillColorAlpha(0, 0.0)
+    # centralRatioHist.SetFillColorAlpha(0, 0.0)
     centralRatioHist.SetMarkerSize(0)
 
     # =================================
