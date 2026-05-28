@@ -471,7 +471,7 @@ def getLuminosityUncertainty(year, manager_path=""):
     if year not in lumi_info:
         raise ValueError("Invalid year: %s. Must be present in lumi map" % year)
     if "years" in lumi_info[year]:
-        return 0.0  # TODO
+        raise ValueError("Invalid year: %s. Must be a single year to determine uncertainty.")
     elif "unc" not in lumi_info[year]:
         raise ValueError("No uncertainty for year: %s. Must be present in lumi map" % year)
 
