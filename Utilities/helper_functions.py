@@ -65,8 +65,8 @@ def makePlots(hist_stacks, data_hists, name, args, signal_stacks=None, errors=No
     ycoords = [ymax, ymax - 0.08 * unique_entries * args.scalelegy]
     coords = [xcoords[0], ycoords[0], xcoords[1], ycoords[1]]
 
-    doSyst_diagnostic = False
-    dosyst = glb_doSyst and doSyst_diagnostic
+    doSyst_override = False
+    dosyst = glb_doSyst and doSyst_override
     if dosyst:
         mainband, ratioband = getSystValue(hist_stacks[0].GetStack().Last())
     else:
