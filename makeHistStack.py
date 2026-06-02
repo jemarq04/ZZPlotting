@@ -286,11 +286,8 @@ def main():
     # When printing for table, remember to swithch bw normalization in helper_functions and FromFileHistProducer
     # =================================
     args = getComLineArgs()
-    doSyst = True
+    doSyst = args.uncertainties == "all" and args.channels == "eeee,eemm,mmee,mmmm"
     # do3ChanSys = True #Do 3 channels separately and totoal for table printout
-
-    if args.channels != "eeee,eemm,mmee,mmmm":  # only run syst band for total channels
-        doSyst = False
 
     # if args.channels == "eemm" or args.channels == "mmee": #only look at combined 2e2m channel
     #    return
