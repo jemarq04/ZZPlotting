@@ -2,10 +2,17 @@
 import ROOT
 import argparse
 import os
+import sys
 from Utilities.scripts import makeSimpleHtml
 import Utilities.helper_functions as helper
 import array
 import configparser
+
+with open("Templates/config.%s" % os.getlogin()) as fconfig:
+    config = configparser.ConfigParser()
+    config.read_file(fconfig)
+    sys.path.insert(0, config["Setup"]["scriptPath"].replace("$CMSSW_BASE", os.environ["CMSSW_BASE"]))
+import ConfigureJobs
 
 
 def getTGraphAsymmErrors(frfile, folder, param, obj):
@@ -210,6 +217,9 @@ def main():
     )
     parser.add_argument("infile", help="input fake rate histogram file")
     args = parser.parse_args()
+
+    if args.luminosity is not None and args.year is not None:
+        args.luminosity = ConfigureJobs.getLuminosity(args.year)
 
     lumi_text = []
     if args.thesis:

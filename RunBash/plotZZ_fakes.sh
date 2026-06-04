@@ -8,13 +8,6 @@ elif [[ ! $1 =~ ^202[2-4]$ && ! $1 = Run3Combined ]]; then
   exit 1
 fi
 
-if [[ $1 = 2022 ]]; then lumi=34.652;
-elif [[ $1 = 2023 ]]; then lumi=27.76;
-#elif [[ $1 = Run3Combined ]]; then lumi=171.342;
-elif [[ $1 = Run3Combined ]]; then lumi=62.412
-elif [[ $1 = 2024 ]]; then lumi=109.33;
-fi
-
 analysis="ZZ4l$1"
 filename="fakeRates-ZZ4l$1.root"
 filepath="$CMSSW_BASE/src/Analysis/VVAnalysis/HistFiles/$filename"
@@ -24,4 +17,4 @@ if [[ ! -f $filepath ]]; then
   exit 1
 fi
 
-./plotFakeRates.py --preliminary -l $lumi -a $analysis $filepath
+./plotFakeRates.py --preliminary -a $analysis $filepath
