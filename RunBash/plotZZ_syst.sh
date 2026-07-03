@@ -5,8 +5,9 @@ if [[ $# -lt 1 ]]; then
   exit 1
 fi
 
-analysis="ZZ4l$1"
-filename="SystHists-ZZ4l$1.root"
+year=$1
+analysis="ZZ4l$year"
+filename="SystHists-ZZ4l$year.root"
 filepath="$CMSSW_BASE/src/Analysis/VVAnalysis/HistFiles/$filename"
 [[ ! -z $2 ]] && filepath=$2
 if [[ ! -f $filepath ]]; then
@@ -20,7 +21,7 @@ systematics="CMS_eff_e,CMS_eff_m,CMS_pileup"
 channels="eeee eemm mmee mmmm"
 dir="output"
 
-opts="-s $analysis/$selection -y $1 --hist_file $filepath --preliminary --scaleymax 1.2 -S $systematics"
+opts="-s $analysis/$selection -y $year --hist_file $filepath --preliminary --scaleymax 1.2 -S $systematics"
 
 for var in $variables; do
   echo ${var}
