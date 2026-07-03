@@ -209,6 +209,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-l", "--luminosity", type=float, help="Luminosity in fb-1.")
     parser.add_argument("-a", "--analysis", required=True, help="name of analysis (e.g. ZZ4l2022)")
+    parser.add_argument("-y", "--year", type=str, help="year for analysis")
     parser.add_argument("--thesis", action="store_true", help="Write 'Thesis' in CMS style text")
     parser.add_argument("--preliminary", action="store_true", help="Write 'Preliminary' in CMS style text")
     parser.add_argument("--simulation", action="store_true", help="Write 'Simulation' in CMS style text")
@@ -218,7 +219,7 @@ def main():
     parser.add_argument("infile", help="input fake rate histogram file")
     args = parser.parse_args()
 
-    if args.luminosity is not None and args.year is not None:
+    if args.luminosity is None and args.year is not None:
         args.luminosity = ConfigureJobs.getLuminosity(args.year)
 
     lumi_text = []
