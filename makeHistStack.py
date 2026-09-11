@@ -78,7 +78,7 @@ def writeMCLogInfo(hist_info, branch_name, latex):
                 wevents,
                 round(entry["error"], 2),
                 round(entry["stat error"], 2),
-                int(round(entry["raw_events"])),
+                round(entry["raw_events"]),
             ]
         )
         weighted_events += entry["weighted_events"]
@@ -178,12 +178,11 @@ def getStacked(
         # raw_events unrealiable for eemm and mmee hist, since by design there are weights set to zero but still filled
         raw_events = hist.GetEntries()
         correctOffHiggs = True
-        if correctOffHiggs:
-            if "ggZZ" in plot_set and "Mass" in branch_name:  # correct for off-shell higgs interference
-                hist.Sumw2()
-                offshellbin = hist.GetNbinsX()
-                hist.SetBinContent(offshellbin, 0.9 * hist.GetBinContent(offshellbin))
-                hist.SetBinError(offshellbin, 0.9 * hist.GetBinError(offshellbin))
+        if correctOffHiggs and "ggZZ" in plot_set and "Mass" in branch_name:  # correct for off-shell higgs interference
+            hist.Sumw2()
+            offshellbin = hist.GetNbinsX()
+            hist.SetBinContent(offshellbin, 0.9 * hist.GetBinContent(offshellbin))
+            hist.SetBinError(offshellbin, 0.9 * hist.GetBinError(offshellbin))
         hist_stack.Add(hist)
 
         hist.Sumw2()
@@ -434,7 +433,7 @@ def main():
         if not hist_stacks:
             continue
         name = branch.replace("+", "_")
-        plot_name = name if args.append_to_name == "" else "_".join([name, args.append_to_name])
+        plot_name = name if args.append_to_name == "" else f"{name}_{args.append_to_name}"
 
         # embed()
         # pdb.set_trace()
