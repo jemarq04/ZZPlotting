@@ -5,6 +5,7 @@ extend-exclude = [
   "SFPUtest",
 ]
 line-length = 120
+show-fixes = true
 
 [lint]
 select = ["E4", "E7", "E9", "F"]
