@@ -168,7 +168,8 @@ def getListOfFiles(file_set):
                 filelist.append("VVV")
                 filelist.append("nonprompt")
             else:
-                filelist.append("nonprompt")
+                if "gen" not in fileset_nc:
+                    filelist.append("nonprompt")
                 filelist.append("qqZZjj-ewk")
                 filelist.append("HZZ-signal")
                 filelist.append("VVV")

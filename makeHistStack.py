@@ -55,6 +55,7 @@ def getComLineArgs():
         action="store_true",
         help="if provided, the histograms will be plotted individuallyin a scatter plot instead of in a stacked plot",
     )
+    parser.add_argument("--gen", action="store_true", help="Use generator variables and channels")
     return parser.parse_args()
 
 
@@ -294,6 +295,11 @@ def main():
     if args.luminosity == -1 and args.year is not None:
         args.luminosity = ConfigureJobs.getLuminosity(args.year)
 
+    data_channels = args.channels
+    if args.gen:
+        args.branches = ",".join(f"Gen{branch}" for branch in args.branches.split(","))
+        args.channels = ",".join(f"{chan}Gen" for chan in args.channels.split(","))
+
     if args.rebin is None:
         with open("varsFile.json") as var_json_file:
             myvar_dict = json.load(var_json_file)
@@ -376,8 +382,8 @@ def main():
                         config_factory,
                         "data_all",
                         args.selection,
-                        branch_name,
-                        args.channels,
+                        branch_name.replace("Gen", ""),
+                        data_channels,
                         1,
                         not args.no_overflow,
                         args.rebin,
@@ -389,8 +395,8 @@ def main():
                         config_factory,
                         "data_all",
                         args.selection,
-                        branch_name,
-                        args.channels,
+                        branch_name.replace("Gen", ""),
+                        data_channels,
                         addOverflow=(not args.no_overflow),
                         rebin=args.rebin,
                         unweighted=args.unweighted,
