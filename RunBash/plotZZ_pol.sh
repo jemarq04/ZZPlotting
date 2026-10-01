@@ -16,6 +16,7 @@ fi
 
 selection="ZZSelectionsTightLeps"
 variables="Mass CosTheta1 CosTheta2 CosThetaStar RapidityDiff dPhiOSll"
+controlvariables="CosTheta1 CosTheta2"
 channels="eeee eemm mmee mmmm"
 dochannels=true
 dir="output_polvars"
@@ -30,7 +31,7 @@ for var in $variables; do
   moreopts="-f ${filelist}_pol -b ${var} --signal_files ppZ0Z04l,ppZ0ZT4l,ppZTZT4l"
   [[ $var = "Mass" ]] && moreopts="$moreopts --rebin 100.0,200.0,250.0,300.0,350.0,400.0,500.0,600.0,800.0,1000.0"
   [[ $var =~ ^Z[12]?Mass$ ]] && moreopts="$moreopts --legend_left"
-  [[ $var =~ ^CosTheta[12]$ || $var = dPhiOSll ]] && moreopts="$moreopts --scaleymax 2.0"
+  [[ $var =~ ^CosTheta[12] || $var = dPhiOSll ]] && moreopts="$moreopts --scaleymax 2.0"
 
   echo "All Channels"
   ./makeHistStack.py $opts $moreopts --folder_name ${dir}
@@ -45,4 +46,29 @@ for var in $variables; do
       ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee
     fi
   fi
+done
+
+for var in $controlvariables; do
+  for fakes in PPPF PPFF; do
+    echo ${var}_${fakes}
+    [[ $fakes = PPPF ]] && extratext="3P1F Region" || extratext="2P2F Region"
+
+    moreopts="-f ${filelist}_nonprompt -b ${var}_${fakes}"
+    [[ $var =~ Z[12]?Mass ]] && moreopts="$moreopts --legend_left"
+    [[ $var =~ (Lep|Mu|Ele)(Eta|Phi)$ ]] && moreopts="$moreopts --scaleymax 2.1"
+    [[ $var =~ ^CosTheta[12]$ || $var = dPhiOSll ]] && moreopts="$moreopts --scaleymax 2.0"
+
+    echo "All Channels"
+    ./makeHistStack.py $opts $moreopts --folder_name ${dir} --extra_text "${extratext}"
+    if $dochannels; then
+      for ch in $channels; do
+        echo "Plotting $ch channel"
+        ./makeHistStack.py $opts $moreopts --folder_name ${dir}/$ch -c $ch --extra_text "${extratext}"
+      done
+      if [[ $channels = *eemm* ]] && [[ $channels = *mmee* ]]; then
+        echo "Plotting 2e2mu channel"
+        ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee --extra_text "${extratext}"
+      fi
+    fi
+  done
 done
