@@ -1,30 +1,44 @@
 #!/bin/bash
 
-if [[ $# -lt 1 ]]; then
-  echo "usage: $0 YEAR [INFILE]"
-  exit 1
-fi
+source Utilities/BashArgParse.sh
+#@opt -h/--help
+#@optdesc Print help and exit
+#@opt -i/--infile FILE
+#@optdesc Path for histograms file with gen info (default: $CMSSW_BASE/src/Analysis/VVAnalysis/HistFiles/Hists-ZZ4l$year.root)
+#@opt -o/--outdir DIRNAME
+#@optdesc Name of output directory for plots (default: output_polvars/)
+#@opt -c/--channels "CHANNEL [CHANNEL ...]"
+#@optdesc Whitespace-separated channels for plotting
+#@opt -t/--total-only
+#@optdesc Only plot channel-inclusive plots
+#@opt --variables "VAR [VAR ...]"
+#@optdesc Variables to plot (default: Mass, LepPt, LepEta)
+#@opt --controlvariables "VAR [VAR ...]"
+#@optdesc Variables to plot in the control regions (both PPPF and PPFF)
+#@arg year
+#@argdesc The year for the analysis
 
-analysis="ZZ4l$1"
-filename="Hists-ZZ4l$1.root"
-filepath="$CMSSW_BASE/src/Analysis/VVAnalysis/HistFiles/$filename"
-[[ ! -z $2 ]] && filepath=$2
-if [[ ! -f $filepath ]]; then
-  echo invalid file: $filepath
-  exit 1
-fi
-
-selection="ZZSelectionsTightLeps"
+optstring="h/help*,i/infile:,o/outdir:,c/channels:,t/total-only,/variables:,/controlvariables:"
 variables="Mass CosTheta1 CosTheta2 CosThetaStar RapidityDiff dPhiOSll"
 controlvariables="CosTheta1 CosTheta2"
 channels="eeee eemm mmee mmmm"
-dochannels=true
-dir="output_polvars"
+total_only=false
+outdir="output_polvars"
+
+parse_args "$0" "$optstring" 1 "$@"
+eval set -- "$BAP_PARSED"
+
+year=$1
+analysis="ZZ4l$year"
+[[ -z $infile ]] && filepath="$CMSSW_BASE/src/Analysis/VVAnalysis/HistFiles/Hists-$analysis.root" || filepath="$infile"
+[[ ! -f $filepath ]] && die "invalid file: $filepath"
+
+selection="ZZSelectionsTightLeps"
 
 filelist="$analysis"
-opts="-s $analysis/$selection -y $1 -u stat --latex --hist_file $filepath --preliminary --scaleymax 1.2 --scaleymin 0.0 --scalelegx 1.2"
+opts="-s $analysis/$selection -y $year -u stat --latex --hist_file $filepath --preliminary --scaleymax 1.2 --scaleymin 0.0 --scalelegx 1.2"
 
-echo "Output directory: $analysis/$selection/$dir"
+echo "Output directory: $analysis/$selection/$outdir"
 for var in $variables; do
   echo ${var}
 
@@ -34,16 +48,16 @@ for var in $variables; do
   [[ $var =~ ^CosTheta[12] || $var = dPhiOSll ]] && moreopts="$moreopts --scaleymax 2.0"
 
   echo "All Channels"
-  ./makeHistStack.py $opts $moreopts --folder_name ${dir}
-  if $dochannels; then
+  ./makeHistStack.py $opts $moreopts --folder_name ${outdir}
+  if ! $total_only; then
     for ch in $channels; do
       [[ $var = dPhiOSll ]] && [[ $ch = eeee || $ch = mmmm ]] && continue
       echo "Plotting $ch channel"
-      ./makeHistStack.py $opts $moreopts --folder_name ${dir}/$ch -c $ch
+      ./makeHistStack.py $opts $moreopts --folder_name ${outdir}/$ch -c $ch
     done
     if [[ $channels = *eemm* ]] && [[ $channels = *mmee* ]]; then
       echo "Plotting 2e2mu channel"
-      ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee
+      ./makeHistStack.py $opts $moreopts --folder_name ${outdir}/2e2m -c eemm,mmee
     fi
   fi
 done
@@ -59,15 +73,15 @@ for var in $controlvariables; do
     [[ $var =~ ^CosTheta[12]$ || $var = dPhiOSll ]] && moreopts="$moreopts --scaleymax 2.0"
 
     echo "All Channels"
-    ./makeHistStack.py $opts $moreopts --folder_name ${dir} --extra_text "${extratext}"
-    if $dochannels; then
+    ./makeHistStack.py $opts $moreopts --folder_name ${outdir} --extra_text "${extratext}"
+    if ! $total_only; then
       for ch in $channels; do
         echo "Plotting $ch channel"
-        ./makeHistStack.py $opts $moreopts --folder_name ${dir}/$ch -c $ch --extra_text "${extratext}"
+        ./makeHistStack.py $opts $moreopts --folder_name ${outdir}/$ch -c $ch --extra_text "${extratext}"
       done
       if [[ $channels = *eemm* ]] && [[ $channels = *mmee* ]]; then
         echo "Plotting 2e2mu channel"
-        ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee --extra_text "${extratext}"
+        ./makeHistStack.py $opts $moreopts --folder_name ${outdir}/2e2m -c eemm,mmee --extra_text "${extratext}"
       fi
     fi
   done
