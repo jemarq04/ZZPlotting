@@ -5,9 +5,9 @@ if [[ $# -lt 1 ]]; then
   exit 1
 fi
 
-analysis="ZZ4l$1"
-filename="Hists-ZZ4l$1.root"
-filepath="$CMSSW_BASE/src/Analysis/VVAnalysis/HistFiles/$filename"
+year="$1"
+analysis="ZZ4l$year"
+filepath="$CMSSW_BASE/src/Analysis/VVAnalysis/HistFiles/Hists-$analysis.root"
 [[ ! -z $2 ]] && filepath=$2
 if [[ ! -f $filepath ]]; then
   echo invalid file: $filepath
@@ -20,12 +20,12 @@ jetvariables="nJets nJets_central MassFull Mass0jFull Mass1jFull Mass2jFull Mass
 controlvariables="Mass Z1Mass Z2Mass"
 channels="eeee eemm mmee mmmm"
 dochannels=true
-dir="output"
+outdir="output"
 
 filelist="$analysis"
-opts="-s $analysis/$selection -y $1 -u stat --latex --hist_file $filepath --preliminary --scaleymax 1.2 --scalelegx 1.2"
+opts="-s $analysis/$selection -y $year -u stat --latex --hist_file $filepath --preliminary --scaleymax 1.2 --scalelegx 1.2"
 
-echo "Output directory: $analysis/$selection/$dir"
+echo "Output directory: $analysis/$selection/$outdir"
 for var in $variables; do
   echo ${var}
 
@@ -35,15 +35,15 @@ for var in $variables; do
   [[ $var =~ ^(Lep|Mu|Ele)(Eta|Phi)$ ]] && moreopts="$moreopts --scaleymax 2.0"
 
   echo "All Channels"
-  ./makeHistStack.py $opts $moreopts --folder_name ${dir}
+  ./makeHistStack.py $opts $moreopts --folder_name ${outdir}
   if $dochannels; then
     for ch in $channels; do
       echo "Plotting $ch channel"
-      ./makeHistStack.py $opts $moreopts --folder_name ${dir}/$ch -c $ch
+      ./makeHistStack.py $opts $moreopts --folder_name ${outdir}/$ch -c $ch
     done
     if [[ $channels = *eemm* ]] && [[ $channels = *mmee* ]]; then
       echo "Plotting 2e2mu channel"
-      ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee
+      ./makeHistStack.py $opts $moreopts --folder_name ${outdir}/2e2m -c eemm,mmee
     fi
   fi
 done
@@ -54,15 +54,15 @@ for var in $jetvariables; do
   moreopts="-f jetplot -b ${var}"
 
   echo "All Channels"
-  ./makeHistStack.py $opts $moreopts --folder_name ${dir}
+  ./makeHistStack.py $opts $moreopts --folder_name ${outdir}
   if $dochannels; then
     for ch in $channels; do
       echo "Plotting $ch channel"
-      ./makeHistStack.py $opts $moreopts --folder_name ${dir}/$ch -c $ch
+      ./makeHistStack.py $opts $moreopts --folder_name ${outdir}/$ch -c $ch
     done
     if [[ $channels = *eemm* ]] && [[ $channels = *mmee* ]]; then
       echo "Plotting 2e2mu channel"
-      ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee
+      ./makeHistStack.py $opts $moreopts --folder_name ${outdir}/2e2m -c eemm,mmee
     fi
   fi
 done
@@ -77,15 +77,15 @@ for var in $controlvariables; do
     [[ $var =~ (Lep|Mu|Ele)(Eta|Phi)$ ]] && moreopts="$moreopts --scaleymax 2.1"
 
     echo "All Channels"
-    ./makeHistStack.py $opts $moreopts --folder_name ${dir} --extra_text "${extratext}"
+    ./makeHistStack.py $opts $moreopts --folder_name ${outdir} --extra_text "${extratext}"
     if $dochannels; then
       for ch in $channels; do
         echo "Plotting $ch channel"
-        ./makeHistStack.py $opts $moreopts --folder_name ${dir}/$ch -c $ch --extra_text "${extratext}"
+        ./makeHistStack.py $opts $moreopts --folder_name ${outdir}/$ch -c $ch --extra_text "${extratext}"
       done
       if [[ $channels = *eemm* ]] && [[ $channels = *mmee* ]]; then
         echo "Plotting 2e2mu channel"
-        ./makeHistStack.py $opts $moreopts --folder_name ${dir}/2e2m -c eemm,mmee --extra_text "${extratext}"
+        ./makeHistStack.py $opts $moreopts --folder_name ${outdir}/2e2m -c eemm,mmee --extra_text "${extratext}"
       fi
     fi
   done
